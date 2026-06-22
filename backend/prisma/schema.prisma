@@ -4,7 +4,7 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -12,7 +12,100 @@ datasource db {
   provider = "postgresql"
 }
 
-model TestConnexion {
+enum Role {
+  PATIENT
+  DOCTOR
+  NURSE_ASSISTANT
+  ADMINISTRATOR
+}
+
+model User {
   id        Int      @id @default(autoincrement())
+  lastName  String   
+  firstName String  
+  email     String   @unique
+  password  String  
+  phone     String?  
+  role      Role     @default(PATIENT)
   createdAt DateTime @default(now())
+
+  // Relations d'héritage 1-to-1
+  patient       Patient?
+  administrator Administrator?
+  medicalStaff  MedicalStaff?
+}
+
+model Patient {
+  id        Int      @id @default(autoincrement())
+  age       Int
+  gender    String   
+  birthDate DateTime 
+  address   String  
+  intern    Boolean
+
+  // Clé étrangère vers User
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Administrator {
+  id        Int      @id @default(autoincrement())
+  position  String   
+
+  // Clé étrangère vers User
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Représente la classe "PersonnelMedical"
+model MedicalStaff {
+  id             Int      @id @default(autoincrement())
+  staffNumber    Int     
+
+  // Clé étrangère vers User
+  userId         Int      @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Sous-classes spécifiques (Relations 1-to-1 optionnelles)
+  doctor         Doctor?
+  nurseAssistant NurseAssistant?
+}
+
+model Doctor {
+  id             Int      @id @default(autoincrement())
+  registrationId String   // matriculeMedecin
+  photo          String?
+
+  // Clé étrangère vers MedicalStaff
+  staffId        Int      @unique
+  staff          MedicalStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  // Spécialité
+  specialtyId    Int
+  specialty      Specialty    @relation(fields: [specialtyId], references: [id])
+}
+
+model NurseAssistant {
+  id             Int      @id @default(autoincrement())
+  registrationId String   // matriculeAideSoignant
+
+  // Clé étrangère vers MedicalStaff
+  staffId        Int      @unique
+  staff          MedicalStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  //Service spécifique
+  serviceId      Int
+  service        Service      @relation(fields: [serviceId], references: [id])
+}
+
+model Specialty {
+  id             Int      @id @default(autoincrement())
+  specialtyName    String  
+  doctors       Doctor[]
+}
+
+model Service {
+  id             Int      @id @default(autoincrement())
+  serviceName    String  
+  nurses      NurseAssistant[] 
 }
