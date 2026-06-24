@@ -23,8 +23,8 @@ async function main() {
     data: { specialtyName: 'Cardiologie' },
   });
 
-  // 3. Hachage du mot de passe commun pour nos tests ("password123")
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  // 3. Hachage du mot de passe commun pour nos tests ("Password123*")
+  const hashedPassword = await bcrypt.hash('Password123*', 10);
 
   // 4. Création d'un PATIENT de test
   await prisma.user.create({
@@ -52,6 +52,7 @@ async function main() {
       firstName: 'Sarah',
       lastName: 'Connor',
       email: 'doctor@test.com',
+      phone: '+33612345678',
       password: hashedPassword,
       role: Role.DOCTOR,
       medicalStaff: {
