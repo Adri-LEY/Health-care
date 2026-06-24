@@ -4,27 +4,27 @@ import Button from '../components/Button';
 import styles from './Login.module.css';
 
 export default function Login() {
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
+  const [identifier, setIdentifier] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
-    const [error, setError] = React.useState('');
+  const [error, setError] = React.useState('');
 
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault(); // Annule l'envoi HTTP synchrone natif (qui rechargerait la page)
-        
-        // Log de contrôle pour vérifier que les états contiennent les bonnes chaînes
-        console.log('Soumission du formulaire lancée.');
-        console.log('Payload informatique -> Email:', email, '| Password:', password);
-        
-        // C'est ici qu'on placera notre appel fetch() vers NestJS à l'étape d'après
+
+      const normalizedIdentifier = identifier.trim();
+      const payload = normalizedIdentifier.includes('@')
+        ? { email: normalizedIdentifier.toLowerCase(), password }
+        : { phone: normalizedIdentifier, password };
+
         try {
             const response = await fetch('http://localhost:3000/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email, password })
+          body: JSON.stringify(payload)
             });
 
             const data = await response.json();
@@ -57,11 +57,11 @@ export default function Login() {
         
         <form className={styles.form} onSubmit={handleSubmit}>
           <InputField
-            label="Email"
-            type="email"
-            value={email}
+            label="Email ou téléphone"
+            type="text"
+            value={identifier}
             required={true}
-            onChange={setEmail}
+            onChange={setIdentifier}
           />
 
           <InputField

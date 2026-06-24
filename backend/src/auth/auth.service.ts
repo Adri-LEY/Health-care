@@ -15,15 +15,26 @@ export class AuthService {
 
     /**
    * Valide les identifiants de l'utilisateur
-   * @param loginDto Données de connexion (email et password)
+     * @param loginDto Données de connexion (email ou téléphone et password)
    * @returns Un objet contenant les informations de l'utilisateur si la validation réussit
-   * @throws UnauthorizedException (HTTP 401) si l'email ou le mot de passe est incorrect
+     * @throws UnauthorizedException (HTTP 401) si l'identifiant ou le mot de passe est incorrect
    */
   async login(loginDto: LoginDto) {
-    const { email, password } = loginDto;
+      const email = loginDto.email?.trim().toLowerCase();
+      const phone = loginDto.phone?.trim();
+      const { password } = loginDto;
 
-    const user = await this.prisma.user.findUnique({
-      where: { email },
+      if (!email && !phone) {
+        throw new UnauthorizedException('Veuillez fournir un email ou un numéro de téléphone');
+      }
+
+      const user = await this.prisma.user.findFirst({
+        where: {
+          OR: [
+            ...(email ? [{ email }] : []),
+            ...(phone ? [{ phone }] : []),
+          ],
+        },
     });
 
     if (!user) throw new UnauthorizedException('Identifiants invalides');
@@ -45,6 +56,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        phone: user.phone,
         role: user.role,
       },
     };

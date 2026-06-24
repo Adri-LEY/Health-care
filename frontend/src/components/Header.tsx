@@ -1,7 +1,38 @@
 import styles from './Header.module.css';
 
+type TokenPayload = {
+  role?: string;
+};
+
+function getSpaceLabel(token: string | null) {
+  if (!token) return '';
+
+  try {
+    const payloadBase64 = token.split('.')[1];
+    const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+    const payload = JSON.parse(payloadJson) as TokenPayload;
+
+    switch (payload.role) {
+      case 'PATIENT':
+        return 'Espace patient';
+      case 'DOCTOR':
+        return 'Espace médecin';
+      case 'NURSE_ASSISTANT':
+        return 'Espace aide-soignant';
+      case 'ADMINISTRATOR':
+        return 'Espace administrateur';
+      default:
+        return 'Espace utilisateur';
+    }
+  } catch {
+    return 'Espace utilisateur';
+  }
+}
+
 export default function Header() {
-  const isConnected = Boolean(localStorage.getItem('token'));
+  const token = localStorage.getItem('token');
+  const isConnected = Boolean(token);
+  const spaceLabel = getSpaceLabel(token);
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // On supprime le jeton de sécurité
@@ -15,6 +46,7 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <h3 className={styles.brand}>HealthManager</h3>
+      {isConnected && <div className={styles.spaceLabel}>{spaceLabel}</div>}
       <button
         className={`${styles.actionButton} ${!isConnected ? styles.loginButton : ''}`}
         onClick={isConnected ? handleLogout : handleLogin}
