@@ -1,9 +1,8 @@
 import styles from './InputField.module.css';
 
-// On définit la liste des propriétés que notre brique peut recevoir
 interface InputFieldProps {
   label: string;
-  type: 'email' | 'password' | 'text' | 'tel'; // On limite le type aux options utiles ici
+  type: 'email' | 'password' | 'text' | 'tel'; 
   value: string;
   subtext?: string; // On peut ajouter un texte d'aide facultatif
   required?: boolean; // On peut rendre le champ obligatoire ou non

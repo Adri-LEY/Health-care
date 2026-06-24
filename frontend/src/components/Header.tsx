@@ -35,7 +35,7 @@ export default function Header() {
   const spaceLabel = getSpaceLabel(token);
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // On supprime le jeton de sécurité
+    localStorage.removeItem('token'); 
     window.location.href = '/';       // Retour à la case départ (connexion)
   };
 
