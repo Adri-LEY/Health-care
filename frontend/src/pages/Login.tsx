@@ -9,6 +9,8 @@ export default function Login() {
 
   const [error, setError] = React.useState('');
 
+  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:5000';
+
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault(); // Annule l'envoi HTTP synchrone natif (qui rechargerait la page)
@@ -19,7 +21,7 @@ export default function Login() {
         : { phone: normalizedIdentifier, password };
 
         try {
-            const response = await fetch('http://localhost:3000/auth/login', {
+          const response = await fetch(`${apiUrl}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
