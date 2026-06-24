@@ -52,6 +52,7 @@ async function main() {
       firstName: 'Sarah',
       lastName: 'Connor',
       email: 'doctor@test.com',
+      phone: '+33612345678',
       password: hashedPassword,
       role: Role.DOCTOR,
       medicalStaff: {

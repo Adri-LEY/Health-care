@@ -1,0 +1,41 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 28px;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.brand {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.actionButton {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.actionButton:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.loginButton {
+  background: #2563eb;
+}
+
+.loginButton:hover {
+  background: #1d4ed8;
+}
