@@ -7,8 +7,8 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
 
-  constructor(private readonly prisma: PrismaService) {}
-  
+  constructor(private readonly prisma: PrismaService) { }
+
   async getProfile(userId: string) {
     const id = Number(userId);
 
@@ -34,6 +34,21 @@ export class UsersService {
       throw new NotFoundException("Utilisateur introuvable");
     }
 
+    let specialty: any = null;
+    if (user.medicalStaff?.doctor?.specialtyId) {
+      specialty = await this.prisma.specialty.findUnique({
+        where: { id: user.medicalStaff.doctor.specialtyId },
+      });
+    }
+
+    let service: any = null;
+    if (user.medicalStaff?.nurseAssistant?.serviceId) {
+      service = await this.prisma.service.findUnique({
+        where: { id: user.medicalStaff.nurseAssistant.serviceId },
+      });
+    }
+
+    // 2. On construit le payload proprement
     const payload = {
       id: user.id,
       lastName: user.lastName,
@@ -43,7 +58,10 @@ export class UsersService {
       role: user.role,
       createdAt: user.createdAt,
       userDetails: user.patient || user.administrator || user.medicalStaff,
+      specialty: specialty, // Sera null si non applicable
+      service: service, // Sera null si non applicable
     };
+
     return payload;
   }
 
@@ -82,11 +100,25 @@ export class UsersService {
       },
     });
 
-    if(user.role === 'PATIENT' && updateProfileDto.adress) {
+    let specialty: any = null;
+    if (updatedUser.medicalStaff?.doctor?.specialtyId) {
+      specialty = await this.prisma.specialty.findUnique({
+        where: { id: updatedUser.medicalStaff.doctor.specialtyId },
+      });
+    }
+
+    let service: any = null;
+    if (updatedUser.medicalStaff?.nurseAssistant?.serviceId) {
+      service = await this.prisma.service.findUnique({
+        where: { id: updatedUser.medicalStaff.nurseAssistant.serviceId },
+      });
+    }
+
+    if (user.role === 'PATIENT' && updateProfileDto.address) {
       await this.prisma.patient.update({
         where: { userId: id },
         data: {
-          address: updateProfileDto.adress,
+          address: updateProfileDto.address,
         },
       });
     }
@@ -100,9 +132,11 @@ export class UsersService {
       role: updatedUser.role,
       createdAt: updatedUser.createdAt,
       userDetails: updatedUser.patient || updatedUser.administrator || updatedUser.medicalStaff,
+      specialty: specialty,
+      service: service,
     };
     return payload;
-  
+
   }
 
 
@@ -121,7 +155,7 @@ export class UsersService {
       throw new NotFoundException("Utilisateur introuvable");
     }
 
-    if(!bcrypt.compareSync(updatePasswordDto.currentPassword, user.password)) {
+    if (!bcrypt.compareSync(updatePasswordDto.currentPassword, user.password)) {
       throw new NotFoundException("Le mot de passe actuel est incorrect");
     }
 

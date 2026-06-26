@@ -1,3 +1,4 @@
+import DropdownMenu from './DropdownMenu';
 import styles from './Header.module.css';
 
 type TokenPayload = {
@@ -39,6 +40,10 @@ export default function Header() {
     window.location.href = '/';       // Retour à la case départ (connexion)
   };
 
+  const handleProfileClick = () => {
+    window.location.href = '/profile'; // Redirection vers la page de profil
+  }
+
   const handleLogin = () => {
     window.location.href = '/';
   };
@@ -47,12 +52,33 @@ export default function Header() {
     <header className={styles.header}>
       <h3 className={styles.brand}>HealthManager</h3>
       {isConnected && <div className={styles.spaceLabel}>{spaceLabel}</div>}
-      <button
-        className={`${styles.actionButton} ${!isConnected ? styles.loginButton : ''}`}
-        onClick={isConnected ? handleLogout : handleLogin}
-      >
-        {isConnected ? 'Déconnexion' : 'Se connecter'}
-      </button>
+      {isConnected && (
+        <DropdownMenu
+          triggerLabel="Mon compte"
+          items={[
+            {
+              label: "Profil",
+              onClick: () => {
+                handleProfileClick();
+              }
+            },
+            {
+              label: "Se déconnecter",
+              onClick: () => {
+                handleLogout();
+              }
+            }
+          ]}
+        />
+      )}
+      {!isConnected && (
+        <button
+          className={`${styles.actionButton} ${!isConnected ? styles.loginButton : ''}`}
+          onClick={handleLogin}
+        >
+          Se connecter
+        </button>
+      )}
     </header>
   );
 }

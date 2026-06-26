@@ -22,5 +22,5 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString({ message: 'L\'adresse doit être une chaîne de caractères.' })
-  adress?: string;
+  address?: string;
 }
