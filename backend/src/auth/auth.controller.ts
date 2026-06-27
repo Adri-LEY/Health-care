@@ -1,6 +1,10 @@
-import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, UseGuards, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { JwtGuard } from './jwt.guard';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
+
 
 @Controller('auth')
 export class AuthController {
@@ -12,5 +16,25 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     
     return this.authService.login(loginDto);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    await this.authService.forgotPassword(forgotPasswordDto);
+
+    return { 
+      message: 'Si cette adresse email correspond à un compte, un lien de réinitialisation a été généré.' 
+    };
+  }
+
+  @Put('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    await this.authService.resetPassword5(resetPasswordDto);
+
+    return {
+      message: 'Le mot de passe a été réinitialisé avec succès.'
+    };
   }
 }

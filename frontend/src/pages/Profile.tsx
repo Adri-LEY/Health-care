@@ -81,7 +81,7 @@ export default function Profile() {
             const token = localStorage.getItem('token');
 
             const response = await fetch(`${apiUrl}/users/update-profile`, {
-                method: 'POST',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -128,7 +128,7 @@ export default function Profile() {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(`${apiUrl}/users/update-password`, {
-                method: 'POST',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
