@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer';
+
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
@@ -11,7 +13,8 @@ export class AuthService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService
   ) { }
 
 
@@ -89,10 +92,29 @@ export class AuthService {
     );
 
     const baseURL = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const resetLink = `${baseURL}/reset-password?token=${token}`;
+    const resetUrl = `${baseURL}/reset-password?token=${token}`;
 
-    // On simule l'envoi de l'email en affichant le lien de réinitialisation dans la console
-    console.log(`Lien de réinitialisation du mot de passe pour ${email}: ${resetLink}`);
+    try{
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: 'Réinitialisation de votre mot de passe',
+        html:`
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Bonjour,</h2>
+            <p>Vous avez demandé la réinitialisation de votre mot de passe pour votre compte HealthManager.</p>
+            <p>Veuillez cliquer sur le bouton ci-dessous pour définir un nouveau mot de passe (valable 5 minutes) :</p>
+            <p style="margin: 30px 0;">
+              <a href="${resetUrl}" style="background-color: #3182ce; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Réinitialiser mon mot de passe
+              </a>
+            </p>
+            <p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.</p>
+          </div>
+        `
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email de réinitialisation:', error);
+    }
 
   }
 
