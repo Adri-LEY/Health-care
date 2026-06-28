@@ -3,6 +3,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Header from './components/Header';
 import Profile from './pages/Profile';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 
 function AppContent() {
@@ -11,13 +13,15 @@ function AppContent() {
       <Header />
       
       <Routes>
-        {/* Route 1 : La racine du site affiche la page de Connexion */}
         <Route path="/" element={<Login />} />
         
-        {/* Route 2 : L'URL /dashboard affichera l'espace utilisateur */}
         <Route path="/dashboard" element={<Dashboard />} />
 
         <Route path="/profile" element={<Profile />} />
+
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </>
   );

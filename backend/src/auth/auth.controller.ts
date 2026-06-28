@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, UseGuards, Put } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, UseGuards, Put, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtGuard } from './jwt.guard';
@@ -31,7 +31,7 @@ export class AuthController {
   @Put('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    await this.authService.resetPassword5(resetPasswordDto);
+    await this.authService.resetPassword(resetPasswordDto);
 
     return {
       message: 'Le mot de passe a été réinitialisé avec succès.'

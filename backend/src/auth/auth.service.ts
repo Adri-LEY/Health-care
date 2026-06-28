@@ -78,7 +78,7 @@ export class AuthService {
       return;
     }
 
-    const payload = { sub: user.id, email: user.email, type: 'forgot-password' };
+    const payload = { sub: user.id, email: user.email, hashedPassword: user.password, type: 'forgot-password' };
 
     const token = await this.jwtService.signAsync(
       payload,
@@ -97,7 +97,7 @@ export class AuthService {
   }
 
 
-  async resetPassword5(ResetPasswordDto: ResetPasswordDto) {
+  async resetPassword(ResetPasswordDto: ResetPasswordDto) {
     try {
       console.log('Token reçu pour la réinitialisation du mot de passe:', ResetPasswordDto.token);
       const payload = await this.jwtService.verifyAsync(ResetPasswordDto.token, {
@@ -117,15 +117,24 @@ export class AuthService {
         throw new BadRequestException('Utilisateur introuvable');
       }
 
+      if(user.password !== payload.hashedPassword) {
+        throw new BadRequestException({
+          statusCode: 400,
+          message: 'Le lien est invalide ou a déjà été utilisé. Veuillez demander un nouveau lien de réinitialisation.',
+        });
+      }
+
       const hashedPassword = await bcrypt.hash(ResetPasswordDto.newPassword, 10);
 
       await this.prisma.user.update({
         where: { id: user.id },
         data: { password: hashedPassword },
       });
-
     } catch (error) {
-      throw new UnauthorizedException('Token invalide');
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      else throw new UnauthorizedException('Token invalide');
     }
   }
 }

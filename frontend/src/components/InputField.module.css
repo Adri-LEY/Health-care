@@ -1,7 +1,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px; /* Optionnel : pour espacer tes champs */
+  margin-top: 16px; /* Optionnel : pour espacer tes champs */
 }
 
 /* 🚀 C'est ce wrapper qui sert de référentiel pour le positionnement absolu */
