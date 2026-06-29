@@ -9,6 +9,12 @@ export class UsersService {
 
   constructor(private readonly prisma: PrismaService) { }
 
+  /**
+   * Récupère les informations du profil de l'utilisateur à partir de son ID.
+   * @param userId L'ID de l'utilisateur dont on souhaite récupérer le profil
+   * @returns Un objet contenant les informations du profil de l'utilisateur
+   * @throws NotFoundException (HTTP 404) si l'utilisateur n'est pas trouvé
+   */
   async getProfile(userId: string) {
     const id = Number(userId);
 
@@ -65,6 +71,13 @@ export class UsersService {
     return payload;
   }
 
+  /**
+   * Met à jour les informations du profil de l'utilisateur.
+   * @param updateProfileDto 
+   * @param userId 
+   * @returns Un objet contenant les informations mises à jour du profil de l'utilisateur
+   * @throws NotFoundException (HTTP 404) si l'utilisateur n'est pas trouvé
+   */
   async updateProfile(updateProfileDto: UpdateProfileDto, userId: string) {
     const id = Number(userId);
 
@@ -139,7 +152,13 @@ export class UsersService {
 
   }
 
-
+  /**
+   * Met à jour le mot de passe de l'utilisateur après avoir vérifié la validité du mot de passe actuel.
+   * @param userId 
+   * @param updatePasswordDto 
+   * @returns Un objet contenant un message de succès si le mot de passe est mis à jour avec succès
+   * @throws NotFoundException (HTTP 404) si l'utilisateur n'est pas trouvé ou si le mot de passe actuel est incorrect
+   */
   async updatePassword(userId: string, updatePasswordDto: UpdatePasswordDto) {
     const id = Number(userId);
 

@@ -7,6 +7,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import * as bcrypt from 'bcrypt';
+import { NewPatientDto } from './dto/newPatient.dto';
 
 @Injectable()
 export class AuthService {
@@ -68,7 +69,7 @@ export class AuthService {
   }
 
   /**
-   * Gère la réinitialisation du mot de passe pour un utilisateur donné
+   * Envoie un email de réinitialisation de mot de passe à l'utilisateur si l'adresse email fournie correspond à un compte existant.
    * @param email L'adresse email de l'utilisateur qui a oublié son mot de passe
    */
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
@@ -119,6 +120,12 @@ export class AuthService {
   }
 
 
+  /**
+   * Réinitialise le mot de passe de l'utilisateur en utilisant le token de réinitialisation.
+   * @param resetPasswordDto Données contenant le token et le nouveau mot de passe
+   * @throws BadRequestException (HTTP 400) si le token est invalide ou expiré, ou si l'utilisateur n'est pas trouvé
+   * @throws UnauthorizedException (HTTP 401) si le token est invalide
+   */
   async resetPassword(ResetPasswordDto: ResetPasswordDto) {
     try {
       console.log('Token reçu pour la réinitialisation du mot de passe:', ResetPasswordDto.token);
@@ -156,7 +163,44 @@ export class AuthService {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      else throw new UnauthorizedException('Token invalide');
+      else throw new BadRequestException({
+        statusCode: 400,
+        message: 'Le lien est invalide ou a expiré. Veuillez demander un nouveau lien de réinitialisation.',
+      });
     }
+  }
+
+
+  /**
+   * Crée un nouveau compte pour un nouveau patient.
+   * @param newPatientDto 
+   */
+  async createNewAccount(newPatientDto: NewPatientDto) {
+    const age = Math.floor((new Date().getTime() - new Date(newPatientDto.birthDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+
+
+    await this.prisma.user.create({
+      data: {
+        firstName: newPatientDto.firstName,
+        lastName: newPatientDto.lastName,
+        email: newPatientDto.email,
+        password: await bcrypt.hash(newPatientDto.password, 10),
+        phone: newPatientDto.telephone,
+        role: 'PATIENT',
+        patient: {
+          create: {
+            age: age,
+            gender: newPatientDto.gender,
+            birthDate: newPatientDto.birthDate,
+            address: newPatientDto.address,
+            intern: false,
+            medicalRecord: {
+              create: {
+              }
+            }
+          }
+        }
+      }
+    });
   }
 }

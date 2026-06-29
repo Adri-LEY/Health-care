@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '../generated/prisma';
+import { PrismaClient, Role, BloodType, Imc } from '../generated/prisma';
 import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -11,12 +11,16 @@ const adapter = new PrismaPg(pool);
 
 // 3. On donne cet adaptateur au constructeur de Prisma
 const prisma = new PrismaClient({ adapter });
+
 async function main() {
   console.log('🌱 Début du seeding...');
 
   // 1. On nettoie la base pour éviter les doublons si on re-lance le script
+  // Note : Supprimer User cascade la suppression vers Patient, mais pas vers MedicalRecord (à cause de Restrict)
+  // On vide donc d'abord les dossiers médicaux, puis les utilisateurs.
   await prisma.user.deleteMany({});
   await prisma.specialty.deleteMany({});
+  await prisma.medicalRecord.deleteMany({});
 
   // 2. On crée une spécialité pour notre médecin
   const cardiology = await prisma.specialty.create({
@@ -26,7 +30,7 @@ async function main() {
   // 3. Hachage du mot de passe commun pour nos tests ("Password123*")
   const hashedPassword = await bcrypt.hash('Password123*', 10);
 
-  // 4. Création d'un PATIENT de test
+  // 4. Création d'un PATIENT de test AVEC son dossier médical obligatoire
   await prisma.user.create({
     data: {
       firstName: 'Jean',
@@ -41,6 +45,18 @@ async function main() {
           birthDate: new Date('1991-05-12'),
           address: '123 Rue de la Paix, Paris',
           intern: false,
+          // Création imbriquée du dossier médical obligatoire
+          medicalRecord: {
+            create: {
+              poids: 75.5,
+              taille: 1.80,
+              bloodType: BloodType.A,
+              imc: Imc.NORMAL_WEIGHT,
+              medical_history: 'Aucun antécédent majeur.',
+              family_history: 'Hypertension côté paternel.',
+              allergies: 'Pénicilline',
+            },
+          },
         },
       },
     },
@@ -79,4 +95,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-});
+  });
