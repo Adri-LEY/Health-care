@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Header from './components/Header';
+import Profile from './pages/Profile';
 
 
 function AppContent() {
@@ -15,6 +16,8 @@ function AppContent() {
         
         {/* Route 2 : L'URL /dashboard affichera l'espace utilisateur */}
         <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );
