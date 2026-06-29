@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import SignUp from './pages/SignUp';
 
 
 function AppContent() {
@@ -14,6 +15,8 @@ function AppContent() {
       
       <Routes>
         <Route path="/" element={<Login />} />
+
+        <Route path="login/" element={<Login />} />
         
         <Route path="/dashboard" element={<Dashboard />} />
 
@@ -22,6 +25,8 @@ function AppContent() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         <Route path="/reset-password" element={<ResetPassword />} />
+
+        <Route path="/signup" element={<SignUp />} />
       </Routes>
     </>
   );

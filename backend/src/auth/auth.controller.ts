@@ -4,6 +4,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtGuard } from './jwt.guard';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
+import { NewPatientDto } from './dto/newPatient.dto';
 
 
 @Controller('auth')
@@ -36,5 +37,12 @@ export class AuthController {
     return {
       message: 'Le mot de passe a été réinitialisé avec succès.'
     };
+  }
+
+
+  @Post('signup')
+  @HttpCode(HttpStatus.CREATED)
+  async createNewAccount(@Body() newPatientDto: NewPatientDto) {
+    return await this.authService.createNewAccount(newPatientDto);
   }
 }

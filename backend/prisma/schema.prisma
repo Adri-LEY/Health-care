@@ -19,6 +19,23 @@ enum Role {
   ADMINISTRATOR
 }
 
+enum BloodType {
+  O 
+  A 
+  B 
+  AB
+}
+
+enum Imc {
+  UNDERWEIGHT
+  NORMAL_WEIGHT
+  OVERWEIGHT
+  OBESITY
+  CLASS_1_OBESITY
+  CLASS_2_OBESITY
+  CLASS_3_OBESITY
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   lastName  String   
@@ -46,6 +63,10 @@ model Patient {
   // Clé étrangère vers User
   userId    Int      @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Clé étrangère vers le dossier médical
+  medicalRecordId Int           @unique
+  medicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Restrict)
 }
 
 model Administrator {
@@ -108,4 +129,18 @@ model Service {
   id             Int      @id @default(autoincrement())
   serviceName    String  
   nurses      NurseAssistant[] 
+}
+
+
+model MedicalRecord {
+  id              Int      @id @default(autoincrement())
+  poids           Float?
+  taille          Float? 
+  bloodType       BloodType? 
+  imc             Imc?  
+  medical_history String?
+  family_history  String?
+  allergies       String?
+
+  patient         Patient?
 }

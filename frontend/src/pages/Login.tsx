@@ -84,6 +84,10 @@ export default function Login() {
             </div>
           )}
 
+          <a href="/signup" className={styles.signupLink}>
+            Pas encore de compte ? Créez-en un
+          </a>
+
           <SubmitButton>Se connecter</SubmitButton>
         </form>
       </section>

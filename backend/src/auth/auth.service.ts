@@ -7,6 +7,9 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import * as bcrypt from 'bcrypt';
+import { NewPatientDto } from './dto/newPatient.dto';
+import { PrismaClient } from '@prisma/client/extension';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class AuthService {
@@ -68,7 +71,7 @@ export class AuthService {
   }
 
   /**
-   * Gère la réinitialisation du mot de passe pour un utilisateur donné
+   * Envoie un email de réinitialisation de mot de passe à l'utilisateur si l'adresse email fournie correspond à un compte existant.
    * @param email L'adresse email de l'utilisateur qui a oublié son mot de passe
    */
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
@@ -94,11 +97,11 @@ export class AuthService {
     const baseURL = process.env.FRONTEND_URL || 'http://localhost:5173';
     const resetUrl = `${baseURL}/reset-password?token=${token}`;
 
-    try{
+    try {
       await this.mailerService.sendMail({
         to: user.email,
         subject: 'Réinitialisation de votre mot de passe',
-        html:`
+        html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Bonjour,</h2>
             <p>Vous avez demandé la réinitialisation de votre mot de passe pour votre compte HealthManager.</p>
@@ -119,6 +122,12 @@ export class AuthService {
   }
 
 
+  /**
+   * Réinitialise le mot de passe de l'utilisateur en utilisant le token de réinitialisation.
+   * @param resetPasswordDto Données contenant le token et le nouveau mot de passe
+   * @throws BadRequestException (HTTP 400) si le token est invalide ou expiré, ou si l'utilisateur n'est pas trouvé
+   * @throws UnauthorizedException (HTTP 401) si le token est invalide
+   */
   async resetPassword(ResetPasswordDto: ResetPasswordDto) {
     try {
       console.log('Token reçu pour la réinitialisation du mot de passe:', ResetPasswordDto.token);
@@ -139,7 +148,7 @@ export class AuthService {
         throw new BadRequestException('Utilisateur introuvable');
       }
 
-      if(user.password !== payload.hashedPassword) {
+      if (user.password !== payload.hashedPassword) {
         throw new BadRequestException({
           statusCode: 400,
           message: 'Le lien est invalide ou a déjà été utilisé. Veuillez demander un nouveau lien de réinitialisation.',
@@ -156,7 +165,83 @@ export class AuthService {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      else throw new UnauthorizedException('Token invalide');
+      else throw new BadRequestException({
+        statusCode: 400,
+        message: 'Le lien est invalide ou a expiré. Veuillez demander un nouveau lien de réinitialisation.',
+      });
+    }
+  }
+
+
+  /**
+   * Crée un nouveau compte pour un nouveau patient.
+   * @param newPatientDto 
+   * @returns Un objet contenant le token d'accès et les informations de l'utilisateur nouvellement créé
+   * @throws BadRequestException (HTTP 400) si l'email ou le numéro de téléphone est déjà utilisé, ou si une erreur survient lors de la création du compte
+   */
+  async createNewAccount(newPatientDto: NewPatientDto) {
+    const age = Math.floor((new Date().getTime() - new Date(newPatientDto.birthDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+
+    try {
+      console.log('Création d\'un nouveau compte pour:', newPatientDto.email);
+
+      const user = await this.prisma.user.create({
+        data: {
+          firstName: newPatientDto.firstName,
+          lastName: newPatientDto.lastName,
+          email: newPatientDto.email,
+          password: await bcrypt.hash(newPatientDto.password, 10),
+          phone: newPatientDto.phone,
+          role: 'PATIENT',
+          patient: {
+            create: {
+              age: age,
+              gender: newPatientDto.gender,
+              birthDate: newPatientDto.birthDate,
+              address: newPatientDto.address,
+              intern: false,
+              medicalRecord: {
+                create: {
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (!user) {
+        throw new BadRequestException('utilisateur introuvable après la création du compte');
+      }
+
+      console.log('Compte créé avec succès pour:', user);
+
+      console.log('phone:', user.phone);
+
+      const payload = {
+        sub: user.id,
+        email: user.email,
+        role: user.role
+      };
+
+      const accessToken = await this.jwtService.signAsync(payload);
+
+      return {
+        accessToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+        },
+      };
+    }
+    catch (error) {
+
+      console.error('Erreur lors de la création du compte:', error);
+      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new BadRequestException('Un compte avec cet email ou ce numéro de téléphone existe déjà.');
+      }
+      throw new BadRequestException('Erreur lors de la création du compte');
     }
   }
 }
