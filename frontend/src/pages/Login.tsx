@@ -70,10 +70,13 @@ export default function Login() {
             label="Mot de passe"
             type="password"
             value={password}
-            subtext="Au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (!@#$%^&*)."
             required={true}
             onChange={setPassword}
           />
+
+          <a href="/forgot-password" className={styles.forgotPasswordLink}>
+            Mot de passe oublié ?
+          </a>
 
           {error && (
             <div className={styles.error}>

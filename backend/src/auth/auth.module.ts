@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -12,6 +13,22 @@ import { PrismaService } from '../prisma/prisma.service';
       signOptions: {
         expiresIn: (process.env.JWT_EXPIRATION || '1d') as any,
       },
+    }),
+
+    MailerModule.forRootAsync({
+      useFactory: () => ({
+        transport: {
+          host: process.env.MAIL_HOST,
+          port: Number(process.env.MAIL_PORT),
+          auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS,
+          },
+        },
+        defaults: {
+          from: '"HealthManager" <noreply@healthmanager.fr>',
+        },
+      }),
     }),
   ],
   controllers: [AuthController],
