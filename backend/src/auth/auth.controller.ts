@@ -40,13 +40,9 @@ export class AuthController {
   }
 
 
-  @Post('create-patient-account')
+  @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   async createNewAccount(@Body() newPatientDto: NewPatientDto) {
-    await this.authService.createNewAccount(newPatientDto);
-
-    return {
-      message: 'Compte créé avec succès. Vous pouvez maintenant vous connecter avec vos identifiants.'
-    };
+    return await this.authService.createNewAccount(newPatientDto);
   }
 }

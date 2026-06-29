@@ -24,7 +24,7 @@ export class NewPatientDto {
     @Matches(/^[0-9+\s().-]{6,20}$/, {
         message: 'Veuillez fournir un numéro de téléphone valide.',
     })
-    telephone?: string;
+    phone?: string;
 
     @IsString({ message: 'Le sexe doit être une chaîne de caractères.' })   
     @Matches(/^(M|F|Autre)$/, {
