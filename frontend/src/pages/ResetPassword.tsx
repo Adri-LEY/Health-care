@@ -8,6 +8,8 @@ export default function ResetPassword() {
     const [newPassword, setNewPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
     const [passwordResetSuccess, setPasswordResetSuccess] = React.useState(false);
+    const [error, setError] = React.useState('');
+
     const [linkExpired, setLinkExpired] = React.useState(false);
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -28,7 +30,13 @@ export default function ResetPassword() {
             });
 
             if (!response.ok) {
-                if (response.status === 400) {
+                // Cas où le mot de passe n'est pas valide 
+                if(response.status === 400) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Le mot de passe ne respecte pas les critères de sécurité.');
+                }
+
+                if (response.status === 410) {
                     setLinkExpired(true);
                     return;
                 }
@@ -44,6 +52,7 @@ export default function ResetPassword() {
 
         } catch (error) {
             console.error('Erreur lors de la réinitialisation du mot de passe :', error);
+            setError(error instanceof Error ? error.message : 'Erreur inconnue lors de la réinitialisation du mot de passe');
         }
 
 
@@ -76,6 +85,7 @@ export default function ResetPassword() {
                         <form className={styles.form} onSubmit={handleSubmit}>
                             <InputField
                                 label="Nouveau mot de passe"
+                                subtext="Le mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial."
                                 type="password"
                                 required={true}
                                 value={newPassword}
@@ -89,6 +99,11 @@ export default function ResetPassword() {
                                 value={confirmPassword}
                                 onChange={setConfirmPassword}
                             />
+                            {error && (
+                                <div className={styles.error}>
+                                    {error}
+                                </div>
+                            )}
                             <SubmitButton>Renouveler le mot de passe</SubmitButton>
                         </form>
                     </div>

@@ -134,6 +134,7 @@ export default function SignUp() {
                             <div className={styles.grid}>
                                 <InputField
                                     label="Mot de passe"
+                                    subtext="Le mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial."
                                     type="password"
                                     value={password}
                                     required={true}
@@ -205,7 +206,7 @@ export default function SignUp() {
                             <a href="/login" className={styles.loginLink}>
                                 Déjà un compte ? Connectez-vous
                             </a>
-                            
+
                             <SubmitButton>Créer un compte</SubmitButton>
                         </form>
                     </div>
