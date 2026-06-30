@@ -26,7 +26,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
           },
         },
         defaults: {
-          from: '"HealthManager" <noreply@healthmanager.fr>',
+          from: process.env.MAIL_FROM,
         },
       }),
     }),
