@@ -1,10 +1,13 @@
 import React from "react";
-import InputField from "../components/InputField";
+import { useNavigate } from "react-router-dom";
+import InputField from "../../components/InputField";
 import styles from "./SignUp.module.css";
-import SubmitButton from "../components/SubmitButton";
+import SubmitButton from "../../components/SubmitButton";
+import { ArrowLeft } from "lucide-react";
 
 
 export default function SignUp() {
+    const navigate = useNavigate();
     const [lastName, setLastName] = React.useState('');
     const [firstName, setFirstName] = React.useState('');
 
@@ -22,7 +25,7 @@ export default function SignUp() {
 
     const [error, setError] = React.useState('');
 
-    const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+    const apiUrl = import.meta.env.VITE_API_URL;
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault(); // Empêche le rechargement de la page
@@ -61,7 +64,7 @@ export default function SignUp() {
 
             localStorage.setItem('token', data.accessToken);
 
-            window.location.href = '/dashboard';
+            navigate('/dashboard');
 
         } catch (error) {
             console.error('Erreur lors de la création du compte :', error);
@@ -72,11 +75,16 @@ export default function SignUp() {
     return (
         <main className={styles.page}>
             <section className={styles.card}>
+                <button type="button" onClick={() => navigate(-1)} className={styles.backButton}>
+                    <ArrowLeft size={18} aria-hidden="true" />
+                    <span>Retour</span>
+                </button>
+
                 {signUpSuccess && (
                     <div className={styles.success}>
                         <h1 className={styles.title}>HealthManager</h1>
-                        <h2 className={styles.subtitle}> 
-                        Compte créé avec succès !
+                        <h2 className={styles.subtitle}>
+                            Compte créé avec succès !
                         </h2>
                         <p className={styles.text}>
                             Vous allez être redirigé vers le tableau de bord dans quelques instants.

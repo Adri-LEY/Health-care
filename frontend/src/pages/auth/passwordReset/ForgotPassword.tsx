@@ -1,9 +1,12 @@
 import React from 'react';
-import InputField from '../components/InputField';
-import SubmitButton from '../components/SubmitButton';
+import { useNavigate } from 'react-router-dom';
+import InputField from '../../../components/InputField';
+import SubmitButton from '../../../components/SubmitButton';
 import styles from './ForgotPassword.module.css';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ForgotPassword() {
+    const navigate = useNavigate();
     const [email, setEmail] = React.useState('');
     const [emailSent, setEmailSent] = React.useState(false);
 
@@ -11,7 +14,7 @@ export default function ForgotPassword() {
         setEmailSent(true);
 
         event.preventDefault(); // Annule l'envoi HTTP synchrone natif (qui rechargerait la page)
-        const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+        const apiUrl = import.meta.env.VITE_API_URL;
 
         try {
             const response = await fetch(`${apiUrl}/auth/forgot-password`, {
@@ -32,6 +35,10 @@ export default function ForgotPassword() {
     return (
         <main className={styles.page}>
             <section className={styles.card}>
+                <button type="button" onClick={() => navigate(-1)} className={styles.backButton}>
+                    <ArrowLeft size={18} aria-hidden="true" />
+                    <span>Retour</span>
+                </button>
 
                 {emailSent ? (
                     <div>

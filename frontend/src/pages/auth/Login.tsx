@@ -1,7 +1,8 @@
 import React from 'react';
-import InputField from '../components/InputField';
-import SubmitButton from '../components/SubmitButton';
+import InputField from '../../components/InputField';
+import SubmitButton from '../../components/SubmitButton';
 import styles from './Login.module.css';
+import {useNavigate} from 'react-router-dom';
 
 export default function Login() {
   const [identifier, setIdentifier] = React.useState('');
@@ -9,7 +10,9 @@ export default function Login() {
 
   const [error, setError] = React.useState('');
 
-  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+  const navigate = useNavigate();
+
+  const apiUrl = import.meta.env.VITE_API_URL;
 
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -38,7 +41,7 @@ export default function Login() {
             
             localStorage.setItem('token', data.accessToken);
 
-            window.location.href = '/dashboard';
+            navigate('/dashboard');
             
         } catch (err: any) {
             // --- CAS D'ÉCHEC ---

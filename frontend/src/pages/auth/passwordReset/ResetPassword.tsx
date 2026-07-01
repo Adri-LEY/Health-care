@@ -1,10 +1,11 @@
 import React from 'react';
 import styles from './ResetPassword.module.css';
-import InputField from '../components/InputField';
-import SubmitButton from '../components/SubmitButton';
-
+import InputField from '../../../components/InputField';
+import SubmitButton from '../../../components/SubmitButton';
+import { useNavigate } from 'react-router-dom';
 
 export default function ResetPassword() {
+    const navigate = useNavigate();
     const [newPassword, setNewPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
     const [passwordResetSuccess, setPasswordResetSuccess] = React.useState(false);
@@ -14,7 +15,7 @@ export default function ResetPassword() {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault(); // Empêche le rechargement de la page
-        const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+        const apiUrl = import.meta.env.VITE_API_URL;
 
         try {
             if (newPassword !== confirmPassword) {
@@ -48,7 +49,7 @@ export default function ResetPassword() {
             setPasswordResetSuccess(true);
 
             await new Promise(resolve => setTimeout(resolve, 3000));
-            window.location.href = '/';
+            navigate('/login');
 
         } catch (error) {
             console.error('Erreur lors de la réinitialisation du mot de passe :', error);
