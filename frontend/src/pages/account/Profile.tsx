@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
-import InputField from '../components/InputField';
-import SubmitButton from '../components/SubmitButton';
+import InputField from '../../components/InputField';
+import SubmitButton from '../../components/SubmitButton';
 import styles from './Profile.module.css';
+import { ArrowLeft } from 'lucide-react';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -165,7 +166,8 @@ export default function Profile() {
         <div className={styles.container}>
 
             <button type="button" onClick={() => navigate(-1)} className={styles.backButton}>
-                ← Retour
+                <ArrowLeft size={18} aria-hidden="true" />
+                <span>Retour</span>
             </button>
 
             <h1 className={styles.title}>Mon Compte</h1>

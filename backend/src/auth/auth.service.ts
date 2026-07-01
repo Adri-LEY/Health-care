@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, GoneException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -80,6 +80,7 @@ export class AuthService {
       where: { email },
     });
 
+    // Si l'utilisateur n'existe pas, on ne fait rien pour éviter de révéler l'existence d'un compte
     if (!user) {
       return;
     }
@@ -149,10 +150,7 @@ export class AuthService {
       }
 
       if (user.password !== payload.hashedPassword) {
-        throw new BadRequestException({
-          statusCode: 400,
-          message: 'Le lien est invalide ou a déjà été utilisé. Veuillez demander un nouveau lien de réinitialisation.',
-        });
+        throw new GoneException('Le lien de réinitialisation a expiré.');
       }
 
       const hashedPassword = await bcrypt.hash(ResetPasswordDto.newPassword, 10);
@@ -165,10 +163,7 @@ export class AuthService {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      else throw new BadRequestException({
-        statusCode: 400,
-        message: 'Le lien est invalide ou a expiré. Veuillez demander un nouveau lien de réinitialisation.',
-      });
+      else throw new GoneException('Le lien de réinitialisation a expiré.');
     }
   }
 

@@ -1,11 +1,12 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/auth/Login';
+import Dashboard from './pages/dashboards/Dashboard';
 import Header from './components/Header';
-import Profile from './pages/Profile';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import SignUp from './pages/SignUp';
+import Profile from './pages/account/Profile';
+import ForgotPassword from './pages/auth/passwordReset/ForgotPassword';
+import ResetPassword from './pages/auth/passwordReset/ResetPassword';
+import SignUp from './pages/auth/SignUp';
+import ProtectedRoute from './components/ProtectedRoute';
 
 
 function AppContent() {
@@ -14,13 +15,14 @@ function AppContent() {
       <Header />
       
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
 
-        <Route path="login/" element={<Login />} />
-        
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
 
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
 

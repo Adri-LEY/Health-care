@@ -1,18 +1,21 @@
 import React from 'react';
 import styles from './ResetPassword.module.css';
-import InputField from '../components/InputField';
-import SubmitButton from '../components/SubmitButton';
-
+import InputField from '../../../components/InputField';
+import SubmitButton from '../../../components/SubmitButton';
+import { useNavigate } from 'react-router-dom';
 
 export default function ResetPassword() {
+    const navigate = useNavigate();
     const [newPassword, setNewPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
     const [passwordResetSuccess, setPasswordResetSuccess] = React.useState(false);
+    const [error, setError] = React.useState('');
+
     const [linkExpired, setLinkExpired] = React.useState(false);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault(); // Empêche le rechargement de la page
-        const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+        const apiUrl = import.meta.env.VITE_API_URL;
 
         try {
             if (newPassword !== confirmPassword) {
@@ -28,7 +31,13 @@ export default function ResetPassword() {
             });
 
             if (!response.ok) {
-                if (response.status === 400) {
+                // Cas où le mot de passe n'est pas valide 
+                if(response.status === 400) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Le mot de passe ne respecte pas les critères de sécurité.');
+                }
+
+                if (response.status === 410) {
                     setLinkExpired(true);
                     return;
                 }
@@ -40,10 +49,11 @@ export default function ResetPassword() {
             setPasswordResetSuccess(true);
 
             await new Promise(resolve => setTimeout(resolve, 3000));
-            window.location.href = '/';
+            navigate('/login');
 
         } catch (error) {
             console.error('Erreur lors de la réinitialisation du mot de passe :', error);
+            setError(error instanceof Error ? error.message : 'Erreur inconnue lors de la réinitialisation du mot de passe');
         }
 
 
@@ -76,6 +86,7 @@ export default function ResetPassword() {
                         <form className={styles.form} onSubmit={handleSubmit}>
                             <InputField
                                 label="Nouveau mot de passe"
+                                subtext="Le mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial."
                                 type="password"
                                 required={true}
                                 value={newPassword}
@@ -89,6 +100,11 @@ export default function ResetPassword() {
                                 value={confirmPassword}
                                 onChange={setConfirmPassword}
                             />
+                            {error && (
+                                <div className={styles.error}>
+                                    {error}
+                                </div>
+                            )}
                             <SubmitButton>Renouveler le mot de passe</SubmitButton>
                         </form>
                     </div>

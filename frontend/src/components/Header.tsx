@@ -1,5 +1,7 @@
 import DropdownMenu from './DropdownMenu';
 import styles from './Header.module.css';
+import { useNavigate } from 'react-router-dom';
+
 
 type TokenPayload = {
   role?: string;
@@ -35,17 +37,19 @@ export default function Header() {
   const isConnected = Boolean(token);
   const spaceLabel = getSpaceLabel(token);
 
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem('token'); 
-    window.location.href = '/';       // Retour à la case départ (connexion)
+    navigate('/login');       // Retour à la case départ (connexion)
   };
 
   const handleProfileClick = () => {
-    window.location.href = '/profile'; // Redirection vers la page de profil
+    navigate('/profile'); // Redirection vers la page de profil
   }
 
   const handleLogin = () => {
-    window.location.href = '/';
+    navigate('/login');
   };
 
   return (
