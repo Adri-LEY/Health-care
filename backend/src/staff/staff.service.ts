@@ -7,19 +7,19 @@ export class StaffService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getAllStaff(role?: Role, specialtyId?: number, serviceId?: number) {
+  async getAllStaff(roles?: Role[], specialtyId?: number[], serviceId?: number[]) {
     const whereConditions : Prisma.MedicalStaffWhereInput = {};
 
-    if (role) {
-      whereConditions.user = { role: role };
+    if (roles && roles.length > 0) {
+      whereConditions.user = { role: { in: roles } };
     }
 
-    if (specialtyId) {
-      whereConditions.doctor = { specialtyId: specialtyId };
+    if (specialtyId && specialtyId.length > 0) {
+      whereConditions.doctor = { specialtyId: { in: specialtyId } };
     }
 
-    if (serviceId) {
-      whereConditions.nurseAssistant = { serviceId: serviceId };
+    if (serviceId && serviceId.length > 0) {
+      whereConditions.nurseAssistant = { serviceId: { in: serviceId } };
     }
 
     try {

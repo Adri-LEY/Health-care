@@ -7,6 +7,7 @@ import ForgotPassword from './pages/auth/passwordReset/ForgotPassword';
 import ResetPassword from './pages/auth/passwordReset/ResetPassword';
 import SignUp from './pages/auth/SignUp';
 import ProtectedRoute from './components/ProtectedRoute';
+import StaffList from './pages/admin-pages/staffList';
 
 
 function AppContent() {
@@ -29,6 +30,8 @@ function AppContent() {
         <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/signup" element={<SignUp />} />
+
+        <Route path="/admin/staffList" element={<StaffList />} />
       </Routes>
     </>
   );
