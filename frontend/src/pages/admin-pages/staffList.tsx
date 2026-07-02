@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import StaffCard, { type StaffMember } from '../../components/StaffCard';
 import styles from './staffList.module.css';
 import SearchComponent from '../../components/searchComponent';
@@ -35,36 +35,17 @@ export default function StaffPage() {
     setSelectedServices(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
   };
 
-  // Requête HTTP pour récupérer le personnel filtré
+  // Requête HTTP pour récupérer le personnel une seule fois
   const fetchStaff = async () => {
     try {
-      const queryParams = new URLSearchParams();
-  
-      console.log("Filtres appliqués :", { searchTerm, selectedRoles, selectedSpecialties, selectedServices });
-
-      if (selectedRoles.length > 0) {
-        queryParams.append('roles', selectedRoles.join(','));
-      }
-
-      if (selectedSpecialties.length > 0) {
-        queryParams.append('specialtyId', selectedSpecialties.join(','));
-      }
-      if (selectedServices.length > 0) {
-        queryParams.append('serviceId', selectedServices.join(','));
-      }
-
-      console.log("URL finale pour fetchStaff :", `${api_url}/staff/getAllStaff?${queryParams.toString()}`);
-
-      const res = await fetch(`${api_url}/staff/getAllStaff?${queryParams.toString()}`);
+      const res = await fetch(`${api_url}/staff/getAllStaff`);
       if (!res.ok) throw new Error(`Erreur HTTP ! Statut : ${res.status}`);
 
       const data = await res.json();
       setStaffList(data);
-      setLoading(false);
     } catch (err) {
       console.error("Erreur Fetch Staff:", err);
       if (err instanceof Error) setError(err.message);
-      setLoading(false);
     }
   };
 
@@ -93,16 +74,37 @@ export default function StaffPage() {
     }
   };
 
-  // ÉVENEMENT 1 : Une seule fois au chargement pour remplir les filtres
+  // Chargement initial des données, une seule fois
   useEffect(() => {
-    fetchAllSpecialties();
-    fetchAllServices();
+    const loadData = async () => {
+      await Promise.all([
+        fetchStaff(),
+        fetchAllSpecialties(),
+        fetchAllServices()
+      ]);
+
+      setLoading(false);
+    };
+
+    loadData();
   }, []);
 
-  // ÉVENEMENT 2 : À chaque fois qu'un filtre ou la recherche change
-  useEffect(() => {
-    fetchStaff();
-  }, [searchTerm, selectedRoles, selectedSpecialties, selectedServices]);
+  const filteredStaffList = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    return staffList.filter((member) => {
+      const fullName = `${member.user.firstName} ${member.user.lastName}`.toLowerCase();
+      const email = member.user.email.toLowerCase();
+      const phone = member.user.phone?.toLowerCase() ?? '';
+
+      const matchesSearch = !normalizedSearch || [fullName, email, phone].some(value => value.includes(normalizedSearch));
+      const matchesRole = selectedRoles.length === 0 || selectedRoles.includes(member.user.role);
+      const matchesSpecialty = selectedSpecialties.length === 0 || selectedSpecialties.includes(member.doctor?.specialty?.id ?? -1);
+      const matchesService = selectedServices.length === 0 || selectedServices.includes(member.nurseAssistant?.service?.id ?? -1);
+
+      return matchesSearch && matchesRole && matchesSpecialty && matchesService;
+    });
+  }, [staffList, searchTerm, selectedRoles, selectedSpecialties, selectedServices]);
 
   if (loading) return <div className={styles['loading']}>⏳ Chargement du personnel...</div>;
   if (error) return <div className={styles['error-message']}>⚠️ Impossible de charger les données : {error}</div>;
@@ -111,7 +113,7 @@ export default function StaffPage() {
     <div className={styles['staff-page-container']}>
       <div className={styles['page-header']}>
         <h2>Gestion du Personnel Médical</h2>
-        <span className={styles['count-badge']}>{staffList.length} personnes trouvés</span>
+        <span className={styles['count-badge']}>{filteredStaffList.length} personnes trouvées</span>
       </div>
 
       
@@ -151,7 +153,7 @@ export default function StaffPage() {
           <span>Contact</span>
           <span>Spécialité / Service</span>
         </div>
-        {staffList.map((member) => (
+        {filteredStaffList.map((member) => (
           <StaffCard
             key={member.user.id}
             member={member}

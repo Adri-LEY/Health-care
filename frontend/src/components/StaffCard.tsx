@@ -14,12 +14,14 @@ export type StaffMember = {
     doctor?: {
         registrationId: string;
         specialty?: {
+            id: number;
             specialtyName: string;
         };
     };
     nurseAssistant?: {
         registrationId: string;
         service?: {
+            id: number;
             serviceName: string;
         };
     };
