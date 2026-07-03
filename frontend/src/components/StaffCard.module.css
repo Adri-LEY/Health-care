@@ -1,0 +1,67 @@
+/* Ligne du personnel */
+.staff-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1.4fr 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  text-align: center;
+  justify-items: center;
+}
+
+.staff-row:hover {
+  transform: translateY(-1px);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.staff-name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.staff-role,
+.staff-contact,
+.staff-extra {
+  color: #475569;
+}
+
+.staff-contact {
+  line-height: 1.4;
+}
+
+.btn-profile {
+  justify-self: end;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-profile:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .staff-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .btn-profile {
+    justify-self: start;
+  }
+}
+
