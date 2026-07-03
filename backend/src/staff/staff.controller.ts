@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Query, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { Role } from '@prisma/client/edge';
+import { JwtGuard } from 'src/auth/jwt.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('staff')
+@UseGuards(JwtGuard)
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
   @Get('getAllStaff')
+  @UseGuards(JwtGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
   async getAllStaff(
     @Query('roles') roles?: string,

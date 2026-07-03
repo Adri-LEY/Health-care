@@ -11,7 +11,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('profile')
-  @UseGuards(JwtGuard) // 🔒 Le guard intercepte la requête ici
+  @UseGuards(JwtGuard) 
   @HttpCode(HttpStatus.OK)
   async getProfile(@Req() req) {
     // Grâce à request.user = payload dans le guard, l'id est dispo ici :

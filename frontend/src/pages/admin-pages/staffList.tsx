@@ -1,9 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import StaffCard, { type StaffMember } from '../../components/StaffCard';
 import styles from './staffList.module.css';
 import SearchComponent from '../../components/searchComponent';
+import { ArrowLeft } from 'lucide-react';
 
 export default function StaffPage() {
+  const navigate = useNavigate();
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [selectedMember, setSelectedMember] = useState<StaffMember | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +41,16 @@ export default function StaffPage() {
   // Requête HTTP pour récupérer le personnel une seule fois
   const fetchStaff = async () => {
     try {
-      const res = await fetch(`${api_url}/staff/getAllStaff`);
+      const res = await fetch(`${api_url}/staff/getAllStaff`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+
+      );
       if (!res.ok) throw new Error(`Erreur HTTP ! Statut : ${res.status}`);
 
       const data = await res.json();
@@ -52,7 +64,15 @@ export default function StaffPage() {
   // Chargement initial du catalogue de spécialités
   const fetchAllSpecialties = async () => {
     try {
-      const res = await fetch(`${api_url}/specialty/getAllSpecialties`);
+      const res = await fetch(`${api_url}/specialty/getAllSpecialties`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
       if (!res.ok) throw new Error(`Erreur HTTP ! Statut : ${res.status}`);
       const data = await res.json();
       // On mappe pour harmoniser la clé en 'name'
@@ -65,7 +85,13 @@ export default function StaffPage() {
   // Chargement initial du catalogue de services
   const fetchAllServices = async () => {
     try {
-      const res = await fetch(`${api_url}/service/getAllServices`);
+      const res = await fetch(`${api_url}/service/getAllServices`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       if (!res.ok) throw new Error(`Erreur HTTP ! Statut : ${res.status}`);
       const data = await res.json();
       setServices(data.map((service: any) => ({ id: service.id, name: service.serviceName })));
@@ -115,6 +141,10 @@ export default function StaffPage() {
         <h2>Gestion du Personnel Médical</h2>
         <span className={styles['count-badge']}>{filteredStaffList.length} personnes trouvées</span>
       </div>
+
+      <button type="button" className={styles['back-button']} onClick={() => navigate(-1)}>
+        <ArrowLeft size={18} aria-hidden="true"/> Retour
+      </button>
 
       
       <SearchComponent

@@ -10,11 +10,12 @@ export class JwtGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    
     if (!token) {
       throw new UnauthorizedException();
     }
     try {
-      // 💡 Here the JWT secret key that's used for verifying the payload 
+      // Here the JWT secret key that's used for verifying the payload 
       // is the key that was passed in the JwtModule
       const payload = await this.jwtService.verifyAsync(token);
       // 💡 We're assigning the payload to the request object here

@@ -40,8 +40,9 @@ export default function Login() {
             console.log('Connexion réussie ! Données reçues :', data);
             
             localStorage.setItem('token', data.accessToken);
+            localStorage.setItem('user', JSON.stringify(data.user));
 
-            navigate('/dashboard');
+            navigate('/');
             
         } catch (err: any) {
             // --- CAS D'ÉCHEC ---
