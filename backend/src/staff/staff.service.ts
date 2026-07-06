@@ -102,9 +102,9 @@ export class StaffService {
           email: newStaffMember.email,
           phone: newStaffMember.phone,
           role: newStaffMember.role as Role,
-          userStatus: 'PENDING', // On active le compte dès sa création
+          userStatus: 'PENDING', // On garde le compte en attente à sa création
           activationToken: activationToken,
-          tokenExpiresAt: new Date(Date.now() + 30 * 1000), // Token valable 30s
+          tokenExpiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // Token valable 48 heures
           medicalStaff: {
             create: {
               staffNumber: newStaffMember.staffNumber,
@@ -147,7 +147,7 @@ export class StaffService {
   /**
    * Activates a staff member's account using the provided activation token and password.
    * @param activateNewStaffAccountDto 
-   * @returns Information about the activated staff member.
+  * @returns Information about the active staff member.
    * @throws NotFoundException if the activation token is invalid.
    * @throws BadRequestException if the activation token has expired.
    */
@@ -172,7 +172,7 @@ export class StaffService {
         where: { activationToken: activateNewStaffAccountDto.activationToken },
         data: { 
           password: hashedPassword,
-          userStatus: UserStatus.ACTIVATED,
+          userStatus: UserStatus.ACTIVE,
           activationToken: null, // Supprime le token après activation
           tokenExpiresAt: null, // Supprime la date d'expiration après activation
         },
@@ -202,7 +202,7 @@ export class StaffService {
    * @param email 
    * @returns A message indicating that the activation token has been resent.
    * @throws NotFoundException if the user is not found.
-   * @throws BadRequestException if the account is already activated. 
+  * @throws BadRequestException if the account is already active.
    */
   async resendStaffActivationToken(resendActivationTokenDto: ResendActivationTokenDto) {
     try {
@@ -213,8 +213,8 @@ export class StaffService {
 
       if (!staffUser) throw new NotFoundException('User not found');
 
-      if (staffUser.userStatus === UserStatus.ACTIVATED) {
-        throw new BadRequestException('Account is already activated');
+      if (staffUser.userStatus === UserStatus.ACTIVE) {
+        throw new BadRequestException('Account is already active');
       }
 
       const newActivationToken = crypto.randomBytes(32).toString('hex');

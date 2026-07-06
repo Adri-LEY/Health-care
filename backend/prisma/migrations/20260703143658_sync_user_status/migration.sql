@@ -6,7 +6,7 @@
 
 */
 -- CreateEnum
-CREATE TYPE "UserStatus" AS ENUM ('PENDING', 'ACTIVATED', 'DEACTIVATED');
+CREATE TYPE "UserStatus" AS ENUM ('PENDING', 'ACTIVE', 'INACTIVE');
 
 -- CreateEnum
 CREATE TYPE "BloodType" AS ENUM ('O', 'A', 'B', 'AB');

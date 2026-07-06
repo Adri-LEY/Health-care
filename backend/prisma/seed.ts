@@ -62,7 +62,7 @@ async function main() {
       email: 'patient@test.com',
       password: hashedPassword,
       role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
+      userStatus: UserStatus.ACTIVE, // Forcer le compte à être actif
       patient: {
         create: {
           age: 35,
@@ -98,7 +98,7 @@ async function main() {
       phone: '+33612345678',
       password: hashedPassword,
       role: Role.DOCTOR,
-      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
+      userStatus: UserStatus.ACTIVE, // Forcer le compte à être actif
       medicalStaff: {
         create: {
           staffNumber: 8877, // Note : le champ "status" local a disparu, c'est géré globalement par le UserStatus du dessus
@@ -122,7 +122,7 @@ async function main() {
       phone: '+33622345678',
       password: hashedPassword,
       role: Role.DOCTOR,
-      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
+      userStatus: UserStatus.ACTIVE, // Forcer le compte à être actif
       medicalStaff: {
         create: {
           staffNumber: 8878,
@@ -149,7 +149,7 @@ async function main() {
       phone: '+33633345678',
       password: hashedPassword,
       role: Role.NURSE_ASSISTANT,
-      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
+      userStatus: UserStatus.ACTIVE, // Forcer le compte à être actif
       medicalStaff: {
         create: {
           staffNumber: 4411,
@@ -173,7 +173,7 @@ async function main() {
       phone: '+33644345678',
       password: hashedPassword,
       role: Role.NURSE_ASSISTANT,
-      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
+      userStatus: UserStatus.ACTIVE, // Forcer le compte à être actif
       medicalStaff: {
         create: {
           staffNumber: 4412,
@@ -199,7 +199,7 @@ async function main() {
       phone: '+33600000000',
       password: hashedPassword,
       role: Role.ADMINISTRATOR,
-      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
+      userStatus: UserStatus.ACTIVE, // Forcer le compte à être actif
       activationToken: "test",
       administrator: {
         create: {
@@ -209,7 +209,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Seeding terminé avec succès et tous les comptes sont ACTIVATED !');
+  console.log('✅ Seeding terminé avec succès et tous les comptes sont ACTIVE !');
 }
 
 main()

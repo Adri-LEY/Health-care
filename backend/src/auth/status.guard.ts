@@ -19,7 +19,7 @@ export class UserStatusGuard implements CanActivate {
       select: { userStatus: true }
     });
 
-    if (!dbUser || dbUser.userStatus !== 'ACTIVATED') {
+    if (!dbUser || dbUser.userStatus !== 'ACTIVE') {
       throw new UnauthorizedException("Ce compte est désactivé ou en attente d'activation.");
     }
 

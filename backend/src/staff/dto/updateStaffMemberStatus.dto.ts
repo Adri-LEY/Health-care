@@ -8,6 +8,6 @@ export class UpdateStaffMemberStatusDto {
     userId!: number
 
     @IsString({ message: 'Le statut doit être une chaîne de caractères.' })
-    @Matches(/^(ACTIVATED|DEACTIVATED)$/, { message: 'Le statut doit être "ACTIVATED", "DEACTIVATED".' })
+    @Matches(/^(ACTIVE|INACTIVE)$/, { message: 'Le statut doit être "ACTIVE", "INACTIVE".' })
     status!: string
 }
