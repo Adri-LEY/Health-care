@@ -19,6 +19,12 @@ enum Role {
   ADMINISTRATOR
 }
 
+enum UserStatus{
+  PENDING
+  ACTIVATED
+  DEACTIVATED
+}
+
 enum BloodType {
   O 
   A 
@@ -41,10 +47,14 @@ model User {
   lastName  String   
   firstName String  
   email     String   @unique
-  password  String  
+  password  String?
   phone     String?  
   role      Role     @default(PATIENT)
   createdAt DateTime @default(now())
+  userStatus UserStatus? @default(PENDING)
+
+  activationToken String?   @unique // @unique est très important pour la recherche directe
+  tokenExpiresAt  DateTime?
 
   // Relations d'héritage 1-to-1
   patient       Patient?
@@ -81,7 +91,7 @@ model Administrator {
 // Représente la classe "PersonnelMedical"
 model MedicalStaff {
   id             Int      @id @default(autoincrement())
-  staffNumber    Int     
+  staffNumber    Int  
 
   // Clé étrangère vers User
   userId         Int      @unique

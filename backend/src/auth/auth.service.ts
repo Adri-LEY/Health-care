@@ -47,6 +47,8 @@ export class AuthService {
 
     if (!user) throw new UnauthorizedException('Identifiants invalides');
 
+    if(user.password === null) throw new UnauthorizedException('Veuillez vous connecter via le fournisseur d\'authentification externe que vous avez utilisé pour créer votre compte.');
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) throw new UnauthorizedException('Identifiants invalides');

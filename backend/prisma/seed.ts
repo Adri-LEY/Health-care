@@ -1,4 +1,4 @@
-import { PrismaClient, Role, BloodType, Imc } from '@prisma/client';
+import { PrismaClient, Role, BloodType, Imc, UserStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -8,7 +8,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('🌱 Début du seeding basé sur le schéma réel...');
+  console.log(' Début du seeding basé sur le schéma réel et sécurisé...');
 
   // ==========================================
   // 1. NETTOYAGE DE LA BASE (Ordre strict des FK)
@@ -62,6 +62,7 @@ async function main() {
       email: 'patient@test.com',
       password: hashedPassword,
       role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
       patient: {
         create: {
           age: 35,
@@ -97,9 +98,10 @@ async function main() {
       phone: '+33612345678',
       password: hashedPassword,
       role: Role.DOCTOR,
+      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
       medicalStaff: {
         create: {
-          staffNumber: 8877,
+          staffNumber: 8877, // Note : le champ "status" local a disparu, c'est géré globalement par le UserStatus du dessus
           doctor: {
             create: {
               registrationId: 'MED-REG-999',
@@ -120,6 +122,7 @@ async function main() {
       phone: '+33622345678',
       password: hashedPassword,
       role: Role.DOCTOR,
+      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
       medicalStaff: {
         create: {
           staffNumber: 8878,
@@ -146,6 +149,7 @@ async function main() {
       phone: '+33633345678',
       password: hashedPassword,
       role: Role.NURSE_ASSISTANT,
+      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
       medicalStaff: {
         create: {
           staffNumber: 4411,
@@ -169,6 +173,7 @@ async function main() {
       phone: '+33644345678',
       password: hashedPassword,
       role: Role.NURSE_ASSISTANT,
+      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
       medicalStaff: {
         create: {
           staffNumber: 4412,
@@ -194,6 +199,8 @@ async function main() {
       phone: '+33600000000',
       password: hashedPassword,
       role: Role.ADMINISTRATOR,
+      userStatus: UserStatus.ACTIVATED, // Forcer le compte à être actif
+      activationToken: "test",
       administrator: {
         create: {
           position: 'Directeur des Ressources Humaines',
@@ -202,7 +209,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Seeding terminé avec succès !');
+  console.log('✅ Seeding terminé avec succès et tous les comptes sont ACTIVATED !');
 }
 
 main()

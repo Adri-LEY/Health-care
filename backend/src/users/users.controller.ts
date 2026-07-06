@@ -4,6 +4,7 @@ import { UseGuards } from '@nestjs/common';
 import { JwtGuard } from '../auth/jwt.guard';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';
+import { UserStatusGuard } from 'src/auth/status.guard';
 
 
 @Controller('users')
@@ -11,7 +12,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('profile')
-  @UseGuards(JwtGuard) 
+  @UseGuards(JwtGuard, UserStatusGuard) 
   @HttpCode(HttpStatus.OK)
   async getProfile(@Req() req) {
     // Grâce à request.user = payload dans le guard, l'id est dispo ici :
@@ -21,7 +22,7 @@ export class UsersController {
   
 
   @Patch('update-profile')
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard, UserStatusGuard)
   @HttpCode(HttpStatus.OK)
   async updateProfile(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
     const userId = req.user.sub;
@@ -30,7 +31,7 @@ export class UsersController {
 
 
   @Patch('update-password')
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard, UserStatusGuard)
   @HttpCode(HttpStatus.OK)
   async updatePassword(@Req() req, @Body() updatePasswordDto: UpdatePasswordDto) {
     const userId = req.user.sub;

@@ -174,6 +174,10 @@ export class UsersService {
       throw new NotFoundException("Utilisateur introuvable");
     }
 
+    if (!user.password) {
+      throw new NotFoundException("Aucun mot de passe défini pour cet utilisateur");
+    }
+
     if (!bcrypt.compareSync(updatePasswordDto.currentPassword, user.password)) {
       throw new NotFoundException("Le mot de passe actuel est incorrect");
     }
