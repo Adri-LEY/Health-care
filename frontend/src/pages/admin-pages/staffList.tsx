@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import StaffCard, { type StaffMember } from '../../components/StaffCard';
 import styles from './staffList.module.css';
 import SearchComponent from '../../components/searchComponent';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 
 export default function StaffPage() {
   const navigate = useNavigate();
@@ -132,8 +132,8 @@ export default function StaffPage() {
     });
   }, [staffList, searchTerm, selectedRoles, selectedSpecialties, selectedServices]);
 
-  if (loading) return <div className={styles['loading']}>⏳ Chargement du personnel...</div>;
-  if (error) return <div className={styles['error-message']}>⚠️ Impossible de charger les données : {error}</div>;
+  if (loading) return <div className={styles['loading']}> Chargement du personnel...</div>;
+  if (error) return <div className={styles['error-message']}> Impossible de charger les données : {error}</div>;
 
   return (
     <div className={styles['staff-page-container']}>
@@ -142,11 +142,17 @@ export default function StaffPage() {
         <span className={styles['count-badge']}>{filteredStaffList.length} personnes trouvées</span>
       </div>
 
-      <button type="button" className={styles['back-button']} onClick={() => navigate(-1)}>
-        <ArrowLeft size={18} aria-hidden="true"/> Retour
-      </button>
+      <div className={styles['action-buttons-container']}>
+        <button type="button" className={styles['back-button']} onClick={() => navigate(-1)}>
+          <ArrowLeft size={18} aria-hidden="true" /> Retour
+        </button>
 
-      
+        <button type="button" className={styles['add-staff-button']} onClick={() => navigate('/admin/addStaff')}>
+          <Plus size={18} aria-hidden="true" style={{ marginRight: '6px' }} />
+          Ajouter un membre du personnel
+        </button>
+      </div>
+
       <SearchComponent
         searchTerm={searchTerm}
         searchPlaceholder="Rechercher par nom..."

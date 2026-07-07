@@ -20,6 +20,14 @@
   font-size: 0.9em;
 }
 
+.action-buttons-container {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;            
+  width: 100%;                    
+  margin-bottom: 20px;            
+}
+
 .back-button {
   margin-bottom: 18px;
   padding: 10px 16px;
@@ -38,6 +46,21 @@
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
   color: #2563eb;
 }
+
+.add-staff-button {
+  display: flex;  
+  align-items: center; 
+  justify-content: center;
+  margin-bottom: 18px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #01ba3c;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+} 
 
 .staff-list {
   display: flex;

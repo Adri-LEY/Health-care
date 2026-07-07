@@ -125,12 +125,15 @@ export class StaffService {
         },
       });
 
+      const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const activationLink = `${baseUrl}/activate-account?token=${activationToken}`;
+
       await this.mailerService.sendMail({
         to: newStaffMember.email,
         subject: 'Activation de votre compte',
         html: `<p>Bonjour ${newStaffMember.firstName},</p>
         <p>Votre compte a été créé avec succès. Veuillez cliquer sur le lien ci-dessous pour activer votre compte :</p>
-        <a href="http://localhost:3000/activate-account?token=${activationToken}">Activer mon compte</a>
+        <a href="${activationLink}">Activer mon compte</a>
         <p>Merci,</p>
         <p>L'équipe de gestion des comptes.</p>`,
       });

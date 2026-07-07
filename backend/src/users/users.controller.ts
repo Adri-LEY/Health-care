@@ -12,7 +12,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('profile')
-  @UseGuards(JwtGuard, UserStatusGuard) 
+  @UseGuards(JwtGuard/*, UserStatusGuard*/) 
   @HttpCode(HttpStatus.OK)
   async getProfile(@Req() req) {
     // Grâce à request.user = payload dans le guard, l'id est dispo ici :
@@ -22,7 +22,7 @@ export class UsersController {
   
 
   @Patch('update-profile')
-  @UseGuards(JwtGuard, UserStatusGuard)
+  @UseGuards(JwtGuard/*, UserStatusGuard*/)
   @HttpCode(HttpStatus.OK)
   async updateProfile(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
     const userId = req.user.sub;
@@ -31,7 +31,7 @@ export class UsersController {
 
 
   @Patch('update-password')
-  @UseGuards(JwtGuard, UserStatusGuard)
+  @UseGuards(JwtGuard/*, UserStatusGuard*/)
   @HttpCode(HttpStatus.OK)
   async updatePassword(@Req() req, @Body() updatePasswordDto: UpdatePasswordDto) {
     const userId = req.user.sub;

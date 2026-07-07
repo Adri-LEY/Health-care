@@ -9,7 +9,7 @@ export class UserStatusGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user; // Récupéré au préalable par ton JwtAuthGuard
 
-    if (!user) {
+    if (!user || !user.id) {
       throw new UnauthorizedException("Utilisateur non authentifié.");
     }
 
