@@ -8,7 +8,7 @@ export class SpecialtyController {
   constructor(private readonly specialtyService: SpecialtyService) {}
 
   @Get('getAllSpecialties')
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard, UserStatusGuard)
   @HttpCode(HttpStatus.OK)
   async getAllSpecialties() {
     return this.specialtyService.getAllSpecialties();

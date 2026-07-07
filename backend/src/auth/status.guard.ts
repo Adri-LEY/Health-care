@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'; // Ajuste le chemin
+import { UserStatus } from '@prisma/client';
 
 @Injectable()
 export class UserStatusGuard implements CanActivate {
@@ -19,7 +20,7 @@ export class UserStatusGuard implements CanActivate {
       select: { userStatus: true }
     });
 
-    if (!dbUser || dbUser.userStatus !== 'ACTIVE') {
+    if (!dbUser || dbUser.userStatus !== UserStatus.ACTIVE) {
       throw new UnauthorizedException("Ce compte est désactivé ou en attente d'activation.");
     }
 

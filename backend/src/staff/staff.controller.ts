@@ -41,28 +41,28 @@ export class StaffController {
   }
 
   @Post('createNewStaffMember')
-  //@UseGuards(JwtGuard, RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   async createNewStaffMember(@Body() newStaffMemberDto: NewStaffMemberDto) {
     return await this.staffService.createNewStaffMember(newStaffMemberDto);
   }
 
   @Post('activateStaffMember')
-  //@UseGuards(JwtGuard, RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
   async activateStaffMember(@Body() activateNewStaffAccountDto: ActivateStaffAccountDto) {
     return await this.staffService.activateStaffMember(activateNewStaffAccountDto);
   }
 
   @Post('updateStaffMemberStatus')
-  //@UseGuards(JwtGuard, RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
   async updateStaffMemberStatus(@Body() updateStaffMemberStatusDto: UpdateStaffMemberStatusDto) {
     return await this.staffService.updateStaffMemberStatus(updateStaffMemberStatusDto);
   }
 
   @Post('resendActivationToken')
-  //@UseGuards(JwtGuard, RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
   async resendStaffActivationToken(@Body() resendActivationTokenDto: ResendActivationTokenDto) {
     return await this.staffService.resendStaffActivationToken(resendActivationTokenDto);

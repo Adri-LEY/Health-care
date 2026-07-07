@@ -8,7 +8,7 @@ export class ServiceController {
   constructor(private readonly serviceService: ServiceService) {}
 
   @Get('getAllServices')
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard, UserStatusGuard)
   @HttpCode(HttpStatus.OK)
   async getAllServices() {
     return this.serviceService.getAllServices();
