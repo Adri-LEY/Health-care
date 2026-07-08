@@ -55,6 +55,7 @@ export class StaffService {
               email: true,
               phone: true,
               role: true,
+              userStatus: true, 
             },
           },
           doctor: {
@@ -234,12 +235,15 @@ export class StaffService {
         },
       });
 
+      const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const activationLink = `${baseUrl}/activate-account?token=${newActivationToken}`;
+
       this.mailerService.sendMail({
         to: resendActivationTokenDto.email,
         subject: 'Activation de votre compte - Nouveau lien',
         html: `<p>Bonjour,</p>
         <p>Un nouveau lien d'activation vient d'être généré pour votre compte. Veuillez cliquer sur le lien ci-dessous pour activer votre compte :</p>
-        <a href="http://localhost:3000/activate-account?token=${newActivationToken}">Activer mon compte</a>`
+        <a href="${activationLink}">Activer mon compte</a>`
       })
       .catch(err => {
         console.error('Error sending activation email:', err)});

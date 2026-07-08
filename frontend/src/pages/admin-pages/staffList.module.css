@@ -124,6 +124,25 @@
   line-height: 1.5;
 }
 
+.modal-actions {
+  display: flex;
+  justify-content: flex-end; 
+  align-items: center;       
+  gap: 12px;                 
+  margin-top: 24px;          
+  width: 100%;
+}
+
+.btn-close {
+  margin-top: 0 !important; 
+}
+
+.resend-token-button,
+.reactivate-account-button,
+.deactivate-account-button {
+  margin-top: 0 !important;
+}
+
 .btn-close {
   margin-top: 20px;
   padding: 10px 16px;
@@ -132,6 +151,61 @@
   background-color: #2563eb;
   color: #ffffff;
   font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.account-status-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.statusActive {
+  color: #10b981;
+  font-weight: 600; 
+}
+
+.statusInactive {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.resend-token-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #f59e0b;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+
+.reactivate-account-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #3b82f6;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.deactivate-account-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #ef4444;
+  color: #ffffff;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }

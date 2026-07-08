@@ -48,7 +48,6 @@ export class StaffController {
   }
 
   @Post('activateStaffMember')
-  @UseGuards(JwtGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
   async activateStaffMember(@Body() activateNewStaffAccountDto: ActivateStaffAccountDto) {
     return await this.staffService.activateStaffMember(activateNewStaffAccountDto);

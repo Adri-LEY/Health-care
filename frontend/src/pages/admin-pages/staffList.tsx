@@ -25,6 +25,9 @@ export default function StaffPage() {
   const [selectedSpecialties, setSelectedSpecialties] = useState<number[]>([]);
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
+  const [isSendingToken, setIsSendingToken] = useState(false);
+  const [tokenSentSuccess, setTokenSentSuccess] = useState(false);
+
   // Les fonctions de Toggle (reçoivent directement l'ID ou le Rôle cliqué)
   const toggleRole = (role: string) => {
     setSelectedRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]);
@@ -97,6 +100,84 @@ export default function StaffPage() {
       setServices(data.map((service: any) => ({ id: service.id, name: service.serviceName })));
     } catch (err) {
       console.error("Erreur Fetch Services:", err);
+    }
+  };
+
+  const handleResendActivationToken = async (userId: number, email: string) => {
+    setIsSendingToken(true); // Active l'état de chargement
+    setTokenSentSuccess(false);
+
+    try {
+      const res = await fetch(`${api_url}/staff/resendActivationToken`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ userId, email })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Erreur lors du renvoi du jeton");
+      }
+
+      // Si ça fonctionne :
+      setTokenSentSuccess(true);
+
+      // Au bout de 3 secondes, on remet le bouton à son état normal
+      setTimeout(() => {
+        setTokenSentSuccess(false);
+      }, 3000);
+
+    } catch (err: any) {
+      console.error("Erreur lors du renvoi du token d'activation :", err);
+      alert(`Erreur : ${err.message}`);
+    } finally {
+      setIsSendingToken(false); // Désactive le chargement dans tous les cas
+    }
+  };
+
+  const handleUpdateStaffStatus = async (userId: number, newStatus: string) => {
+    console.log(`Tentative de mise à jour du statut pour l'utilisateur ID: ${userId}, Nouveau Statut: ${newStatus}`);
+
+    try {
+      const res = await fetch(`${api_url}/staff/updateStaffMemberStatus`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ userId: userId, status: newStatus }) // Clé corrigée ici !
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(`Erreur HTTP ! Statut : ${res.status}, Message: ${errorData.message}`);
+      }
+
+      const data = await res.json();
+      console.log("Statut du personnel mis à jour avec succès !", data);
+
+      // 1. Recharger la liste générale en arrière-plan
+      await fetchStaff();
+
+      // 2. AJOUT ICI : Mettre à jour l'affichage de la modale ouverte en temps réel
+      if (selectedMember && selectedMember.user.id === userId) {
+        setSelectedMember((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            user: {
+              ...prev.user,
+              userStatus: newStatus // On injecte le nouveau statut ('ACTIVE' ou 'INACTIVE')
+            }
+          };
+        });
+      }
+
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour du statut du personnel:", err);
     }
   };
 
@@ -188,6 +269,7 @@ export default function StaffPage() {
           <span>Rôle</span>
           <span>Contact</span>
           <span>Spécialité / Service</span>
+          <span>Statut du compte</span>
         </div>
         {filteredStaffList.map((member) => (
           <StaffCard
@@ -207,13 +289,53 @@ export default function StaffPage() {
             <div className={styles['modal-body']}>
               <p><strong>Nom :</strong> {selectedMember.user.lastName}</p>
               <p><strong>Prénom :</strong> {selectedMember.user.firstName}</p>
+              <p><strong>Rôle :</strong> {selectedMember.user.role === 'DOCTOR' ? 'Médecin' : 'Aide-soignant'}</p>
+              {selectedMember.user.role === 'DOCTOR' && selectedMember.doctor?.specialty && (
+                <p><strong>Spécialité :</strong> {selectedMember.doctor.specialty.specialtyName}</p>
+              )}
+              {selectedMember.user.role === 'NURSE_ASSISTANT' && selectedMember.nurseAssistant?.service && (
+                <p><strong>Service :</strong> {selectedMember.nurseAssistant.service.serviceName}</p>
+              )}
               <p><strong>Email :</strong> {selectedMember.user.email}</p>
               <p><strong>Téléphone :</strong> {selectedMember.user.phone || 'Non renseigné'}</p>
               <p><strong>Matricule Interne :</strong> {selectedMember.doctor?.registrationId || selectedMember.nurseAssistant?.registrationId || 'Aucun'}</p>
+              <p>
+                <strong>Statut du compte : </strong>
+                <span className={selectedMember.user.userStatus === 'ACTIVE' ? styles.statusActive : styles.statusInactive}>
+                  {selectedMember.user.userStatus === 'ACTIVE' ? 'Actif' : selectedMember.user.userStatus === 'INACTIVE' ? 'Inactif' : 'En attente d\'activation'}
+                </span>
+              </p>
+
+              <div className={styles['modal-actions']}>
+                {selectedMember.user.userStatus === 'PENDING' && (
+                  <button
+                    className={styles['resend-token-button']}
+                    onClick={() => handleResendActivationToken(selectedMember.user.id, selectedMember.user.email)}
+                    disabled={isSendingToken || tokenSentSuccess} // Empêche le double-clic
+                    style={{ backgroundColor: tokenSentSuccess ? '#10b981' : undefined }} // Devient vert si succès
+                  >
+                    {isSendingToken && "Envoi en cours..."}
+                    {tokenSentSuccess && "Lien envoyé ! ✓"}
+                    {!isSendingToken && !tokenSentSuccess && "Renvoyer un nouveau lien d'activation"}
+                  </button>
+                )}
+                {selectedMember.user.userStatus === 'INACTIVE' && (
+                  <button className={styles['reactivate-account-button']} onClick={() => handleUpdateStaffStatus(selectedMember.user.id, 'ACTIVE')}>
+                    Réactiver le compte
+                  </button>
+                )}
+                {selectedMember.user.userStatus === 'ACTIVE' && (
+                  <button className={styles['deactivate-account-button']} onClick={() => handleUpdateStaffStatus(selectedMember.user.id, 'INACTIVE')}>
+                    Désactiver le compte
+                  </button>
+                )}
+
+                {/* Le bouton fermer est maintenant groupé ici */}
+                <button className={styles['btn-close']} onClick={() => setSelectedMember(null)}>
+                  Fermer
+                </button>
+              </div>
             </div>
-            <button className={styles['btn-close']} onClick={() => setSelectedMember(null)}>
-              Fermer
-            </button>
           </div>
         </div>
       )}

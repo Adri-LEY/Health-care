@@ -55,7 +55,7 @@ export default function AddStaff() {
 
             setTimeout(() => {
                 navigate('/admin/staffList');
-            }, 3000); // Redirection après 2 secondes
+            }, 3000); // Redirection après 3 secondes
         } catch (err: any) {
             console.error("Erreur lors de l'ajout du membre du personnel :", err);
             alert(err.message);
