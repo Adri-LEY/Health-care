@@ -9,6 +9,8 @@ import SignUp from './pages/auth/SignUp';
 import ProtectedRoute from './components/ProtectedRoute';
 import StaffList from './pages/admin-pages/staffList';
 import AdminMenu from './pages/admin-pages/AdminMenu';
+import AddStaff from './pages/admin-pages/addStaff';
+import { ActivationAccount } from './pages/account/staffAccount/activationAccount';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -63,10 +65,14 @@ function AppContent() {
 
         <Route path="/reset-password" element={<ResetPassword />} />
 
+        <Route path="/activate-account" element={<ActivationAccount />} />
+
         <Route path="/signup" element={<SignUp />} />
 
         <Route element={<AdminRoute />}>
           <Route path="/admin/staffList" element={<StaffList />} />
+
+          <Route path="/admin/addStaff" element={<AddStaff />} />
         </Route>
 
         <Route path="admin" element={<AdminMenu />} />

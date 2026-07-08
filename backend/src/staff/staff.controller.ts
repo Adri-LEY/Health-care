@@ -1,11 +1,15 @@
-import { Controller, Get, Query, HttpStatus, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, HttpStatus, HttpCode, UseGuards, Post, Body } from '@nestjs/common';
 import { StaffService } from './staff.service';
-import { Role } from '@prisma/client/edge';
+import { Role, UserStatus } from '@prisma/client';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { NewStaffMemberDto } from './dto/newStaffMember.dto';
+import { ActivateStaffAccountDto } from './dto/activateStaffAccount.dto';
+import { UpdateStaffMemberStatusDto } from './dto/updateStaffMemberStatus.dto';
+import { IsEmail } from 'class-validator';
+import { ResendActivationTokenDto } from './dto/resendActivationToken.dto';
 
 @Controller('staff')
-@UseGuards(JwtGuard)
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
@@ -34,5 +38,32 @@ export class StaffController {
       specialtyIdsArray, 
       serviceIdsArray
     );
+  }
+
+  @Post('createNewStaffMember')
+  @UseGuards(JwtGuard, RolesGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async createNewStaffMember(@Body() newStaffMemberDto: NewStaffMemberDto) {
+    return await this.staffService.createNewStaffMember(newStaffMemberDto);
+  }
+
+  @Post('activateStaffMember')
+  @HttpCode(HttpStatus.OK)
+  async activateStaffMember(@Body() activateNewStaffAccountDto: ActivateStaffAccountDto) {
+    return await this.staffService.activateStaffMember(activateNewStaffAccountDto);
+  }
+
+  @Post('updateStaffMemberStatus')
+  @UseGuards(JwtGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateStaffMemberStatus(@Body() updateStaffMemberStatusDto: UpdateStaffMemberStatusDto) {
+    return await this.staffService.updateStaffMemberStatus(updateStaffMemberStatusDto);
+  }
+
+  @Post('resendActivationToken')
+  @UseGuards(JwtGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async resendStaffActivationToken(@Body() resendActivationTokenDto: ResendActivationTokenDto) {
+    return await this.staffService.resendStaffActivationToken(resendActivationTokenDto);
   }
 }

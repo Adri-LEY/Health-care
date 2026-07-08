@@ -1,0 +1,26 @@
+.activationContainer {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.activationForm {
+    display: flex;
+    flex-direction: column;
+}
+
+.successMessage {
+    color: #10b981;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.errorMessage {
+    color: #ef4444;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 20px;
+    text-align: center;
+}

@@ -10,6 +10,7 @@ export type StaffMember = {
         createdAt: string;
         updatedAt: string;
         role: string;
+        userStatus: string;
     };
     doctor?: {
         registrationId: string;
