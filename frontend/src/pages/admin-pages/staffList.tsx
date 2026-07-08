@@ -4,6 +4,7 @@ import StaffCard, { type StaffMember } from '../../components/StaffCard';
 import styles from './staffList.module.css';
 import SearchComponent from '../../components/searchComponent';
 import { ArrowLeft, Plus } from 'lucide-react';
+import StaffDetailsModal from '../../components/StaffDetailsModal';
 
 export default function StaffPage() {
   const navigate = useNavigate();
@@ -27,6 +28,13 @@ export default function StaffPage() {
 
   const [isSendingToken, setIsSendingToken] = useState(false);
   const [tokenSentSuccess, setTokenSentSuccess] = useState(false);
+
+  // Gère le basculement entre le mode affichage (false) et le mode édition (true)
+  const [isEditingAssignment, setIsEditingAssignment] = useState(false);
+
+  // Stockent les choix temporaires de l'administrateur dans les listes déroulantes
+  const [pendingSpecialtyId, setPendingSpecialtyId] = useState<number | string>('');
+  const [pendingServiceId, setPendingServiceId] = useState<number | string>('');
 
   // Les fonctions de Toggle (reçoivent directement l'ID ou le Rôle cliqué)
   const toggleRole = (role: string) => {
@@ -181,6 +189,73 @@ export default function StaffPage() {
     }
   };
 
+  const handleSaveAssignment = async () => {
+    if (!selectedMember) return;
+
+    // Prépare les données selon le rôle
+    const payload = {
+      userId: selectedMember.user.id,
+      specialtyId: selectedMember.user.role === 'DOCTOR' ? (pendingSpecialtyId ? Number(pendingSpecialtyId) : null) : undefined,
+      serviceId: selectedMember.user.role === 'NURSE_ASSISTANT' ? (pendingServiceId ? Number(pendingServiceId) : null) : undefined,
+    };
+
+    console.log("Données prêtes pour le backend :", payload);
+
+    try {
+      const res = await fetch(`${api_url}/staff/assignStaffMember`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(`Erreur HTTP ! Statut : ${res.status}, Message: ${errorData.message}`);
+      }
+      const data = await res.json();
+      console.log("Affectation mise à jour avec succès !", data);
+      // 1. Recharger la liste générale en arrière-plan
+      await fetchStaff();
+      // 2. Mettre à jour l'affichage de la modale ouverte en temps réel
+      setSelectedMember((prev) => {
+        if (!prev) return null;
+
+        // 1. Si c'est un médecin, on met à jour uniquement la branche doctor
+        if (prev.user.role === 'DOCTOR' && prev.doctor) {
+          const foundSpec = specialties.find(spec => spec.id === Number(pendingSpecialtyId));
+          return {
+            ...prev,
+            doctor: {
+              ...prev.doctor, // Conserve le registrationId obligatoire intact
+              specialty: foundSpec ? { id: foundSpec.id, specialtyName: foundSpec.name } : undefined
+            }
+          };
+        }
+
+        // 2. Si c'est un aide-soignant, on met à jour uniquement la branche nurseAssistant
+        if (prev.user.role === 'NURSE_ASSISTANT' && prev.nurseAssistant) {
+          const foundSrv = services.find(srv => srv.id === Number(pendingServiceId));
+          return {
+            ...prev,
+            nurseAssistant: {
+              ...prev.nurseAssistant,
+              service: foundSrv ? { id: foundSrv.id, serviceName: foundSrv.name } : undefined
+            }
+          };
+        }
+
+        return prev;
+      });
+      setIsEditingAssignment(false); // On repasse en mode lecture après sauvegarde
+    } catch (err: any) {
+      console.error("Erreur lors de la mise à jour de l'affectation :", err);
+      alert(`Erreur : ${err.message}`);
+    }
+  };
+
   // Chargement initial des données, une seule fois
   useEffect(() => {
     const loadData = async () => {
@@ -195,6 +270,14 @@ export default function StaffPage() {
 
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (selectedMember) {
+      setPendingSpecialtyId(selectedMember.doctor?.specialty?.id ?? '');
+      setPendingServiceId(selectedMember.nurseAssistant?.service?.id ?? '');
+    }
+    setIsEditingAssignment(false); // On repasse en mode lecture à l'ouverture/changement
+  }, [selectedMember]);
 
   const filteredStaffList = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -280,64 +363,24 @@ export default function StaffPage() {
         ))}
       </div>
 
-      {/* Boîte Modale */}
       {selectedMember && (
-        <div className={styles['modal-overlay']} onClick={() => setSelectedMember(null)}>
-          <div className={styles['modal-content']} onClick={(e) => e.stopPropagation()}>
-            <h3>Fiche Profil Détaillée</h3>
-            <hr />
-            <div className={styles['modal-body']}>
-              <p><strong>Nom :</strong> {selectedMember.user.lastName}</p>
-              <p><strong>Prénom :</strong> {selectedMember.user.firstName}</p>
-              <p><strong>Rôle :</strong> {selectedMember.user.role === 'DOCTOR' ? 'Médecin' : 'Aide-soignant'}</p>
-              {selectedMember.user.role === 'DOCTOR' && selectedMember.doctor?.specialty && (
-                <p><strong>Spécialité :</strong> {selectedMember.doctor.specialty.specialtyName}</p>
-              )}
-              {selectedMember.user.role === 'NURSE_ASSISTANT' && selectedMember.nurseAssistant?.service && (
-                <p><strong>Service :</strong> {selectedMember.nurseAssistant.service.serviceName}</p>
-              )}
-              <p><strong>Email :</strong> {selectedMember.user.email}</p>
-              <p><strong>Téléphone :</strong> {selectedMember.user.phone || 'Non renseigné'}</p>
-              <p><strong>Matricule Interne :</strong> {selectedMember.doctor?.registrationId || selectedMember.nurseAssistant?.registrationId || 'Aucun'}</p>
-              <p>
-                <strong>Statut du compte : </strong>
-                <span className={selectedMember.user.userStatus === 'ACTIVE' ? styles.statusActive : styles.statusInactive}>
-                  {selectedMember.user.userStatus === 'ACTIVE' ? 'Actif' : selectedMember.user.userStatus === 'INACTIVE' ? 'Inactif' : 'En attente d\'activation'}
-                </span>
-              </p>
-
-              <div className={styles['modal-actions']}>
-                {selectedMember.user.userStatus === 'PENDING' && (
-                  <button
-                    className={styles['resend-token-button']}
-                    onClick={() => handleResendActivationToken(selectedMember.user.id, selectedMember.user.email)}
-                    disabled={isSendingToken || tokenSentSuccess} // Empêche le double-clic
-                    style={{ backgroundColor: tokenSentSuccess ? '#10b981' : undefined }} // Devient vert si succès
-                  >
-                    {isSendingToken && "Envoi en cours..."}
-                    {tokenSentSuccess && "Lien envoyé ! ✓"}
-                    {!isSendingToken && !tokenSentSuccess && "Renvoyer un nouveau lien d'activation"}
-                  </button>
-                )}
-                {selectedMember.user.userStatus === 'INACTIVE' && (
-                  <button className={styles['reactivate-account-button']} onClick={() => handleUpdateStaffStatus(selectedMember.user.id, 'ACTIVE')}>
-                    Réactiver le compte
-                  </button>
-                )}
-                {selectedMember.user.userStatus === 'ACTIVE' && (
-                  <button className={styles['deactivate-account-button']} onClick={() => handleUpdateStaffStatus(selectedMember.user.id, 'INACTIVE')}>
-                    Désactiver le compte
-                  </button>
-                )}
-
-                {/* Le bouton fermer est maintenant groupé ici */}
-                <button className={styles['btn-close']} onClick={() => setSelectedMember(null)}>
-                  Fermer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <StaffDetailsModal
+          member={selectedMember}
+          specialties={specialties}
+          services={services}
+          pendingSpecialtyId={pendingSpecialtyId}
+          setPendingSpecialtyId={setPendingSpecialtyId}
+          pendingServiceId={pendingServiceId}
+          setPendingServiceId={setPendingServiceId}
+          isEditingAssignment={isEditingAssignment}
+          setIsEditingAssignment={setIsEditingAssignment}
+          isSendingToken={isSendingToken}
+          tokenSentSuccess={tokenSentSuccess}
+          onClose={() => setSelectedMember(null)}
+          onResendActivationToken={handleResendActivationToken}
+          onUpdateStaffStatus={handleUpdateStaffStatus}
+          onSaveAssignment={handleSaveAssignment}
+        />
       )}
     </div>
   );
