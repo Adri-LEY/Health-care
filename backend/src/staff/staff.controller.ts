@@ -8,6 +8,7 @@ import { ActivateStaffAccountDto } from './dto/activateStaffAccount.dto';
 import { UpdateStaffMemberStatusDto } from './dto/updateStaffMemberStatus.dto';
 import { IsEmail } from 'class-validator';
 import { ResendActivationTokenDto } from './dto/resendActivationToken.dto';
+import { AssignStaffMemberDto } from './dto/assignStaffMember.dto';
 
 @Controller('staff')
 export class StaffController {
@@ -65,5 +66,12 @@ export class StaffController {
   @HttpCode(HttpStatus.OK)
   async resendStaffActivationToken(@Body() resendActivationTokenDto: ResendActivationTokenDto) {
     return await this.staffService.resendStaffActivationToken(resendActivationTokenDto);
+  }
+
+  @Post('assignStaffMember')
+  @UseGuards(JwtGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async assignStaffMember(@Body() assignStaffMemberDto: AssignStaffMemberDto) {
+    return await this.staffService.setSpecialtyForDoctor(assignStaffMemberDto);
   }
 }

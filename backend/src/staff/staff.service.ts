@@ -3,13 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, Role } from '.prisma/client';
 import { NewStaffMemberDto } from './dto/newStaffMember.dto';
 import { MailerService } from '@nestjs-modules/mailer';
-import {UserStatus} from '@prisma/client';
+import { UserStatus } from '@prisma/client';
 import { ActivateStaffAccountDto } from './dto/activateStaffAccount.dto';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { UpdateStaffMemberStatusDto } from './dto/updateStaffMemberStatus.dto';
 import { ResendActivationTokenDto } from './dto/resendActivationToken.dto';
+import { AssignStaffMemberDto } from './dto/assignStaffMember.dto';
 
 
 @Injectable()
@@ -55,7 +56,7 @@ export class StaffService {
               email: true,
               phone: true,
               role: true,
-              userStatus: true, 
+              userStatus: true,
             },
           },
           doctor: {
@@ -90,7 +91,7 @@ export class StaffService {
         where: { email: newStaffMember.email },
       });
 
-      if(userExists) {
+      if (userExists) {
         throw new ConflictException('A user with this email already exists');
       }
 
@@ -138,9 +139,9 @@ export class StaffService {
         <p>Merci,</p>
         <p>L'équipe de gestion des comptes.</p>`,
       })
-      .catch(err => {
-        console.error('Error sending activation email:', err);
-      });
+        .catch(err => {
+          console.error('Error sending activation email:', err);
+        });
 
 
 
@@ -170,14 +171,14 @@ export class StaffService {
       if (!staffUser) throw new NotFoundException('Invalid activation token');
 
       const now = new Date();
-      if(staffUser.tokenExpiresAt && staffUser.tokenExpiresAt < now) {
+      if (staffUser.tokenExpiresAt && staffUser.tokenExpiresAt < now) {
         throw new BadRequestException('Activation token has expired');
       }
 
       const hashedPassword = bcrypt.hashSync(activateNewStaffAccountDto.password, 10);
       const updatedStaff = await this.prisma.user.update({
         where: { activationToken: activateNewStaffAccountDto.activationToken },
-        data: { 
+        data: {
           password: hashedPassword,
           userStatus: UserStatus.ACTIVE,
           activationToken: null, // Supprime le token après activation
@@ -214,8 +215,10 @@ export class StaffService {
   async resendStaffActivationToken(resendActivationTokenDto: ResendActivationTokenDto) {
     try {
       const staffUser = await this.prisma.user.findUnique({
-        where: { id: resendActivationTokenDto.userId,
-          email: resendActivationTokenDto.email },
+        where: {
+          id: resendActivationTokenDto.userId,
+          email: resendActivationTokenDto.email
+        },
       });
 
       if (!staffUser) throw new NotFoundException('User not found');
@@ -245,8 +248,9 @@ export class StaffService {
         <p>Un nouveau lien d'activation vient d'être généré pour votre compte. Veuillez cliquer sur le lien ci-dessous pour activer votre compte :</p>
         <a href="${activationLink}">Activer mon compte</a>`
       })
-      .catch(err => {
-        console.error('Error sending activation email:', err)});
+        .catch(err => {
+          console.error('Error sending activation email:', err)
+        });
 
       return { message: 'Activation token resent successfully' };
     } catch (error) {
@@ -264,14 +268,14 @@ export class StaffService {
    * @throws BadRequestException if the account is still pending.
    */
   async updateStaffMemberStatus(updateStaffMemberStatusDto: UpdateStaffMemberStatusDto) {
-  
+
     try {
       const updatedStaff = await this.prisma.user.update({
         where: { id: updateStaffMemberStatusDto.userId },
         data: { userStatus: updateStaffMemberStatusDto.status as UserStatus },
       });
 
-      if(updatedStaff.userStatus === UserStatus.PENDING) throw new BadRequestException('The Account is still pending');
+      if (updatedStaff.userStatus === UserStatus.PENDING) throw new BadRequestException('The Account is still pending');
 
       const payload = {
         id: updatedStaff.id,
@@ -288,6 +292,86 @@ export class StaffService {
     }
     catch (error) {
       console.error('Error updating staff member status:', error);
+      throw error;
+    }
+  }
+
+
+
+  async setSpecialtyForDoctor(assignStaffMemberDto: AssignStaffMemberDto) {
+    try {
+      const updateData: any = {};
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: assignStaffMemberDto.userId },
+        include: {
+          medicalStaff: true,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${assignStaffMemberDto.userId} not found`);
+      }
+
+      if(user.role !== Role.DOCTOR && user.role !== Role.NURSE_ASSISTANT) {
+        throw new BadRequestException('User must be either a doctor or a nurse assistant to assign a specialty or service.');
+      }
+
+      if (user.role === Role.DOCTOR && assignStaffMemberDto.serviceId) {
+        throw new BadRequestException('Cannot assign a service to a doctor. Please provide a specialty ID instead.');
+      }
+
+      if (user.role === Role.NURSE_ASSISTANT && assignStaffMemberDto.specialtyId) {
+        throw new BadRequestException('Cannot assign a specialty to a nurse assistant. Please provide a service ID instead.');
+      }
+
+      if (assignStaffMemberDto.specialtyId) {
+        updateData.medicalStaff = {
+          update: {
+            doctor: {
+              update: {
+                specialtyId: assignStaffMemberDto.specialtyId,
+              },
+            },
+          },
+        };
+      }
+      else if (assignStaffMemberDto.serviceId) {
+        updateData.medicalStaff = {
+          update: {
+            nurseAssistant: {
+              update: {
+                serviceId: assignStaffMemberDto.serviceId,
+              },
+            },
+          },
+        };
+      }
+
+      const staffUser = await this.prisma.user.update({
+        where: { id: assignStaffMemberDto.userId },
+        data: updateData, 
+        include: {
+          medicalStaff: {
+            include: {
+              doctor: {
+                include: {
+                  specialty: true,
+                },
+              },
+              nurseAssistant: {
+                include: {
+                  service: true,
+                }
+              }
+            }
+          }
+        },
+      });
+
+      return staffUser;
+    } catch (error) {
+      console.error('Error setting specialty for doctor:', error);
       throw error;
     }
   }
