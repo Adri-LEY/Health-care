@@ -61,6 +61,18 @@ export default function StaffCard({ member, onSelect }: StaffCardProps) {
             <span className={styles['staff-extra']}>
                 {specialtyOrService || 'Aucune information complémentaire'}
             </span>
+
+            {user.userStatus === 'ACTIVE' && (
+                <span className={styles['staff-status-active']}>
+                    Actif
+                </span>
+            )}
+
+            {user.userStatus === 'INACTIVE' && (
+                <span className={styles['staff-status-inactive']}>
+                    Inactif
+                </span>
+            )}
         </button>
     );
 }
