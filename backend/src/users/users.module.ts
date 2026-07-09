@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { AuthModule } from '../auth/auth.module'; 
-import { PrismaService } from '../prisma/prisma.service';
+import { InfrastructureModule } from '../infrastructure/infrastructure.module';
+import { UsersRepository } from './users.repository';
 
 @Module({
-  imports: [AuthModule], // 👈 Indispensable pour utiliser le JwtAuthGuard ici !
+  imports: [InfrastructureModule],
   controllers: [UsersController],
-  providers: [UsersService, PrismaService],
+  providers: [UsersService, UsersRepository],
 })
 export class UsersModule {}
