@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PatientsRepository } from './patients.repository';
+import { SearchPatientsDto } from './dto/searchPatients.dto';
 
 @Injectable()
 export class PatientsService {
@@ -43,5 +44,16 @@ export class PatientsService {
         }
 
         return this.patientsRepository.removeDoctorFromPatient(patientId);
+    }
+
+
+    /**
+     * Searches for patients based on a query and limit.
+     * @param dto 
+     * @returns An array of patients matching the search criteria
+     * @throws Error if no patients are found matching the search criteria
+     */
+    async searchPatientsByQuery(dto: SearchPatientsDto) {
+        return await this.patientsRepository.searchPatientsByQuery(dto);
     }
 }

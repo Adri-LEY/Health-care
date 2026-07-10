@@ -1,7 +1,8 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { UserStatusGuard } from 'src/auth/status.guard';
 import { PatientsService } from './patients.service';
+import { SearchPatientsDto } from './dto/searchPatients.dto';
 
 @Controller('patients')
 export class PatientsController {
@@ -32,6 +33,19 @@ export class PatientsController {
 
         return {
             message: `Doctor has been removed from patient with ID ${patientId}`,
+            data: result,
+        };
+    }
+
+    @Get('searchPatients')
+    //@UseGuards(JwtGuard, UserStatusGuard)
+    @HttpCode(HttpStatus.OK)
+    async searchPatientsByQuery(@Query() dto: SearchPatientsDto) {
+        console.log(`Received request to search patients with query "${dto.q}" and limit ${dto.limit}`);
+        const result = await this.patientsService.searchPatientsByQuery(dto);
+        
+        return {
+            message: `Found patients matching query "${dto.q}"`,
             data: result,
         };
     }
