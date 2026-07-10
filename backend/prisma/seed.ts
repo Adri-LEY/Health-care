@@ -13,10 +13,10 @@ async function main() {
   // ==========================================
   // 1. NETTOYAGE DE LA BASE (Ordre strict des FK)
   // ==========================================
+  await prisma.patient.deleteMany({});
   await prisma.doctor.deleteMany({});
   await prisma.nurseAssistant.deleteMany({});
   await prisma.medicalStaff.deleteMany({});
-  await prisma.patient.deleteMany({});
   await prisma.administrator.deleteMany({});
   
   // Maintenant on peut vider les tables parentes et annexes
