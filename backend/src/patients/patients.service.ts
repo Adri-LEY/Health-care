@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PatientsRepository } from './patients.repository';
 import { SearchPatientsDto } from './dto/searchPatients.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PatientsService {
@@ -54,6 +55,43 @@ export class PatientsService {
      * @throws Error if no patients are found matching the search criteria
      */
     async searchPatientsByQuery(dto: SearchPatientsDto) {
-        return await this.patientsRepository.searchPatientsByQuery(dto);
+        const searchTerms = dto.q ? dto.q.trim().split(/\s+/) : [];
+
+        // On construit la condition ici (Logique métier)
+        const whereCondition: Prisma.UserWhereInput = {
+            role: 'PATIENT',
+        };
+
+        if (searchTerms.length >= 2) {
+            const firstPart = searchTerms[0];
+            const secondPart = searchTerms.slice(1).join(' ');
+
+            whereCondition.AND = [
+                {
+                    OR: [
+                        {
+                            AND: [
+                                { firstName: { contains: firstPart, mode: 'insensitive' } },
+                                { lastName: { contains: secondPart, mode: 'insensitive' } }
+                            ]
+                        },
+                        {
+                            AND: [
+                                { lastName: { contains: firstPart, mode: 'insensitive' } },
+                                { firstName: { contains: secondPart, mode: 'insensitive' } }
+                            ]
+                        }
+                    ]
+                }
+            ];
+        } else if (searchTerms.length === 1) {
+            whereCondition.OR = [
+                { firstName: { contains: searchTerms[0], mode: 'insensitive' } },
+                { lastName: { contains: searchTerms[0], mode: 'insensitive' } },
+            ];
+        }
+
+        // On envoie la condition toute prête au Repository
+        return await this.patientsRepository.searchPatientsByQuery(whereCondition, dto.limit);
     }
 }

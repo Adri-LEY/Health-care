@@ -5,7 +5,6 @@ import { IsInt, IsOptional, IsString, Max, Min, MinLength } from "class-validato
 export class SearchPatientsDto {
     @IsOptional()
     @IsString()
-    @MinLength(3, { message: 'Le nom doit contenir entre 3 et 50 caractères.' })
     q?: string;
 
     @IsOptional()

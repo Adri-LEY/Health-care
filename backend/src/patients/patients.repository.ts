@@ -53,20 +53,14 @@ export class PatientsRepository {
         });
     }
 
-    searchPatientsByQuery(dto: SearchPatientsDto) {
+    searchPatientsByQuery(whereCondition: Prisma.UserWhereInput, limit?: number) {
         return this.prisma.user.findMany({
-            where: {
-                role: 'PATIENT',
-                OR: [
-                    { firstName: { contains: dto.q, mode: 'insensitive' } },
-                    { lastName: { contains: dto.q, mode: 'insensitive' } },
-                ],
-            },
+            where: whereCondition,
             orderBy: [
                 { firstName: 'asc' },
                 { lastName: 'asc' },
             ],
-            take: dto.limit,
+            take: limit,
             include: {
                 patient: true,
             },

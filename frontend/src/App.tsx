@@ -11,6 +11,7 @@ import StaffList from './pages/admin-pages/staffList';
 import AdminMenu from './pages/admin-pages/AdminMenu';
 import AddStaff from './pages/admin-pages/addStaff';
 import { ActivationAccount } from './pages/account/staffAccount/activationAccount';
+import PatientResearch from './pages/doctor-pages/patientReseach';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -76,6 +77,9 @@ function AppContent() {
         </Route>
 
         <Route path="admin" element={<AdminMenu />} />
+
+
+        <Route path="/doctor/patientResearch" element={<PatientResearch />} />
       </Routes>
     </>
   );
