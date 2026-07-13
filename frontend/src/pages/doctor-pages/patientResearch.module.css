@@ -1,0 +1,129 @@
+.patient-research-container {
+  padding: 30px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patient-research-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.count-badge {
+  background-color: #6c757d;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+}
+
+.patient-research-description {
+  font-size: 1em;
+  color: #666;
+  margin-top: 5px;
+  margin-bottom: 24px;
+}
+
+.action-buttons-container {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;            
+  width: 100%;                    
+  margin-bottom: 20px;            
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.back-button:hover {
+  transform: translateY(-1px);
+  border-color: #94a3b8;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+  color: #2563eb;
+}
+
+.add-patient-button {
+  display: flex;  
+  align-items: center; 
+  justify-content: center;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #01ba3c;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.add-patient-button:hover {
+  background-color: #019a32;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(1, 186, 60, 0.15);
+}
+
+.patient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.patient-list-header {
+  display: grid;
+  /* À ajuster selon le layout exact de ton futur PatientCard */
+  grid-template-columns: 1.2fr 0.8fr 1.4fr 1fr auto; 
+  gap: 16px;
+  align-items: center;
+  padding: 12px 16px;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.patient-list-header span {
+  justify-self: center;
+}
+
+.patient-item-placeholder {
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.empty-list, .loading {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .patient-list-header {
+    display: none;
+  }
+}

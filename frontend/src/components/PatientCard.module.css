@@ -1,0 +1,53 @@
+.patient-card {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1.4fr 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  text-align: center;
+  justify-items: center;
+}
+
+.patient-card:hover {
+  transform: translateY(-1px);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.patient-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.patient-name {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #334155;
+}
+
+.patient-gender-age {
+  font-size: 1em;
+  color: #666;
+}
+
+.patient-contact {
+  font-size: 1em;
+  color: #666;
+}
+
+.patient-type {
+  font-size: 1em;
+  color: #666;
+}
+
+.patient-status {
+  font-size: 1em;
+  color: #666;
+}

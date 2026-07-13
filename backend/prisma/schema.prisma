@@ -77,6 +77,11 @@ model Patient {
   // Clé étrangère vers le dossier médical
   medicalRecordId Int           @unique
   medicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Restrict)
+
+  
+  //clé étrangère vers Doctor (pour le médecin traitant)
+  doctorId  Int?      @unique
+  doctor    Doctor?   @relation(fields: [doctorId], references: [id], onDelete: Restrict)
 }
 
 model Administrator {
@@ -114,6 +119,9 @@ model Doctor {
   // Spécialité
   specialtyId    Int
   specialty      Specialty    @relation(fields: [specialtyId], references: [id])
+
+  // Liste des patients dont le médecin prend en charge
+  patients       Patient[]
 }
 
 model NurseAssistant {

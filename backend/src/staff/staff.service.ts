@@ -1,5 +1,4 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, Role } from '.prisma/client';
 import { NewStaffMemberDto } from './dto/newStaffMember.dto';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -11,12 +10,13 @@ import * as bcrypt from 'bcrypt';
 import { UpdateStaffMemberStatusDto } from './dto/updateStaffMemberStatus.dto';
 import { ResendActivationTokenDto } from './dto/resendActivationToken.dto';
 import { AssignStaffMemberDto } from './dto/assignStaffMember.dto';
+import { StaffRepository } from './staff.repository';
 
 
 @Injectable()
 export class StaffService {
 
-  constructor(private prisma: PrismaService,
+  constructor(private readonly staffRepository: StaffRepository,
     private mailerService: MailerService,
     private jwtService: JwtService
   ) { }
@@ -45,32 +45,7 @@ export class StaffService {
     }
 
     try {
-      return await this.prisma.medicalStaff.findMany({
-        where: whereConditions,
-        include: {
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-              phone: true,
-              role: true,
-              userStatus: true,
-            },
-          },
-          doctor: {
-            include: {
-              specialty: true, // Charge l'objet Specialty complet (id + specialtyName)
-            },
-          },
-          nurseAssistant: {
-            include: {
-              service: true, // Charge l'objet Service complet (id + serviceName)
-            },
-          },
-        },
-      });
+      return await this.staffRepository.findAll(whereConditions);
     } catch (error) {
       console.error('Error fetching staff:', error);
       throw new InternalServerErrorException('Could not fetch staff');
@@ -87,9 +62,7 @@ export class StaffService {
    */
   async createNewStaffMember(newStaffMember: NewStaffMemberDto) {
     try {
-      const userExists = await this.prisma.user.findUnique({
-        where: { email: newStaffMember.email },
-      });
+      const userExists = await this.staffRepository.findUserByEmail(newStaffMember.email);
 
       if (userExists) {
         throw new ConflictException('A user with this email already exists');
@@ -97,32 +70,30 @@ export class StaffService {
 
       const activationToken = crypto.randomBytes(32).toString('hex');
 
-      const createdStaff = await this.prisma.user.create({
-        data: {
-          firstName: newStaffMember.firstName,
-          lastName: newStaffMember.lastName,
-          email: newStaffMember.email,
-          phone: newStaffMember.phone,
-          role: newStaffMember.role as Role,
-          userStatus: 'PENDING', // On garde le compte en attente à sa création
-          activationToken: activationToken,
-          tokenExpiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // Token valable 48 heures
-          medicalStaff: {
-            create: {
-              staffNumber: newStaffMember.staffNumber,
-              doctor: newStaffMember.role === 'DOCTOR' ? {
-                create: {
-                  registrationId: newStaffMember.registrationId,
-                  specialtyId: newStaffMember.specialtyId!,
-                },
-              } : undefined,
-              nurseAssistant: newStaffMember.role === 'NURSE_ASSISTANT' ? {
-                create: {
-                  registrationId: newStaffMember.registrationId,
-                  serviceId: newStaffMember.serviceId!,
-                },
-              } : undefined,
-            },
+      const createdStaff = await this.staffRepository.createStaffMember({
+        firstName: newStaffMember.firstName,
+        lastName: newStaffMember.lastName,
+        email: newStaffMember.email,
+        phone: newStaffMember.phone,
+        role: newStaffMember.role as Role,
+        userStatus: 'PENDING', // On garde le compte en attente à sa création
+        activationToken: activationToken,
+        tokenExpiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // Token valable 48 heures
+        medicalStaff: {
+          create: {
+            staffNumber: newStaffMember.staffNumber,
+            doctor: newStaffMember.role === 'DOCTOR' ? {
+              create: {
+                registrationId: newStaffMember.registrationId,
+                specialtyId: newStaffMember.specialtyId!,
+              },
+            } : undefined,
+            nurseAssistant: newStaffMember.role === 'NURSE_ASSISTANT' ? {
+              create: {
+                registrationId: newStaffMember.registrationId,
+                serviceId: newStaffMember.serviceId!,
+              },
+            } : undefined,
           },
         },
       });
@@ -161,12 +132,7 @@ export class StaffService {
    */
   async activateStaffMember(activateNewStaffAccountDto: ActivateStaffAccountDto) {
     try {
-      const staffUser = await this.prisma.user.findUnique({
-        where: { activationToken: activateNewStaffAccountDto.activationToken },
-        include: {
-          medicalStaff: true, // Inclut les informations du personnel médical
-        },
-      });
+      const staffUser = await this.staffRepository.findUserByActivationToken(activateNewStaffAccountDto.activationToken);
 
       if (!staffUser) throw new NotFoundException('Invalid activation token');
 
@@ -176,14 +142,11 @@ export class StaffService {
       }
 
       const hashedPassword = bcrypt.hashSync(activateNewStaffAccountDto.password, 10);
-      const updatedStaff = await this.prisma.user.update({
-        where: { activationToken: activateNewStaffAccountDto.activationToken },
-        data: {
-          password: hashedPassword,
-          userStatus: UserStatus.ACTIVE,
-          activationToken: null, // Supprime le token après activation
-          tokenExpiresAt: null, // Supprime la date d'expiration après activation
-        },
+      const updatedStaff = await this.staffRepository.updateUserById(staffUser.id, {
+        password: hashedPassword,
+        userStatus: UserStatus.ACTIVE,
+        activationToken: null,
+        tokenExpiresAt: null,
       });
 
       const payload = {
@@ -214,12 +177,10 @@ export class StaffService {
    */
   async resendStaffActivationToken(resendActivationTokenDto: ResendActivationTokenDto) {
     try {
-      const staffUser = await this.prisma.user.findUnique({
-        where: {
-          id: resendActivationTokenDto.userId,
-          email: resendActivationTokenDto.email
-        },
-      });
+      const staffUser = await this.staffRepository.findUserByIdAndEmail(
+        resendActivationTokenDto.userId,
+        resendActivationTokenDto.email,
+      );
 
       if (!staffUser) throw new NotFoundException('User not found');
 
@@ -230,12 +191,9 @@ export class StaffService {
       const newActivationToken = crypto.randomBytes(32).toString('hex');
       const tokenExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // Token valable 48h
 
-      await this.prisma.user.update({
-        where: { email: resendActivationTokenDto.email },
-        data: {
-          activationToken: newActivationToken,
-          tokenExpiresAt: tokenExpiresAt,
-        },
+      await this.staffRepository.updateUserById(resendActivationTokenDto.userId, {
+        activationToken: newActivationToken,
+        tokenExpiresAt,
       });
 
       const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -270,10 +228,7 @@ export class StaffService {
   async updateStaffMemberStatus(updateStaffMemberStatusDto: UpdateStaffMemberStatusDto) {
 
     try {
-      const updatedStaff = await this.prisma.user.update({
-        where: { id: updateStaffMemberStatusDto.userId },
-        data: { userStatus: updateStaffMemberStatusDto.status as UserStatus },
-      });
+      const updatedStaff = await this.staffRepository.updateUserById(updateStaffMemberStatusDto.userId, { userStatus: updateStaffMemberStatusDto.status as UserStatus });
 
       if (updatedStaff.userStatus === UserStatus.PENDING) throw new BadRequestException('The Account is still pending');
 
@@ -302,12 +257,7 @@ export class StaffService {
     try {
       const updateData: any = {};
 
-      const user = await this.prisma.user.findUnique({
-        where: { id: assignStaffMemberDto.userId },
-        include: {
-          medicalStaff: true,
-        },
-      });
+      const user = await this.staffRepository.findStaffForAssignment(assignStaffMemberDto.userId);
 
       if (!user) {
         throw new NotFoundException(`User with ID ${assignStaffMemberDto.userId} not found`);
@@ -348,26 +298,7 @@ export class StaffService {
         };
       }
 
-      const staffUser = await this.prisma.user.update({
-        where: { id: assignStaffMemberDto.userId },
-        data: updateData, 
-        include: {
-          medicalStaff: {
-            include: {
-              doctor: {
-                include: {
-                  specialty: true,
-                },
-              },
-              nurseAssistant: {
-                include: {
-                  service: true,
-                }
-              }
-            }
-          }
-        },
-      });
+      const staffUser = await this.staffRepository.assignStaffMember(assignStaffMemberDto.userId, updateData);
 
       return staffUser;
     } catch (error) {

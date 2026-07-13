@@ -62,6 +62,8 @@ export default function SignUp() {
 
             await new Promise(resolve => setTimeout(resolve, 3000));
 
+            console.log('token:', data.accessToken);
+
             localStorage.setItem('token', data.accessToken);
 
             navigate('/dashboard');

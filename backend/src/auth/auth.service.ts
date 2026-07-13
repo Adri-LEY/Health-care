@@ -194,6 +194,7 @@ export class AuthService {
           password: await bcrypt.hash(newPatientDto.password, 10),
           phone: newPatientDto.phone,
           role: 'PATIENT',
+          userStatus: 'ACTIVE',
           patient: {
             create: {
               age: age,
@@ -219,7 +220,7 @@ export class AuthService {
       console.log('phone:', user.phone);
 
       const payload = {
-        sub: user.id,
+        id: user.id,
         email: user.email,
         role: user.role
       };
