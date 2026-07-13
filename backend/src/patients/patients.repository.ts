@@ -66,4 +66,22 @@ export class PatientsRepository {
             },
         });
     }
+
+    getMedicalRecordWithProfileByPatientId(patientId: number) {
+        return this.prisma.patient.findUnique({
+            where: { id: patientId },
+            include: {
+                medicalRecord: true,
+                user: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        email: true,
+                        phone: true,
+                    },
+                }
+            },
+        });
+    }
 }

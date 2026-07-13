@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { UserStatusGuard } from 'src/auth/status.guard';
 import { PatientsService } from './patients.service';
@@ -46,6 +46,20 @@ export class PatientsController {
         
         return {
             message: `Found patients matching query "${dto.q}"`,
+            data: result,
+        };
+    }
+
+
+    @Get('medicalRecord/:patientId')
+    //@UseGuards(JwtGuard, UserStatusGuard)
+    @HttpCode(HttpStatus.OK)
+    async getMedicalRecordByPatientId(@Param('patientId', ParseIntPipe) patientId: number) {
+        console.log(`Received request to get medical record for patient with ID ${patientId}`);
+        const result = await this.patientsService.getMedicalRecordWithProfileByPatientId(patientId);
+
+        return {
+            message: `Medical record for patient with ID ${patientId}`,
             data: result,
         };
     }

@@ -94,4 +94,10 @@ export class PatientsService {
         // On envoie la condition toute prête au Repository
         return await this.patientsRepository.searchPatientsByQuery(whereCondition, dto.limit);
     }
+
+
+    async getMedicalRecordWithProfileByPatientId(patientId: number) {
+        const patientInfos = await this.patientsRepository.getMedicalRecordWithProfileByPatientId(patientId);
+        return patientInfos;
+    }   
 }
