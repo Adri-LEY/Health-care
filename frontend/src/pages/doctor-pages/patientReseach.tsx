@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './patientResearch.module.css';
 import SearchComponent from '../../components/searchComponent';
@@ -105,26 +105,7 @@ export default function PatientResearch() {
         setLoading(false);
     }
 
-    useEffect(() => {
-    
-    const fetchPatients = async () => {
-      try {
-        console.log(`Lancement du fetch pour : ${debouncedSearchTerm}`);
-        // Utilise limit=50 maximum pour valider ton @Max(50) du DTO
-        const res = await fetch(`${apiUrl}/patients/searchPatients?q=${encodeURIComponent(debouncedSearchTerm)}&limit=50`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        const json = await res.json();
-        setPatients(json.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchPatients();
-  }, [debouncedSearchTerm]); // On écoute uniquement la valeur debouncée !
+    useEffect(() => {fetchPatients();}, [debouncedSearchTerm]); // On écoute uniquement la valeur debouncée !
 
 
     if (loading) return <div className={styles['loading']}>Chargement des patients...</div>;
@@ -143,7 +124,7 @@ export default function PatientResearch() {
             </p>
 
             <div className={styles['action-buttons-container']}>
-                <button type="button" className={styles['back-button']} onClick={() => navigate('/dashboard')}>
+                <button type="button" className={styles['back-button']} onClick={() => navigate('/doctor')}>
                     <ArrowLeft size={18} aria-hidden="true" /> Retour
                 </button>
             </div>
@@ -191,7 +172,7 @@ export default function PatientResearch() {
                         <PatientCard 
                             key={item.id}
                             patient={item}
-                            onClick={() => navigate(`/doctor/patientMedicalRecord/${item.id}`)}
+                            onClick={() => navigate(`/staff/patientMedicalRecord/${item.id}`)}
                         />
                     ))
                 )}

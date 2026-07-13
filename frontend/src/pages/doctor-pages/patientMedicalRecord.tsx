@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft,
@@ -86,7 +86,7 @@ export default function PatientMedicalRecord() {
         <div className={styles.container}>
             {/* Header avec bouton retour */}
             <div className={styles.header}>
-                <button className={styles.backButton} onClick={() => navigate("/doctor/patientResearch")}>
+                <button className={styles.backButton} onClick={() => navigate("/staff/patientResearch")}>
                     <ArrowLeft size={18} /> Retour
                 </button>
                 <div className={styles.titleSection}>

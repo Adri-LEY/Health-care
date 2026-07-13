@@ -3,14 +3,17 @@ import { JwtGuard } from 'src/auth/jwt.guard';
 import { UserStatusGuard } from 'src/auth/status.guard';
 import { PatientsService } from './patients.service';
 import { SearchPatientsDto } from './dto/searchPatients.dto';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Controller('patients')
+@UseGuards(JwtGuard, UserStatusGuard, RolesGuard) // Ajout du RoleGuard pour vérifier le rôle de l'utilisateur
 export class PatientsController {
 
     constructor(private readonly patientsService: PatientsService) {}
 
     @Post('assignDoctor')
-    //@UseGuards(JwtGuard, UserStatusGuard)
+    @Roles('DOCTOR')
     @HttpCode(HttpStatus.OK)
     async assignDoctorToPatient(@Body() body: { patientId: number; doctorId: number }) {
         const { patientId, doctorId } = body;
@@ -24,7 +27,7 @@ export class PatientsController {
     }   
 
     @Post('removeDoctor')
-    //@UseGuards(JwtGuard, UserStatusGuard)
+    @Roles('DOCTOR')
     @HttpCode(HttpStatus.OK)
     async removeDoctorFromPatient(@Body() body: { patientId: number }) {
         const { patientId } = body;
@@ -38,7 +41,7 @@ export class PatientsController {
     }
 
     @Get('searchPatients')
-    //@UseGuards(JwtGuard, UserStatusGuard)
+    @Roles('DOCTOR', 'NURSE_ASSISTANT')
     @HttpCode(HttpStatus.OK)
     async searchPatientsByQuery(@Query() dto: SearchPatientsDto) {
         console.log(`Received request to search patients with query "${dto.q}" and limit ${dto.limit}`);
@@ -52,7 +55,7 @@ export class PatientsController {
 
 
     @Get('medicalRecord/:patientId')
-    //@UseGuards(JwtGuard, UserStatusGuard)
+    @Roles('DOCTOR', 'NURSE_ASSISTANT')
     @HttpCode(HttpStatus.OK)
     async getMedicalRecordByPatientId(@Param('patientId', ParseIntPipe) patientId: number) {
         console.log(`Received request to get medical record for patient with ID ${patientId}`);
