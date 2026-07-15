@@ -11,9 +11,10 @@ import StaffList from './pages/admin-pages/staffList';
 import AdminMenu from './pages/admin-pages/adminMenu';
 import AddStaff from './pages/admin-pages/addStaff';
 import { ActivationAccount } from './pages/account/staffAccount/activationAccount';
-import PatientResearch from './pages/doctor-pages/patientReseach';
-import PatientMedicalRecord from './pages/doctor-pages/patientMedicalRecord';
+import PatientResearch from './pages/shared-pages/patientReseach';
+import PatientMedicalRecord from './pages/shared-pages/patientMedicalRecord';
 import DoctorMenu from './pages/doctor-pages/DoctorMenu';
+import PatientMenu from './pages/patient-pages/PatientMenu';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -30,6 +31,8 @@ const RoleBasedRedirect = () => {
       return <Navigate to="/admin" replace />;
     case 'DOCTOR':
       return <Navigate to="/doctor" replace />; // (Exemple, change selon tes besoins)
+    case 'PATIENT':
+      return <Navigate to="/patient" replace />; // (Exemple, change selon tes besoins)
     default:
       // Par défaut, les rôles classiques vont sur le dashboard général
       return <Navigate to="/dashboard" replace />;
@@ -60,6 +63,17 @@ const DoctorRoute = () => {
   }
   return <Outlet />;
 };
+
+const PatientRoute = () => {
+  const userString = localStorage.getItem('user');
+  const user = userString ? JSON.parse(userString) : null;
+  console.log('PatientRoute - user:', user);
+
+  if (!user || user.role !== 'PATIENT') {
+    return <Navigate to="/login" replace />;
+  }
+  return <Outlet />;
+}
 
 function AppContent() {
   return (
@@ -96,13 +110,17 @@ function AppContent() {
         <Route element={<DoctorRoute />}>
           <Route path="/doctor" element={<DoctorMenu />} />
 
-          <Route path="/staff/patientResearch" element={<PatientResearch />} />
+          <Route path="/patientResearch" element={<PatientResearch />} />
         </Route>
-        
 
-        <Route path="/staff/patientResearch" element={<PatientResearch />} />
 
-        <Route path="/staff/patientMedicalRecord/:patientId" element={<PatientMedicalRecord />} />
+        <Route element={<PatientRoute />}>
+          <Route path="/patient" element={<PatientMenu />} />
+        </Route>
+
+        <Route path="/patientResearch" element={<PatientResearch />} />
+
+        <Route path="/patient/medicalRecord/:patientId" element={<PatientMedicalRecord />} />
       </Routes>
     </>
   );

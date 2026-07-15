@@ -5,6 +5,7 @@ import { PatientsService } from './patients.service';
 import { SearchPatientsDto } from './dto/searchPatients.dto';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
+import { PatientRecordOwnerGuard } from 'src/auth/patientRecordOwnerGuard';
 
 @Controller('patients')
 @UseGuards(JwtGuard, UserStatusGuard, RolesGuard) // Ajout du RoleGuard pour vérifier le rôle de l'utilisateur
@@ -59,9 +60,12 @@ export class PatientsController {
 
 
     @Get('medicalRecord/:patientId')
-    @Roles('DOCTOR', 'NURSE_ASSISTANT')
+    @Roles('DOCTOR', 'NURSE_ASSISTANT', 'PATIENT')
+    @UseGuards(PatientRecordOwnerGuard) // Ajout du PatientRecordOwnerGuard pour vérifier la propriété du dossier médical
     @HttpCode(HttpStatus.OK)
-    async getMedicalRecordByPatientId(@Param('patientId', ParseIntPipe) patientId: number) {
+    async getMedicalRecordByPatientId(
+        @Param('patientId', ParseIntPipe) patientId: number,
+    ) {
         console.log(`Received request to get medical record for patient with ID ${patientId}`);
         const result = await this.patientsService.getMedicalRecordWithProfileByPatientId(patientId);
 

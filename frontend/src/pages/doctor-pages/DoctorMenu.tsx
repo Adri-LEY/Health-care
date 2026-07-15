@@ -12,7 +12,7 @@ export default function DoctorMenu() {
           La connexion a réussi. Cet espace contiendra bientôt vos outils de santé spécifiques.
         </p>
 
-        <button type="button" className={styles.button} onClick={() => navigate('/staff/patientResearch')}>
+        <button type="button" className={styles.button} onClick={() => navigate('/patientResearch')}>
             Rechercher un patient
         </button>
       </section>

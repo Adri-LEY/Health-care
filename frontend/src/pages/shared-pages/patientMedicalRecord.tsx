@@ -176,7 +176,7 @@ export default function PatientMedicalRecord() {
         <div className={styles.container}>
             {/* Header avec bouton retour */}
             <div className={styles.header}>
-                <button className={styles.backButton} onClick={() => navigate("/staff/patientResearch")}>
+                <button className={styles.backButton} onClick={() => navigate("/patientResearch")}>
                     <ArrowLeft size={18} /> Retour
                 </button>
                 <div className={styles.titleSection}>
