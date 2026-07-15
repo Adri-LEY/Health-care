@@ -28,7 +28,7 @@ const staffInclude = {
 
 @Injectable()
 export class StaffRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   findAll(where: Prisma.MedicalStaffWhereInput) {
     return this.prisma.medicalStaff.findMany({
@@ -87,6 +87,30 @@ export class StaffRepository {
         medicalStaff: true,
       },
     });
+  }
+
+  /**
+   * Retrieves the doctor ID associated with a user ID
+   * @param userId 
+   * @returns The doctor ID if found, otherwise null (returns a number or null)
+   */
+  getDoctorIdByUserId(userId: number) {
+    const result = this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        medicalStaff: {
+          select: {
+            doctor: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return result.then(user => user?.medicalStaff?.doctor?.id || null);
   }
 
   assignStaffMember(userId: number, data: Prisma.UserUpdateArgs['data']) {

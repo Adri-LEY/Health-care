@@ -80,7 +80,25 @@ export class PatientsRepository {
                         email: true,
                         phone: true,
                     },
-                }
+                },
+                doctor: {
+                    select: {
+                        id: true,
+                        staff: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        email: true,
+                                        phone: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             },
         });
     }

@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PatientsRepository } from './patients.repository';
 import { SearchPatientsDto } from './dto/searchPatients.dto';
 import { Prisma } from '@prisma/client';
+import { StaffRepository } from 'src/staff/staff.repository';
 
 @Injectable()
 export class PatientsService {
 
-    constructor(private readonly patientsRepository: PatientsRepository) {}
+    constructor(
+        private readonly patientsRepository: PatientsRepository,
+        private readonly staffRepository: StaffRepository
+    ) {}
 
     /**
      * Assigns a doctor to a patient
@@ -33,8 +37,10 @@ export class PatientsService {
      * @param patientId 
      * @returns The updated patient record with the doctor removed
      */
-    async removeDoctorFromPatient(patientId: number) {
+    async removeDoctorFromPatient(patientId: number, user: any) {
         const patient = await this.patientsRepository.findPatientById(patientId);
+
+        const userDoctorId = await this.staffRepository.getDoctorIdByUserId(user.id);
 
         if (!patient) {
             throw new Error(`Patient with ID ${patientId} not found`);
@@ -42,6 +48,10 @@ export class PatientsService {
 
         if (!patient.doctorId) {
             throw new Error(`Patient with ID ${patientId} does not have a doctor assigned`);
+        }
+
+        if (patient.doctorId !== userDoctorId) {
+            throw new Error(`User is not the assigned doctor for patient with ID ${patientId}`);
         }
 
         return this.patientsRepository.removeDoctorFromPatient(patientId);

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { UserStatusGuard } from 'src/auth/status.guard';
 import { PatientsService } from './patients.service';
@@ -26,13 +26,17 @@ export class PatientsController {
         };
     }   
 
-    @Post('removeDoctor')
+    @Post('unassignDoctor')
     @Roles('DOCTOR')
     @HttpCode(HttpStatus.OK)
-    async removeDoctorFromPatient(@Body() body: { patientId: number }) {
+    async removeDoctorFromPatient(@Body() body: { patientId: number }, @Req() req) {
         const { patientId } = body;
+        const loggedInUser = req.user; // Récupère l'ID de l'utilisateur connecté depuis le token JWT
+
+        console.log(`Logged in user: `, loggedInUser);
+
         console.log(`Received request to remove doctor from patient with ID ${patientId}`);
-        const result = await this.patientsService.removeDoctorFromPatient(patientId);
+        const result = await this.patientsService.removeDoctorFromPatient(patientId, loggedInUser);
 
         return {
             message: `Doctor has been removed from patient with ID ${patientId}`,

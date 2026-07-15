@@ -8,7 +8,7 @@ import ResetPassword from './pages/auth/passwordReset/ResetPassword';
 import SignUp from './pages/auth/SignUp';
 import ProtectedRoute from './components/ProtectedRoute';
 import StaffList from './pages/admin-pages/staffList';
-import AdminMenu from './pages/admin-pages/AdminMenu';
+import AdminMenu from './pages/admin-pages/adminMenu';
 import AddStaff from './pages/admin-pages/addStaff';
 import { ActivationAccount } from './pages/account/staffAccount/activationAccount';
 import PatientResearch from './pages/doctor-pages/patientReseach';

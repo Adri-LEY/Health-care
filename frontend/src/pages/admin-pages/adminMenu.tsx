@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import styles from './AdminMenu.module.css';
+import styles from './adminMenu.module.css';
 
 export default function AdminMenu() {
   const navigate = useNavigate();
