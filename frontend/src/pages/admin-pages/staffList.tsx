@@ -307,7 +307,7 @@ export default function StaffPage() {
       </div>
 
       <div className={styles['action-buttons-container']}>
-        <button type="button" className={styles['back-button']} onClick={() => navigate(-1)}>
+        <button type="button" className={styles['back-button']} onClick={() => navigate('/admin')}>
           <ArrowLeft size={18} aria-hidden="true" /> Retour
         </button>
 

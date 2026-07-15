@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './patientResearch.module.css';
 import SearchComponent from '../../components/searchComponent';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft} from 'lucide-react';
 import { useDebounce } from '../../components/useDebounce';
 import PatientCard from '../../components/PatientCard';
 // Importe ton composant de carte patient ou modale quand ils seront prêts :

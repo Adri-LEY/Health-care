@@ -7,12 +7,14 @@ const profileInclude = {
   medicalStaff: {
     include: {
       doctor: {
-        include: {
+        select: {
+          id: true,
           specialty: true,
         },
       },
       nurseAssistant: {
-        include: {
+        select: {
+            id: true,
           service: true,
         },
       },

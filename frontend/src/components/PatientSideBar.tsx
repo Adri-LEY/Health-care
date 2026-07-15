@@ -1,6 +1,6 @@
-import React from 'react';
 import { User, FileText, Contact } from 'lucide-react';
 import styles from './PatientSideBar.module.css';
+import AssignDoctorButton from './AssignDoctorButton';
 
 
 // PatientSidebar.tsx
@@ -13,10 +13,31 @@ interface SidebarProps {
         address: string;
         intern: boolean;
         user?: { firstName: string; lastName: string; email: string; phone: string; };
+        doctor?: { 
+            id: number; 
+            staff?: {
+                user: { 
+                    id: number;
+                    firstName: string; 
+                    lastName: string; 
+                    email: string; 
+                    phone: string; 
+                } 
+            }
+        };
     };
+    isDoctor?: boolean;
+    currentDoctorId?: number | null;
+    onAssignDoctor?: (assign: boolean) => Promise<void>;
 }
 
-export function PatientSidebar({ patient }: SidebarProps) {
+export function PatientSidebar({ patient, isDoctor, currentDoctorId, onAssignDoctor }: SidebarProps) {
+    
+    console.log('Patient data in PatientSidebar:', patient);
+    console.log('isDoctor:', isDoctor);
+    console.log('currentDoctorId:', currentDoctorId);
+    console.log('patient.doctor?:', patient.doctor);
+    
     return (
         <div className={styles.card}>
             <div className={styles.profileHeader}>
@@ -45,6 +66,22 @@ export function PatientSidebar({ patient }: SidebarProps) {
                 <div className={styles.infoLine}>
                     <strong>Adresse:</strong>
                     <p>{patient.address}</p>
+                </div>
+
+                <div className={styles.doctorSection}>
+                    <h4>Médecin Traitant</h4>
+                    {patient.doctor ? (
+                        <p>Dr. {patient.doctor.staff?.user.firstName} {patient.doctor.staff?.user.lastName}</p>
+                    ) : (
+                        <p className={styles.noDoctor}>Aucun médecin assigné</p>
+                    )}
+
+                    <AssignDoctorButton 
+                        isDoctor={isDoctor}
+                        currentDoctorId={currentDoctorId}
+                        doctorId={patient.doctor?.id}
+                        onAssign={onAssignDoctor}
+                    />
                 </div>
             </div>
         </div>

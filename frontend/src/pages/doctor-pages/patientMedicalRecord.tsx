@@ -40,6 +40,18 @@ interface PatientFullData {
         phone: string;
     };
     medicalRecord: MedicalRecord;
+    doctor?: {
+        id: number;
+        staff?: {
+            user: {
+                id: number;
+                firstName: string;
+                lastName: string;
+                email: string;
+                phone: string;
+            };
+        };
+    };
 }
 
 const IMCStatusMap: { [key: string]: string } = {
@@ -56,28 +68,106 @@ export default function PatientMedicalRecord() {
     const { patientId } = useParams<{ patientId: string }>();
     const navigate = useNavigate();
     const [data, setData] = useState<PatientFullData | null>(null);
+
+    const [isDoctor, setIsDoctor] = useState(false);
+    const [currentDoctorId, setCurrentDoctorId] = useState<number | null>(null);
+
     const [loading, setLoading] = useState(true);
 
     const apiUrl = import.meta.env.VITE_API_URL;
 
-    useEffect(() => {
-        const fetchRecord = async () => {
+
+    const fetchRecord = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/patients/medicalRecord/${patientId}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            const json = await response.json();
+            console.log('Données du dossier médical récupérées :', json.data);
+            setData(json.data);
+        } catch (error) {
+            console.error("Erreur lors du chargement du dossier :", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const fetchCurrentUserProfile = async () => {
             try {
-                const response = await fetch(`${apiUrl}/patients/medicalRecord/${patientId}`, {
+                const response = await fetch(`${apiUrl}/users/profile`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 const json = await response.json();
-                setData(json.data);
+
+                console.log('Profil utilisateur récupéré :', json);
+
+                setIsDoctor(json.role === 'DOCTOR');
+                setCurrentDoctorId(json.userDetails?.doctor?.id || null);
             } catch (error) {
-                console.error("Erreur lors du chargement du dossier :", error);
-            } finally {
-                setLoading(false);
+                console.error("Erreur lors du chargement du profil utilisateur :", error);
+                return null;
             }
         };
+
+    useEffect(() => {
+
+        fetchCurrentUserProfile();
         fetchRecord();
     }, [patientId, apiUrl]);
+
+
+    const onAssignDoctor = async (assign: boolean) => {
+        if (assign) {
+            try {
+                const response = await fetch(`${apiUrl}/patients/assignDoctor`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ patientId: Number(patientId), doctorId: currentDoctorId })
+                });
+                const json = await response.json();
+                if (!response.ok) {
+                    throw new Error(json.message || 'Erreur lors de l\'affectation du médecin');
+                }
+                console.log('Médecin affecté avec succès !', json);
+
+                // Mettre à jour l'état ou recharger les données
+                fetchRecord(); // Recharger les données après l'affectation
+            } catch (error) {
+                console.error("Erreur lors de l'affectation du médecin :", error);
+            }
+        }
+
+        else {
+            try {
+                const response = await fetch(`${apiUrl}/patients/unassignDoctor`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ patientId: Number(patientId) })
+                });
+                const json = await response.json();
+                if (!response.ok) {
+                    throw new Error(json.message || 'Erreur lors de la suppression de l\'affectation du médecin');
+                }
+                console.log('Médecin supprimé avec succès !', json);
+
+                // Mettre à jour l'état ou recharger les données
+                fetchRecord(); // Recharger les données après la suppression
+            } catch (error) {
+                console.error("Erreur lors de la suppression de l'affectation du médecin :", error);
+            }
+        }
+    };
 
     if (loading) return <div className={styles.loading}>Chargement du dossier médical...</div>;
     if (!data) return <div className={styles.error}>Dossier introuvable.</div>;
@@ -100,7 +190,7 @@ export default function PatientMedicalRecord() {
             <div className={styles.dashboardGrid}>
 
                 {/* Colonne Gauche : Informations du Patient */}
-                <PatientSidebar patient={data} />
+                <PatientSidebar patient={data} isDoctor={isDoctor} currentDoctorId={currentDoctorId} onAssignDoctor={onAssignDoctor} />
 
                 {/* Colonne Droite : Données Médicales */}
                 <div className={styles.mainContent}>
