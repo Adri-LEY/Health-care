@@ -523,22 +523,38 @@ async function main() {
   for (const record of records) {
     const patientName = `${record.patient?.user.firstName} ${record.patient?.user.lastName}`;
 
-    // Cas 1 : Patient Jean Dupont (Contrôle simple avec ordonnance simple)
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 1 : Patient Jean Dupont (3 consultations pour tester un historique complet)
+    // -----------------------------------------------------------------------------------------------------------------
     if (record.patient?.user.email === 'patient@test.com') {
+      
+      // Consultation 1 : La plus ancienne (Il y a 1 an)
       await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
-          visitReason: 'Contrôle annuel de routine',
-          observations: 'Patient en excellente forme physique. Pratique une activité sportive régulière.',
-          biometricMeasures: JSON.stringify({ temperature: 36.7, heartRate: 68, bloodPressure: '120/80' }),
+          date: new Date('2025-07-16T10:00:00.000Z'), // 👈 Remplacé createdAt par date
+          visitReason: 'Check-up initial d’entrée',
+          observations: 'Première visite. Patient globalement en bonne santé. Prise de contact.',
+          biometricMeasures: JSON.stringify({ temperature: 36.6, heartRate: 72, bloodPressure: '122/80' }),
+        }
+      });
+
+      // Consultation 2 : Intermédiaire (Il y a 6 mois)
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          date: new Date('2026-01-15T09:15:00.000Z'), // 👈 Remplacé createdAt par date
+          visitReason: 'Syndrome grippal',
+          observations: 'Fièvre modérée, courbatures et fatigue intense depuis 48h. Repos prescrit.',
+          biometricMeasures: JSON.stringify({ temperature: 38.2, heartRate: 80, bloodPressure: '118/75' }),
           prescription: {
             create: {
               prescriptionItems: {
                 create: [
                   {
                     name: 'Doliprane 1000mg',
-                    description: 'Traitement symptomatique de la douleur légère',
-                    dosage: '1 comprimé toutes les 6 heures si besoin',
+                    description: 'Traitement symptomatique de la fièvre et des courbatures',
+                    dosage: '1 comprimé toutes les 6 heures si besoin (max 4g/jour)',
                     duration: '5 jours',
                     medicationId: doliprane.id
                   }
@@ -548,23 +564,59 @@ async function main() {
           }
         }
       });
+
+      // Consultation 3 : La plus récente (Aujourd'hui)
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          date: new Date('2026-07-16T14:00:00.000Z'), // 👈 Remplacé createdAt par date
+          visitReason: 'Contrôle annuel de routine',
+          observations: 'Patient en excellente forme physique. Récupération post-grippale parfaite. Pratique une activité sportive régulière.',
+          biometricMeasures: JSON.stringify({ temperature: 36.7, heartRate: 68, bloodPressure: '120/80' }),
+        }
+      });
     }
 
-    // Cas 2 : Jean Dupont Bis (Senior, Diabète, Analyse IA Cardio modérée + Ordonnance)
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 2 : Jean Dupont Bis (Senior - 2 consultations pour tester le suivi d'une maladie chronique)
+    // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'jean.dupont.bis@test.com') {
+      
+      // Consultation 1 : Bilan initial (Il y a 6 mois)
       await prisma.consultation.create({
         data: {
           medicalRecord: {
             connect: { id: record.id }
           },
+          date: new Date('2026-01-10T11:00:00.000Z'), // 👈 Remplacé createdAt par date
+          visitReason: 'Bilan de découverte - Diabète de type 2',
+          observations: 'Découverte fortuite de glycémies à jeun élevées. Mise en place d’un protocole diététique et thérapeutique initial.',
+          biometricMeasures: JSON.stringify({ temperature: 36.4, heartRate: 75, bloodPressure: '140/88' }),
+          aiAnalysis: {
+            create: {
+              riskScore: 55.0,
+              riskClass: RiskClass.Moderate,
+              message: 'Risque cardiovasculaire modéré d’entrée de jeu en raison de l’âge (68 ans) et du profil glycémique.'
+            }
+          }
+        }
+      });
+
+      // Consultation 2 : Suivi trimestriel actuel (Aujourd'hui)
+      await prisma.consultation.create({
+        data: {
+          medicalRecord: {
+            connect: { id: record.id }
+          },
+          date: new Date('2026-07-16T10:30:00.000Z'), // 👈 Remplacé createdAt par date
           visitReason: 'Suivi trimestriel diabète et cardiologie',
-          observations: 'Légers picotements signalés aux extrémités. Tension légèrement élevée.',
+          observations: 'Légers picotements signalés aux extrémités. Tension légèrement élevée mais stable par rapport au dernier contrôle.',
           biometricMeasures: JSON.stringify({ temperature: 36.5, heartRate: 78, bloodPressure: '138/85' }),
           aiAnalysis: {
             create: {
               riskScore: 62.5,
               riskClass: RiskClass.Moderate,
-              message: 'Risque cardiovasculaire modéré. Surveillance requise en raison de l’âge et du diabète.'
+              message: 'Risque cardiovasculaire modéré. Surveillance requise en raison de l’âge et des premiers signes neuropathiques.'
             }
           },
           prescription: {
@@ -577,7 +629,7 @@ async function main() {
                     dosage: '1 comprimé matin et soir au milieu des repas',
                     duration: '3 mois',
                     medicationId: metformine.id,
-                    careId: nursingCare.id // Ajout d'un soin infirmier à domicile !
+                    careId: nursingCare.id
                   }
                 ]
               }
@@ -587,7 +639,9 @@ async function main() {
       });
     }
 
-    // Cas 3 : Patricia Martinez (Asthme, Prescription de Ventoline + Matériel d'aide)
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 3 : Patricia Martinez (Asthme)
+    // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'pat.martinez@test.com') {
       await prisma.consultation.create({
         data: {
@@ -605,7 +659,7 @@ async function main() {
                     dosage: '2 bouffées en cas de crise ou de gêne respiratoire',
                     duration: '1 mois',
                     medicationId: ventoline.id,
-                    equipmentId: nebulizer.id // Nécessite l'équipement d'aide à l'inhalation
+                    equipmentId: nebulizer.id
                   }
                 ]
               }
@@ -615,7 +669,9 @@ async function main() {
       });
     }
 
-    // Cas 4 : Patrick Paterson (Hypercholestérolémie, Obésité, Risque Cardio Élevé)
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 4 : Patrick Paterson (Hypercholestérolémie, Obésité)
+    // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'patrick.paterson@test.com') {
       await prisma.consultation.create({
         data: {
@@ -649,7 +705,7 @@ async function main() {
                     dosage: '1 sachet par jour au milieu du déjeuner',
                     duration: '6 months',
                     medicationId: kardegic.id,
-                    equipmentId: bloodPressureMonitor.id // Tensiomètre connecté pour suivi strict
+                    equipmentId: bloodPressureMonitor.id
                   }
                 ]
               }
@@ -659,7 +715,9 @@ async function main() {
       });
     }
 
-    // Cas 5 : Marie Durand (Senior, Ostéoporose, Prescription simple + Soins Kiné)
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 5 : Marie Durand (Senior, Ostéoporose)
+    // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'marie.durand@test.com') {
       await prisma.consultation.create({
         data: {
@@ -677,7 +735,7 @@ async function main() {
                     dosage: '1 comprimé toutes les 8 heures',
                     duration: '15 jours',
                     medicationId: doliprane.id,
-                    careId: physiotherapy.id // Prescription de séances de Kinésithérapie !
+                    careId: physiotherapy.id
                   }
                 ]
               }
@@ -687,7 +745,9 @@ async function main() {
       });
     }
 
-    // Cas 6 : Arthur Le Pennec (Jeune patient, Consultation simple sans prescription)
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 6 : Arthur Le Pennec (Jeune patient)
+    // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'arthur.lp@test.com') {
       await prisma.consultation.create({
         data: {
@@ -699,7 +759,9 @@ async function main() {
       });
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
     // Cas 7 : Chantal Gomez (Obésité classe 2, Suivi apnée)
+    // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'chantal.gomez@test.com') {
       await prisma.consultation.create({
         data: {
@@ -720,7 +782,9 @@ async function main() {
       });
     }
 
-    // Cas 8 : Jean Rey (Consultation de contrôle post-opératoire simple)
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 8 : Jean Rey (Contrôle post-opératoire simple)
+    // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'jean.rey@test.com') {
       await prisma.consultation.create({
         data: {
@@ -732,7 +796,9 @@ async function main() {
       });
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
     // Cas 9 : Lucas Dubois (Patient en attente/Pending)
+    // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'lucas.pending@test.com') {
       await prisma.consultation.create({
         data: {
