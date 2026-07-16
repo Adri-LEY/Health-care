@@ -1,4 +1,4 @@
-import { PrismaClient, Role, BloodType, Imc, UserStatus } from '@prisma/client';
+import { PrismaClient, Role, BloodType, Imc, UserStatus, RiskClass } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -14,6 +14,19 @@ async function main() {
   // 1. NETTOYAGE DE LA BASE (Ordre strict des FK)
   // ==========================================
   console.log('🧹 Nettoyage des tables existantes...');
+
+  // Tables dépendantes des consultations
+  await prisma.prescriptionItem.deleteMany({});
+  await prisma.prescription.deleteMany({});
+  await prisma.consultation.deleteMany({});
+  await prisma.cardiologyAiAnalysis.deleteMany({});
+
+  // Tables de référence médicale
+  await prisma.medication.deleteMany({});
+  await prisma.medicalEquipment.deleteMany({});
+  await prisma.paramedicalCare.deleteMany({});
+
+  // Tables utilisateurs et structures
   await prisma.patient.deleteMany({});
   await prisma.doctor.deleteMany({});
   await prisma.nurseAssistant.deleteMany({});
@@ -26,7 +39,12 @@ async function main() {
   await prisma.specialty.deleteMany({});
   await prisma.service.deleteMany({});
 
-  const tables = ['User', 'Patient', 'MedicalStaff', 'Doctor', 'NurseAssistant', 'Administrator', 'Specialty', 'Service', 'MedicalRecord'];
+  const tables = [
+    'User', 'Patient', 'MedicalStaff', 'Doctor', 'NurseAssistant',
+    'Administrator', 'Specialty', 'Service', 'MedicalRecord',
+    'Consultation', 'CardiologyAiAnalysis', 'Prescription',
+    'PrescriptionItem', 'Medication', 'MedicalEquipment', 'ParamedicalCare'
+  ];
 
   for (const table of tables) {
     // Sous PostgreSQL, réinitialisation des incréments d'ID (séquences)
@@ -34,7 +52,42 @@ async function main() {
   }
 
   // ==========================================
-  // 2. CRÉATION DES DONNÉES ANNEXES (Spécialités & Services)
+  // 2. CRÉATION DES TABLES DE RÉFÉRENCE MÉDICALE
+  // ==========================================
+  console.log('💊 Création des médicaments, matériels et soins paramédicaux...');
+
+  const doliprane = await prisma.medication.create({
+    data: { name: 'Doliprane', dosage: '1000mg' }
+  });
+  const metformine = await prisma.medication.create({
+    data: { name: 'Metformine', dosage: '500mg' }
+  });
+  const ventoline = await prisma.medication.create({
+    data: { name: 'Ventoline Spray', dosage: '100mcg' }
+  });
+  const atorvastatine = await prisma.medication.create({
+    data: { name: 'Atorvastatine', dosage: '20mg' }
+  });
+  const kardegic = await prisma.medication.create({
+    data: { name: 'Kardegic', dosage: '75mg' }
+  });
+
+  const bloodPressureMonitor = await prisma.medicalEquipment.create({
+    data: { name: 'Tensiomètre connecté' }
+  });
+  const nebulizer = await prisma.medicalEquipment.create({
+    data: { name: 'Nébuliseur portable' }
+  });
+
+  const physiotherapy = await prisma.paramedicalCare.create({
+    data: { description: 'Séances de rééducation et de kinésithérapie active' }
+  });
+  const nursingCare = await prisma.paramedicalCare.create({
+    data: { description: 'Surveillance glycémique à domicile par IDE' }
+  });
+
+  // ==========================================
+  // 3. CRÉATION DES DONNÉES ANNEXES (Spécialités & Services)
   // ==========================================
   console.log('📦 Création des spécialités et des services...');
   const cardiology = await prisma.specialty.create({
@@ -55,7 +108,7 @@ async function main() {
   const hashedPassword = await bcrypt.hash('Password123*', 10);
 
   // ==========================================
-  // 3. CRÉATION DES PATIENTS
+  // 4. CRÉATION DES PATIENTS & LEURS DOSSIERS
   // ==========================================
   console.log('👥 Création des patients de test...');
 
@@ -90,7 +143,6 @@ async function main() {
       },
     },
     {
-      // Homonyme de Jean Dupont pour tester la recherche par date de naissance
       firstName: 'Jean',
       lastName: 'Dupont',
       email: 'jean.dupont.bis@test.com',
@@ -120,7 +172,6 @@ async function main() {
       },
     },
     {
-      // Patiente pour tester les requêtes sur le prénom "Pat..." ou le téléphone
       firstName: 'Patricia',
       lastName: 'Martinez',
       email: 'pat.martinez@test.com',
@@ -150,7 +201,6 @@ async function main() {
       },
     },
     {
-      // Patient avec un nom similaire ou contenant "pat"
       firstName: 'Patrick',
       lastName: 'Paterson',
       email: 'patrick.paterson@test.com',
@@ -170,7 +220,7 @@ async function main() {
               poids: 95.0,
               taille: 1.78,
               bloodType: BloodType.AB,
-              imc: Imc.OBESITY, // Utilise la valeur enum exacte de ton schéma Prisma
+              imc: Imc.OBESITY,
               medical_history: 'Hypercholestérolémie.',
               family_history: 'Cardiopathie ischémique côté paternel.',
               allergies: 'Iode',
@@ -180,7 +230,6 @@ async function main() {
       },
     },
     {
-      // Patiente senior pour tester la gériatrie ou le tri alphabétique
       firstName: 'Marie',
       lastName: 'Durand',
       email: 'marie.durand@test.com',
@@ -210,7 +259,6 @@ async function main() {
       },
     },
     {
-      // Test de casse et espaces : nom à particule "Le Pennec"
       firstName: 'Arthur',
       lastName: 'Le Pennec',
       email: 'arthur.lp@test.com',
@@ -240,7 +288,6 @@ async function main() {
       },
     },
     {
-      // Cas critique d'obésité sévère pour tester les valeurs d'IMC complexes du schéma
       firstName: 'Chantal',
       lastName: 'Gomez',
       email: 'chantal.gomez@test.com',
@@ -260,7 +307,7 @@ async function main() {
               poids: 112.5,
               taille: 1.60,
               bloodType: BloodType.B,
-              imc: Imc.CLASS_2_OBESITY, // Utilise la valeur enum exacte de ton schéma Prisma
+              imc: Imc.CLASS_2_OBESITY,
               medical_history: 'Apnée du sommeil, Arthrose bilatérale des genoux.',
               family_history: 'Obésité morbide généralisée côté maternel.',
               allergies: 'Aucune',
@@ -270,7 +317,6 @@ async function main() {
       },
     },
     {
-      // Homonyme partiel : prénom "Jean" mais nom de famille court
       firstName: 'Jean',
       lastName: 'Rey',
       email: 'jean.rey@test.com',
@@ -300,7 +346,6 @@ async function main() {
       },
     },
     {
-      // Profil PENDING : pour tester la filtration des comptes non-activés
       firstName: 'Lucas',
       lastName: 'Dubois',
       email: 'lucas.pending@test.com',
@@ -336,11 +381,10 @@ async function main() {
   }
 
   // ==========================================
-  // 4. CRÉATION DES MÉDECINS (DOCTOR)
+  // 5. CRÉATION DES MÉDECINS (DOCTOR) & STAFF
   // ==========================================
   console.log('🩺 Création des médecins...');
-  
-  // Médecin 1 : Sarah Connor
+
   await prisma.user.create({
     data: {
       firstName: 'Sarah',
@@ -364,7 +408,6 @@ async function main() {
     },
   });
 
-  // Médecin 2 : Gregory House
   await prisma.user.create({
     data: {
       firstName: 'Gregory',
@@ -389,11 +432,10 @@ async function main() {
   });
 
   // ==========================================
-  // 5. CRÉATION DES AIDES-SOIGNANTS (NURSE_ASSISTANT)
+  // 6. CRÉATION DES AIDES-SOIGNANTS (NURSE_ASSISTANT)
   // ==========================================
   console.log('🧑‍⚕️ Création des aides-soignants...');
-  
-  // Aide-soignant 1
+
   await prisma.user.create({
     data: {
       firstName: 'John',
@@ -417,7 +459,6 @@ async function main() {
     },
   });
 
-  // Aide-soignant 2
   await prisma.user.create({
     data: {
       firstName: 'Jane',
@@ -442,7 +483,7 @@ async function main() {
   });
 
   // ==========================================
-  // 6. CRÉATION DE L'ADMINISTRATEUR
+  // 7. CRÉATION DE L'ADMINISTRATEUR
   // ==========================================
   console.log('💼 Création de l’administrateur...');
   await prisma.user.create({
@@ -462,6 +503,249 @@ async function main() {
       },
     },
   });
+
+  // ==========================================
+  // 8. CRÉATION DES CONSULTATIONS (Adapté au Schéma)
+  // ==========================================
+  console.log('📅 Génération des consultations et des ordonnances...');
+
+  // Récupérer tous les dossiers médicaux créés pour pouvoir y associer les consultations
+  const records = await prisma.medicalRecord.findMany({
+    include: {
+      patient: {
+        include: {
+          user: true
+        }
+      }
+    }
+  });
+
+  for (const record of records) {
+    const patientName = `${record.patient?.user.firstName} ${record.patient?.user.lastName}`;
+
+    // Cas 1 : Patient Jean Dupont (Contrôle simple avec ordonnance simple)
+    if (record.patient?.user.email === 'patient@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          visitReason: 'Contrôle annuel de routine',
+          observations: 'Patient en excellente forme physique. Pratique une activité sportive régulière.',
+          biometricMeasures: JSON.stringify({ temperature: 36.7, heartRate: 68, bloodPressure: '120/80' }),
+          prescription: {
+            create: {
+              prescriptionItems: {
+                create: [
+                  {
+                    name: 'Doliprane 1000mg',
+                    description: 'Traitement symptomatique de la douleur légère',
+                    dosage: '1 comprimé toutes les 6 heures si besoin',
+                    duration: '5 jours',
+                    medicationId: doliprane.id
+                  }
+                ]
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Cas 2 : Jean Dupont Bis (Senior, Diabète, Analyse IA Cardio modérée + Ordonnance)
+    else if (record.patient?.user.email === 'jean.dupont.bis@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecord: {
+            connect: { id: record.id }
+          },
+          visitReason: 'Suivi trimestriel diabète et cardiologie',
+          observations: 'Légers picotements signalés aux extrémités. Tension légèrement élevée.',
+          biometricMeasures: JSON.stringify({ temperature: 36.5, heartRate: 78, bloodPressure: '138/85' }),
+          aiAnalysis: {
+            create: {
+              riskScore: 62.5,
+              riskClass: RiskClass.Moderate,
+              message: 'Risque cardiovasculaire modéré. Surveillance requise en raison de l’âge et du diabète.'
+            }
+          },
+          prescription: {
+            create: {
+              prescriptionItems: {
+                create: [
+                  {
+                    name: 'Metformine 500mg',
+                    description: 'Antidiabétique oral',
+                    dosage: '1 comprimé matin et soir au milieu des repas',
+                    duration: '3 mois',
+                    medicationId: metformine.id,
+                    careId: nursingCare.id // Ajout d'un soin infirmier à domicile !
+                  }
+                ]
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Cas 3 : Patricia Martinez (Asthme, Prescription de Ventoline + Matériel d'aide)
+    else if (record.patient?.user.email === 'pat.martinez@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          visitReason: 'Suivi de crise d’asthme saisonnière',
+          observations: 'Sifflements bronchiques légers entendus à l’auscultation.',
+          biometricMeasures: JSON.stringify({ temperature: 36.8, heartRate: 72, bloodPressure: '115/75' }),
+          prescription: {
+            create: {
+              prescriptionItems: {
+                create: [
+                  {
+                    name: 'Ventoline Spray',
+                    description: 'Bronchodilatateur d’action rapide',
+                    dosage: '2 bouffées en cas de crise ou de gêne respiratoire',
+                    duration: '1 mois',
+                    medicationId: ventoline.id,
+                    equipmentId: nebulizer.id // Nécessite l'équipement d'aide à l'inhalation
+                  }
+                ]
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Cas 4 : Patrick Paterson (Hypercholestérolémie, Obésité, Risque Cardio Élevé)
+    else if (record.patient?.user.email === 'patrick.paterson@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecord: {
+            connect: { id: record.id }
+          },
+          visitReason: 'Bilan lipidique et douleurs thoraciques d’effort',
+          observations: 'Patient se plaint d’oppressions thoraciques lors d’efforts modérés. Perte de poids fortement recommandée.',
+          biometricMeasures: JSON.stringify({ temperature: 36.6, heartRate: 85, bloodPressure: '145/92' }),
+          aiAnalysis: {
+            create: {
+              riskScore: 88.4,
+              riskClass: RiskClass.High,
+              message: 'RISQUE ÉLEVÉ. Angiographie et consultation spécialisée en urgence recommandées.'
+            }
+          },
+          prescription: {
+            create: {
+              prescriptionItems: {
+                create: [
+                  {
+                    name: 'Atorvastatine 20mg',
+                    description: 'Traitement contre le cholestérol',
+                    dosage: '1 comprimé le soir au coucher',
+                    duration: '6 mois',
+                    medicationId: atorvastatine.id
+                  },
+                  {
+                    name: 'Kardegic 75mg',
+                    description: 'Antiagrégant plaquettaire',
+                    dosage: '1 sachet par jour au milieu du déjeuner',
+                    duration: '6 months',
+                    medicationId: kardegic.id,
+                    equipmentId: bloodPressureMonitor.id // Tensiomètre connecté pour suivi strict
+                  }
+                ]
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Cas 5 : Marie Durand (Senior, Ostéoporose, Prescription simple + Soins Kiné)
+    else if (record.patient?.user.email === 'marie.durand@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          visitReason: 'Douleurs articulaires diffuses',
+          observations: 'Mobilité difficile. Douleur d’arthrose accrue due au froid.',
+          biometricMeasures: JSON.stringify({ temperature: 36.2, heartRate: 70, bloodPressure: '130/80' }),
+          prescription: {
+            create: {
+              prescriptionItems: {
+                create: [
+                  {
+                    name: 'Doliprane 1000mg',
+                    description: 'Antalgique',
+                    dosage: '1 comprimé toutes les 8 heures',
+                    duration: '15 jours',
+                    medicationId: doliprane.id,
+                    careId: physiotherapy.id // Prescription de séances de Kinésithérapie !
+                  }
+                ]
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Cas 6 : Arthur Le Pennec (Jeune patient, Consultation simple sans prescription)
+    else if (record.patient?.user.email === 'arthur.lp@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          visitReason: 'Suivi de posture (scoliose)',
+          observations: 'Pas d’aggravation de la courbure. Continuer les exercices physiques.',
+          biometricMeasures: JSON.stringify({ temperature: 36.6, heartRate: 62, bloodPressure: '110/70' })
+        }
+      });
+    }
+
+    // Cas 7 : Chantal Gomez (Obésité classe 2, Suivi apnée)
+    else if (record.patient?.user.email === 'chantal.gomez@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecord: {
+            connect: { id: record.id }
+          },
+          visitReason: 'Fatigue diurne et suivi sommeil',
+          observations: 'Somnolence résiduelle persistante. L’appareil PPC est bien supporté.',
+          biometricMeasures: JSON.stringify({ temperature: 36.4, heartRate: 74, bloodPressure: '135/88' }),
+          aiAnalysis: {
+            create: {
+              riskScore: 45.0,
+              riskClass: RiskClass.Moderate,
+              message: 'Risque modéré lié à l’apnée obstructive du sommeil.'
+            }
+          }
+        }
+      });
+    }
+
+    // Cas 8 : Jean Rey (Consultation de contrôle post-opératoire simple)
+    else if (record.patient?.user.email === 'jean.rey@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          visitReason: 'Contrôle post-appendicectomie',
+          observations: 'Cicatrice saine, propre et solide. Reprise totale des activités physiques autorisée.',
+          biometricMeasures: JSON.stringify({ temperature: 36.7, heartRate: 66, bloodPressure: '120/75' })
+        }
+      });
+    }
+
+    // Cas 9 : Lucas Dubois (Patient en attente/Pending)
+    else if (record.patient?.user.email === 'lucas.pending@test.com') {
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          visitReason: 'Suivi de fracture du scaphoïde',
+          observations: 'Plâtre en bon état. Pas de douleur signalée.',
+          biometricMeasures: JSON.stringify({ temperature: 36.8, heartRate: 64, bloodPressure: '118/78' })
+        }
+      });
+    }
+
+    console.log(` ✅ Consultation(s) générée(s) pour le dossier de : ${patientName}`);
+  }
 
   console.log('✅ Seeding terminé avec succès ! Base de données prête pour les tests.');
 }
