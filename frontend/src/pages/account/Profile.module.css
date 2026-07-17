@@ -117,3 +117,43 @@
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
+
+.errorBox {
+  display: flex;
+  align-items: center;
+  background-color: rgba(254, 242, 242, 0.85); 
+  border: 2px solid #ef4444; 
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 15px 0;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1); 
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.errorText {
+  margin: 0;
+  color: #991b1b;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.successBox {
+  display: flex;
+  align-items: center;
+  background-color: rgba(220, 252, 231, 0.85); 
+  border: 2px solid #10b981; 
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 15px 0;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1); 
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.successText {
+  margin: 0;
+  color: #047857;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
