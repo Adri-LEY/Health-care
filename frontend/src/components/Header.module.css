@@ -48,3 +48,22 @@
 .loginButton:hover {
   background: #1d4ed8;
 }
+
+.rightNav {
+  display: flex;
+  align-items: center;
+  gap: 24px; 
+}
+
+/* Style du lien À propos dans le Header */
+.headerAboutLink {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.headerAboutLink:hover {
+  color: #3b82f6; 
+}

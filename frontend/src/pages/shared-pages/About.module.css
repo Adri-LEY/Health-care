@@ -1,0 +1,115 @@
+/* About.module.css */
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background-image:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.12), transparent 30%),
+    url('src/assets/images/homepage-image.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.card {
+  width: min(100%, 550px);
+  padding: 40px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.backButton {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #4a5568;
+  margin-bottom: 20px;
+}
+
+.backButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e0;
+  background-color: #f8fafc;
+  color: #2563eb;
+}
+
+.title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+
+.subtitle {
+  margin: 16px 0 28px;
+  color: #475569;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.description {
+  color: #475569;
+  line-height: 1.6;
+  font-size: 15px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.featuresGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.featureItem h3 {
+  margin: 0 0 4px 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.featureItem p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.card {
+  width: min(100%, 620px); 
+  padding: 40px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.iconBlue { color: #2563eb; }
+.iconGreen { color: #10b981; }
