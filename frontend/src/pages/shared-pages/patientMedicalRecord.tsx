@@ -8,7 +8,8 @@ import {
     Ruler,
     Droplets,
     Calculator,
-    Users
+    Users,
+    History
 } from 'lucide-react';
 import styles from './patientMedicalRecord.module.css';
 import { PatientSidebar } from '../../components/PatientSideBar';
@@ -96,23 +97,23 @@ export default function PatientMedicalRecord() {
 
 
     const fetchCurrentUserProfile = async () => {
-            try {
-                const response = await fetch(`${apiUrl}/users/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                const json = await response.json();
+        try {
+            const response = await fetch(`${apiUrl}/users/profile`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            const json = await response.json();
 
-                console.log('Profil utilisateur récupéré :', json);
+            console.log('Profil utilisateur récupéré :', json);
 
-                setIsDoctor(json.role === 'DOCTOR');
-                setCurrentDoctorId(json.userDetails?.doctor?.id || null);
-            } catch (error) {
-                console.error("Erreur lors du chargement du profil utilisateur :", error);
-                return null;
-            }
-        };
+            setIsDoctor(json.role === 'DOCTOR');
+            setCurrentDoctorId(json.userDetails?.doctor?.id || null);
+        } catch (error) {
+            console.error("Erreur lors du chargement du profil utilisateur :", error);
+            return null;
+        }
+    };
 
     useEffect(() => {
 
@@ -176,7 +177,12 @@ export default function PatientMedicalRecord() {
         <div className={styles.container}>
             {/* Header avec bouton retour */}
             <div className={styles.header}>
-                <button className={styles.backButton} onClick={() => navigate("/patientResearch")}>
+                <button className={styles.backButton} onClick={() => {
+                    if (isDoctor) {
+                        navigate('/patientResearch');
+                    }
+                    else navigate('/patient');
+                }}>
                     <ArrowLeft size={18} /> Retour
                 </button>
                 <div className={styles.titleSection}>
@@ -194,6 +200,20 @@ export default function PatientMedicalRecord() {
 
                 {/* Colonne Droite : Données Médicales */}
                 <div className={styles.mainContent}>
+
+                    <div className={styles.actionBanner}>
+                        <div className={styles.actionBannerText}>
+                            <h3>Suivi clinique du patient</h3>
+                            <p>Consultez les comptes-rendus, les analyses de l'IA et les ordonnances délivrées.</p>
+                        </div>
+                        <button
+                            className={styles.consultationHistoryButton}
+                            onClick={() => navigate(`/patient/medicalRecord/consultations/${data.medicalRecord.id}`)}
+                        >
+                            <History size={18} />
+                            Voir l'historique des consultations
+                        </button>
+                    </div>
 
                     {/* Section Biométrie (Poids, Taille, IMC) */}
                     <div className={styles.metricsGrid}>

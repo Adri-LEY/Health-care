@@ -1,0 +1,48 @@
+.sectionIconRed {
+  color: #ef4444;
+}
+
+/* Grille des mesures biométriques */
+.biometricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+/* Cartes individuelles de biométrie */
+
+.biometricItem:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.biometricInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Couleurs spécifiques des icônes biométriques */
+.biometricIconTemp {
+  color: #f97316; /* Orange */
+  background-color: #fff7ed;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconHeart {
+  color: #ef4444; /* Rouge */
+  background-color: #fef2f2;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconPressure {
+  color: #3b82f6; /* Bleu */
+  background-color: #eff6ff;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}

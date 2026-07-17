@@ -26,6 +26,7 @@ export default class ConsultationsRepository {
                 date: true,
                 visitReason: true,
                 observations: true,
+                biometricMeasures:true,
                 aiAnalysis: true,
                 prescription: {
                     select: {

@@ -36,7 +36,22 @@
 .titleSection {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* 👈 Aligne le titre à gauche et le bouton historique à droite */
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.titleWithBadges {
+  display: flex;
+  align-items: center;
   gap: 20px;
+}
+
+.titleWithBadges h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: #0f172a;
 }
 
 .titleSection h1 {
@@ -88,8 +103,69 @@
   color: #64748b;
 }
 
-@media (max-width: 1024px) {
-  .dashboardGrid {
-    grid-template-columns: 1fr;
+.actionBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  gap: 20px;
+}
+
+.actionBannerText h3 {
+  margin: 0 0 4px 0;
+  color: #1e3a8a;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.actionBannerText p {
+  margin: 0;
+  color: #1e40af;
+  font-size: 0.88rem;
+  opacity: 0.9;
+}
+
+/* Bouton intégré à la bannière */
+.consultationHistoryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+.consultationHistoryButton:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+}
+
+.consultationHistoryButton:active {
+  transform: translateY(0);
+}
+
+/* Version Responsive */
+@media (max-width: 768px) {
+  .actionBanner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .consultationHistoryButton {
+    justify-content: center;
   }
 }
