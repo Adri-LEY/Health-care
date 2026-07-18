@@ -220,22 +220,25 @@ export default function PatientMedicalRecord() {
                         <MetricCard
                             icon={<Scale className={styles.icon} />}
                             label="Poids"
-                            value={`${data.medicalRecord.poids} kg`}
+                            value={data.medicalRecord.poids ? `${data.medicalRecord.poids} kg` : 'Non renseigné'}
                         />
                         <MetricCard
                             icon={<Ruler className={styles.iconBlue} />}
                             label="Taille"
-                            value={`${data.medicalRecord.taille} cm`}
+                            value={data.medicalRecord.taille ? `${data.medicalRecord.taille} cm` : 'Non renseigné'}
                         />
                         <MetricCard
                             icon={<Droplets className={styles.iconRed} />}
                             label="Groupe Sanguin"
-                            value={data.medicalRecord.bloodType}
+                            value={data.medicalRecord.bloodType ? data.medicalRecord.bloodType : 'Non renseigné'}
                         />
                         <MetricCard
                             icon={<Calculator className={styles.iconGreen} />}
                             label="Statut IMC"
-                            value={IMCStatusMap[data.medicalRecord.imc] || data.medicalRecord.imc.replace('_', ' ')}
+                            value={data.medicalRecord.imc
+                                ? (IMCStatusMap[data.medicalRecord.imc] || data.medicalRecord.imc.replace('_', ' '))
+                                : 'Non renseigné'
+                            }
                         />
                     </div>
 

@@ -16,6 +16,7 @@ import PatientMedicalRecord from './pages/shared-pages/patientMedicalRecord';
 import DoctorMenu from './pages/doctor-pages/DoctorMenu';
 import PatientMenu from './pages/patient-pages/PatientMenu';
 import PatientConsultations from './pages/shared-pages/patientConsultations';
+import About from './pages/shared-pages/About';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -124,6 +125,8 @@ function AppContent() {
         <Route path="/patient/medicalRecord/:patientId" element={<PatientMedicalRecord />} />
 
         <Route path="/patient/medicalRecord/consultations/:medicalRecordId" element={<PatientConsultations />} />
+
+        <Route path="/about" element={<About />} />
       </Routes>
     </>
   );

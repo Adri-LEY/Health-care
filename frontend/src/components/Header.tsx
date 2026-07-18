@@ -40,7 +40,7 @@ export default function Header() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); 
+    localStorage.removeItem('token');
     navigate('/login');       // Retour à la case départ (connexion)
   };
 
@@ -56,33 +56,37 @@ export default function Header() {
     <header className={styles.header}>
       <h3 className={styles.brand}>HealthManager</h3>
       {isConnected && <div className={styles.spaceLabel}>{spaceLabel}</div>}
-      {isConnected && (
-        <DropdownMenu
-          triggerLabel="Mon compte"
-          items={[
-            {
-              label: "Profil",
-              onClick: () => {
-                handleProfileClick();
+
+      <div className={styles.rightNav}>
+        <a href="/about" className={styles.headerAboutLink}>
+          À propos
+        </a>
+
+        {isConnected && (
+          <DropdownMenu
+            triggerLabel="Mon compte"
+            items={[
+              {
+                label: "Profil",
+                onClick: handleProfileClick
+              },
+              {
+                label: "Se déconnecter",
+                onClick: handleLogout
               }
-            },
-            {
-              label: "Se déconnecter",
-              onClick: () => {
-                handleLogout();
-              }
-            }
-          ]}
-        />
-      )}
-      {!isConnected && (
-        <button
-          className={`${styles.actionButton} ${!isConnected ? styles.loginButton : ''}`}
-          onClick={handleLogin}
-        >
-          Se connecter
-        </button>
-      )}
+            ]}
+          />
+        )}
+        
+        {!isConnected && (
+          <button
+            className={`${styles.actionButton} ${styles.loginButton}`}
+            onClick={handleLogin}
+          >
+            Se connecter
+          </button>
+        )}
+      </div>
     </header>
   );
 }
