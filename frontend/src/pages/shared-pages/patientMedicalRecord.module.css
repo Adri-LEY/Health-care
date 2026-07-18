@@ -1,0 +1,171 @@
+.container {
+  padding: 30px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: white;
+  color: #334155;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.backButton:hover {
+  border-color: #94a3b8;
+  color: #2563eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 👈 Aligne le titre à gauche et le bouton historique à droite */
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.titleWithBadges {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.titleWithBadges h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: #0f172a;
+}
+
+.titleSection h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: #0f172a;
+}
+
+.patientBadge {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Layout Grid */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+}
+
+
+/* Metrics Grid */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Colors for Icons */
+.iconBlue { color: #2563eb; }
+.iconRed { color: #ef4444; }
+.iconGreen { color: #10b981; }
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.loading, .error {
+  padding: 100px;
+  text-align: center;
+  font-style: italic;
+  color: #64748b;
+}
+
+.actionBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  gap: 20px;
+}
+
+.actionBannerText h3 {
+  margin: 0 0 4px 0;
+  color: #1e3a8a;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.actionBannerText p {
+  margin: 0;
+  color: #1e40af;
+  font-size: 0.88rem;
+  opacity: 0.9;
+}
+
+/* Bouton intégré à la bannière */
+.consultationHistoryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+.consultationHistoryButton:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+}
+
+.consultationHistoryButton:active {
+  transform: translateY(0);
+}
+
+/* Version Responsive */
+@media (max-width: 768px) {
+  .actionBanner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .consultationHistoryButton {
+    justify-content: center;
+  }
+}

@@ -172,7 +172,7 @@ export default function PatientResearch() {
                         <PatientCard 
                             key={item.id}
                             patient={item}
-                            onClick={() => navigate(`/staff/patientMedicalRecord/${item.id}`)}
+                            onClick={() => navigate(`/patient/medicalRecord/${item.id}`)}
                         />
                     ))
                 )}

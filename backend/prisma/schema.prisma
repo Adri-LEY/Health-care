@@ -32,6 +32,12 @@ enum BloodType {
   AB
 }
 
+enum RiskClass {
+  Low
+  Moderate
+  High
+}
+
 enum Imc {
   UNDERWEIGHT
   NORMAL_WEIGHT
@@ -161,4 +167,95 @@ model MedicalRecord {
   allergies       String?
 
   patient         Patient?
+
+  //Liste des consultations
+  consultations Consultation[]
+}
+
+model Consultation {
+  id                  Int                    @id @default(autoincrement())
+  date                DateTime               @default(now())
+  visitReason         String
+  observations        String
+  biometricMeasures   String  
+
+  // Relation 1-to-Many : Une consultation appartient à UN dossier médical
+  medicalRecordId     Int
+  medicalRecord       MedicalRecord          @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+
+  // Relation 1-to-1 optionnelle avec l'analyse IA (0..1)
+  aiAnalysisId        Int?                   @unique
+  aiAnalysis          CardiologyAiAnalysis?  @relation(fields: [aiAnalysisId], references: [id])
+
+  // Relation 1-to-1 optionnelle avec l'ordonnance (0..1)
+  prescription        Prescription?
+}
+
+model CardiologyAiAnalysis {
+  id             Int           @id @default(autoincrement())
+  riskScore      Float
+  analysisDate   DateTime      @default(now())
+  riskClass      RiskClass
+  message        String
+
+  // Relation inverse requise par Prisma pour le 1-to-1
+  consultation   Consultation?
+}
+
+model Prescription {
+  id               Int                  @id @default(autoincrement())
+  prescriptionDate DateTime             @default(now())
+
+  // Clé étrangère vers la consultation
+  consultationId   Int                  @unique
+  consultation     Consultation         @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  // Relation 1-to-Many : Une ordonnance contient plusieurs lignes de prescription
+  prescriptionItems PrescriptionItem[]
+}
+
+model PrescriptionItem {
+  id             Int          @id @default(autoincrement())
+  name           String
+  description    String
+  dosage         String
+  duration       String
+
+  // Clé étrangère vers l'ordonnance parent
+  prescriptionId Int
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  // Un élément de prescription peut prescrire 1 Médicament (Relation 1)
+  medicationId   Int?
+  medication     Medication?   @relation(fields: [medicationId], references: [id])
+
+  // Un élément de prescription peut optionnellement requérir 1 Matériel Médical (0..1)
+  equipmentId    Int?
+  equipment      MedicalEquipment? @relation(fields: [equipmentId], references: [id])
+
+  // Un élément de prescription peut optionnellement inclure 1 Soin Paramédical (0..1)
+  careId         Int?
+  care           ParamedicalCare?  @relation(fields: [careId], references: [id])
+}
+
+model Medication {
+  id                Int                @id @default(autoincrement())
+  name              String             // nom
+  dosage            String             // dosage (ex: 500mg)
+  
+  prescriptionItems PrescriptionItem[] // Un même médicament peut être prescrit dans plusieurs ordonnances
+}
+
+model MedicalEquipment {
+  id                Int                @id @default(autoincrement())
+  name              String             // nom
+
+  prescriptionItems PrescriptionItem[]
+}
+
+model ParamedicalCare {
+  id                Int                @id @default(autoincrement())
+  description       String             // descriptionSoin
+
+  prescriptionItems PrescriptionItem[]
 }

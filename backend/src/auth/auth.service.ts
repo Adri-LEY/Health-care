@@ -43,6 +43,16 @@ export class AuthService {
           ...(phone ? [{ phone }] : []),
         ],
       },
+      include: {
+        patient: true,
+        administrator: true,
+        medicalStaff: {
+          include: {
+            doctor: true,
+            nurseAssistant: true,
+          },
+        },
+      },
     });
 
     if (!user) throw new UnauthorizedException('Identifiants invalides');
@@ -60,10 +70,17 @@ export class AuthService {
     const payload = {
       id: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
+      patientId: user.patient?.id,
+      administratorId: user.administrator?.id,
+      medicalStaffId: user.medicalStaff?.id,
+      doctorId: user.medicalStaff?.doctor?.id,
+      nurseAssistantId: user.medicalStaff?.nurseAssistant?.id,
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
+
+    console.log('Connexion réussie pour l\'utilisateur:', user);
 
     return {
       accessToken,
@@ -72,6 +89,11 @@ export class AuthService {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        patientId: user.patient?.id,
+        administratorId: user.administrator?.id,
+        medicalStaffId: user.medicalStaff?.id,
+        doctorId: user.medicalStaff?.doctor?.id,
+        nurseAssistantId: user.medicalStaff?.nurseAssistant?.id,
       },
     };
   }

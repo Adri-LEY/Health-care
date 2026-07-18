@@ -1,0 +1,56 @@
+
+/* SECTION IA */
+.sectionIconPurple { color: #8b5cf6; }
+
+
+.aiSection {
+  background: #fdf4ff;
+  border: 1px solid #f5d0fe;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.aiHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.riskBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.badgeHigh {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.badgeModerate {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.badgeLow {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.aiMessageBox {
+  margin-top: 10px;
+  background: white;
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid #f3e8ff;
+}
+
+.aiMessage {
+  margin: 0;
+  color: #581c87;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}

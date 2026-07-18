@@ -1,0 +1,92 @@
+
+.historySidebar {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
+}
+
+.consultationList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
+/* Scrollbar stylisée */
+.consultationList::-webkit-scrollbar, .detailsPane::-webkit-scrollbar {
+  width: 6px;
+}
+.consultationList::-webkit-scrollbar-thumb, .detailsPane::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 3px;
+}
+
+.consultationCard {
+  text-align: left;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.consultationCard:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.activeCard {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.calendarIcon {
+  color: #64748b;
+}
+
+.activeCard .calendarIcon {
+  color: #2563eb;
+}
+
+.consultationDate {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.activeCard .consultationDate {
+  color: #2563eb;
+}
+
+.consultationReason {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.4;
+}

@@ -8,9 +8,10 @@ import { SpecialtyModule } from './specialty/specialty.module';
 import { ServiceModule } from './service/service.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { PatientsModule } from './patients/patients.module';
+import { ConsultationsModule } from './consultations/consultations.module';
 
 @Module({
-  imports: [InfrastructureModule, AuthModule, UsersModule, StaffModule, SpecialtyModule, ServiceModule, PatientsModule],
+  imports: [InfrastructureModule, AuthModule, UsersModule, StaffModule, SpecialtyModule, ServiceModule, PatientsModule, ConsultationsModule],
   controllers: [AppController],
   providers: [AppService],
 })
