@@ -10,7 +10,7 @@ export default function Profile() {
 
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
 
     const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -18,6 +18,11 @@ export default function Profile() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+
+    const [updateInfoError, setUpdateInfoError] = useState('');
+    const [updatePasswordError, setUpdatePasswordError] = useState('');
+
+    const [updatePasswordSuccess, setUpdatePasswordSuccess] = useState(false);
 
     const [formData, setFormData] = useState({
         lastName: '',
@@ -58,7 +63,7 @@ export default function Profile() {
                     phone: data.phone
                 });
             } catch (err: any) {
-                setError(err.message);
+                setError(err.message || 'Erreur lors de la récupération du profil');
             } finally {
                 setLoading(false);
             }
@@ -90,14 +95,19 @@ export default function Profile() {
                 body: JSON.stringify(formData)
             });
 
-            if (!response.ok) throw new Error("Erreur lors de la mise à jour");
+            if (!response.ok) {
+                const updateInfoErrorData = await response.json();
+                setUpdateInfoError(updateInfoErrorData.message || "Erreur lors de la mise à jour du profil");
+                throw new Error(updateInfoErrorData.message || "Erreur lors de la mise à jour du profil");
+            }
 
             const updatedData = await response.json();
 
+            setUpdateInfoError('');
             setUser(updatedData);
             setIsEditing(false);
         } catch (err: any) {
-            alert(err.message);
+            setUpdateInfoError(err.message || "Erreur lors de la mise à jour du profil");
         }
     };
 
@@ -117,12 +127,12 @@ export default function Profile() {
     // Soumission du changement de mot de passe
     const handlePasswordUpdate = async () => {
         if (!currentPassword || !newPassword || !confirmPassword) {
-            alert("Veuillez remplir tous les champs de mot de passe.");
+            setUpdatePasswordError("Veuillez remplir tous les champs du mot de passe.");
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert("Le nouveau mot de passe et sa confirmation ne correspondent pas.");
+            setUpdatePasswordError("Le nouveau mot de passe et la confirmation ne correspondent pas.");
             return;
         }
 
@@ -140,22 +150,27 @@ export default function Profile() {
                 })
             });
 
-            if (!response.ok) throw new Error("Erreur lors de la mise à jour du mot de passe");
+            if (!response.ok) {
+                const updatePasswordErrorData = await response.json();
+                setUpdatePasswordError(updatePasswordErrorData.message || "Erreur lors de la mise à jour du mot de passe");
+                throw new Error(updatePasswordErrorData.message || "Erreur lors de la mise à jour du mot de passe");
+            }
 
-            alert("Mot de passe mis à jour avec succès.");
-
+            setUpdatePasswordError('');
+            setUpdatePasswordSuccess(true);
+            Promise.resolve().then(() => setTimeout(() => setUpdatePasswordSuccess(false), 3000)); // Message de succès pendant 3 secondes
             // Réinitialisation de la zone de saisie
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
             setIsChangingPassword(false);
         } catch (err: any) {
-            alert(err.message);
+            setUpdatePasswordError(err.message || "Erreur lors de la mise à jour du mot de passe");
         }
     };
 
     if (loading) return <div className={styles.container}>Chargement de votre compte...</div>;
-    if (error) return <div className={styles.container} style={{ color: 'red' }}>{error}</div>;
+    if (error) return <div className={styles.container}>Erreur : {error}</div>;
     if (!user) return <div className={styles.container}>Aucun utilisateur trouvé.</div>;
 
     return (
@@ -208,6 +223,14 @@ export default function Profile() {
                         </div>
                     )}
 
+                    {updateInfoError && (
+                        <div className={styles.errorBox}>
+                            <p className={styles.errorText}>
+                                {updateInfoError}
+                            </p>
+                        </div>
+                    )}
+
                     {isEditing && (
                         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', maxWidth: '400px' }}>
                             <SubmitButton>Enregistrer</SubmitButton>
@@ -223,7 +246,16 @@ export default function Profile() {
             <div className={styles.card}>
                 <h2 className={styles.cardTitle}>Sécurité</h2>
 
+                {updatePasswordSuccess && (
+                    <div className={styles.successBox}>
+                        <p className={styles.successText}>
+                            Mot de passe mis à jour avec succès !
+                        </p>
+                    </div>
+                )}
+
                 {!isChangingPassword ? (
+
                     <button
                         type="button"
                         onClick={() => setIsChangingPassword(true)}
@@ -257,6 +289,14 @@ export default function Profile() {
                             />
                         </div>
 
+                        {updatePasswordError &&
+                            <div className={styles.errorBox}>
+                                <p className={styles.errorText}>
+                                    {updatePasswordError}
+                                </p>
+                            </div>
+                        }
+
                         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', maxWidth: '400px' }}>
                             {/* Appel direct à la fonction de mise à jour au clic */}
                             <button className={styles.submitButton} type="button" onClick={handlePasswordUpdate}>
@@ -271,10 +311,12 @@ export default function Profile() {
                                     setCurrentPassword('');
                                     setNewPassword('');
                                     setConfirmPassword('');
+                                    setUpdatePasswordError('');
                                 }}
                             >
                                 Annuler
                             </button>
+
                         </div>
                     </div>
                 )}

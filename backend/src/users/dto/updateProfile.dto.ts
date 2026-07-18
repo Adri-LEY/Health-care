@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsOptional, IsString, Matches } from 'class-validator';
 
 export class UpdateProfileDto {
   // Champs communs (Utilisateur)
@@ -17,6 +17,9 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString({ message: 'Le numéro de téléphone doit être une chaîne de caractères.' })
+  @Matches(/^[0-9+\s().-]{6,20}$/, {
+    message: 'Veuillez fournir un numéro de téléphone valide.',
+  })
   phone?: string;
 
 
