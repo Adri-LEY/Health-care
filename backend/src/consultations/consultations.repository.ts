@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common/decorators/core/injectable.decorator";
 import { PrismaService } from "src/prisma/prisma.service";
+import { ConsultationSummaryDto } from "./dto/consultation.dto";
+import { ConflictException } from "@nestjs/common/exceptions/conflict.exception";
 
 @Injectable()
 export default class ConsultationsRepository {
@@ -36,6 +38,18 @@ export default class ConsultationsRepository {
                     },
                 },
             },
+        });
+    }
+
+    async saveNewConsultation(consultationSummaryDto: ConsultationSummaryDto) {
+        return await this.prisma.consultation.create({
+            data: {
+                date: consultationSummaryDto.date,
+                visitReason: consultationSummaryDto.visitReason,
+                observations: consultationSummaryDto.observations,
+                biometricMeasures: consultationSummaryDto.biometricMeasures ? JSON.stringify(consultationSummaryDto.biometricMeasures) : "",
+                medicalRecordId: consultationSummaryDto.medicalRecordId
+            }
         });
     }
 }

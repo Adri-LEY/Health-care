@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import ConsultationsRepository from './consultations.repository';
+import { ConsultationSummaryDto } from './dto/consultation.dto';
 
 @Injectable()
 export class ConsultationsService {
@@ -39,6 +40,20 @@ export class ConsultationsService {
 
         return {
             message: 'Consultation details retrieved successfully.',
+            data: result,
+        };
+    }
+
+    /**
+     * Saves a new consultation summary to the database.
+     * @param consultationSummaryDto
+     * @returns A promise resolving to the saved consultation.
+     */
+    async saveNewConsultation(consultationSummaryDto: ConsultationSummaryDto): Promise<any> {
+        const result = await this.consultationsRepository.saveNewConsultation(consultationSummaryDto);
+
+        return {
+            message: 'Consultation saved successfully.',
             data: result,
         };
     }
