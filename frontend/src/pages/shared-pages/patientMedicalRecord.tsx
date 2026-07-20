@@ -9,7 +9,8 @@ import {
     Droplets,
     Calculator,
     Users,
-    History
+    History,
+    PlusCircle
 } from 'lucide-react';
 import styles from './patientMedicalRecord.module.css';
 import { PatientSidebar } from '../../components/PatientSideBar';
@@ -206,13 +207,28 @@ export default function PatientMedicalRecord() {
                             <h3>Suivi clinique du patient</h3>
                             <p>Consultez les comptes-rendus, les analyses de l'IA et les ordonnances délivrées.</p>
                         </div>
-                        <button
-                            className={styles.consultationHistoryButton}
-                            onClick={() => navigate(`/patient/medicalRecord/consultations/${data.medicalRecord.id}`)}
-                        >
-                            <History size={18} />
-                            Voir l'historique des consultations
-                        </button>
+
+                        {/* 2. Groupe les actions à droite */}
+                        <div className={styles.actionBannerButtons}>
+                            <button
+                                className={styles.consultationHistoryButton}
+                                onClick={() => navigate(`/patient/medicalRecord/consultations/${data.medicalRecord.id}`)}
+                            >
+                                <History size={18} />
+                                Historique des consultations
+                            </button>
+
+                            {/* Le nouveau bouton pour le médecin */}
+                            {isDoctor && (
+                                <button
+                                    className={styles.newConsultationButton}
+                                    onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/add-consultation/${data.id}`)}
+                                >
+                                    <PlusCircle size={18} />
+                                    Nouvelle consultation
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Section Biométrie (Poids, Taille, IMC) */}

@@ -169,3 +169,87 @@
     justify-content: center;
   }
 }
+
+
+/* Modifie ou assure-toi que la bannière s'adapte à plusieurs boutons */
+.actionBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  gap: 20px;
+}
+
+/* Nouveau conteneur pour aligner les boutons côte à côte */
+.actionBannerButtons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Le bouton historique existant (légèrement raccourci pour l'espace) */
+.consultationHistoryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: white; /* 💡 Optionnel : on le met en blanc pour faire ressortir le bouton principal */
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.consultationHistoryButton:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Le tout nouveau bouton d'action principal */
+.newConsultationButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+.newConsultationButton:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+}
+
+/* Version Responsive */
+@media (max-width: 992px) {
+  .actionBanner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .actionBannerButtons {
+    flex-direction: column;
+  }
+
+  .consultationHistoryButton, .newConsultationButton {
+    justify-content: center;
+  }
+}

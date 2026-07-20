@@ -24,8 +24,7 @@ export default function ConsultationHistory({ loadingHistory, history, selectedC
     };
 
     return (
-        <div className={styles.dashboardGrid}>
-            {/* COLONNE GAUCHE : LISTE DES CONSULTATIONS */}
+        <div className={styles.historyColumn}>
             <div className={styles.historySidebar}>
                 <h2 className={styles.sectionTitle}>Visites médicales</h2>
                 {loadingHistory ? (

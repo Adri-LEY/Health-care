@@ -17,6 +17,7 @@ import DoctorMenu from './pages/doctor-pages/DoctorMenu';
 import PatientMenu from './pages/patient-pages/PatientMenu';
 import PatientConsultations from './pages/shared-pages/patientConsultations';
 import About from './pages/shared-pages/About';
+import AddConsultation from './pages/doctor-pages/addConsultation';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -88,6 +89,7 @@ function AppContent() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/" element={<RoleBasedRedirect />} />
         </Route>
 
         <Route path="/" element={<RoleBasedRedirect />} />
@@ -113,6 +115,8 @@ function AppContent() {
           <Route path="/doctor" element={<DoctorMenu />} />
 
           <Route path="/patientResearch" element={<PatientResearch />} />
+
+          <Route path="/patient/medicalRecord/:medicalRecordId/add-consultation/:patientId" element={<AddConsultation />} />
         </Route>
 
 
