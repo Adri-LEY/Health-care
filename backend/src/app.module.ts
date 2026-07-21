@@ -9,9 +9,10 @@ import { ServiceModule } from './service/service.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { PatientsModule } from './patients/patients.module';
 import { ConsultationsModule } from './consultations/consultations.module';
+import { PrescriptionCatalogModule } from './prescription-catalog/prescription-catalog.module';
 
 @Module({
-  imports: [InfrastructureModule, AuthModule, UsersModule, StaffModule, SpecialtyModule, ServiceModule, PatientsModule, ConsultationsModule],
+  imports: [InfrastructureModule, AuthModule, UsersModule, StaffModule, SpecialtyModule, ServiceModule, PatientsModule, ConsultationsModule, PrescriptionCatalogModule],
   controllers: [AppController],
   providers: [AppService],
 })

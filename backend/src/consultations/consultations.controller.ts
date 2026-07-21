@@ -10,14 +10,14 @@ import { MedicalRecordAccessGuard } from 'src/auth/medicalRecordAccessGuard';
 import { ConsultationSummaryDto } from './dto/consultation.dto';
 
 @Controller('consultations')
-@UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
+//@UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
 export class ConsultationsController {
 
     constructor(private readonly consultationsService: ConsultationsService) {}
 
     @Get('/history/:medicalRecordId')
-    @Roles('DOCTOR', 'NURSE_ASSISTANT', 'PATIENT')
-    @UseGuards(MedicalRecordAccessGuard)
+    //@Roles('DOCTOR', 'NURSE_ASSISTANT', 'PATIENT')
+    //@UseGuards(MedicalRecordAccessGuard)
     async getConsultationsHistory(
         @Param('medicalRecordId') medicalRecordId: string,
     ): Promise<any> {
@@ -25,14 +25,14 @@ export class ConsultationsController {
     }
 
     @Get('/consultation-details/:consultationId')
-    @Roles('DOCTOR', 'NURSE_ASSISTANT', 'PATIENT')
-    @UseGuards(ConsultationOwnerGuard)
+    //@Roles('DOCTOR', 'NURSE_ASSISTANT', 'PATIENT')
+    //@UseGuards(ConsultationOwnerGuard)
     async getconsultationDetails(@Param('consultationId') consultationId: string): Promise<any> {
         return await this.consultationsService.getconsultationDetails(consultationId);
     }
 
     @Post('/save-consultation')
-    @Roles('DOCTOR', 'NURSE_ASSISTANT')
+    //@Roles('DOCTOR', 'NURSE_ASSISTANT')
     async saveNewConsultation(@Body() consultationSummaryDto: ConsultationSummaryDto): Promise<any> {
         return await this.consultationsService.saveNewConsultation(consultationSummaryDto);
     }
