@@ -12,5 +12,5 @@ export class SearchPatientsDto {
     @IsInt()
     @Min(1)
     @Max(50) 
-    limit?: number = 5; 
+    limit?: number = 20; 
 }

@@ -3,12 +3,14 @@ import { PatientsRepository } from './patients.repository';
 import { SearchPatientsDto } from './dto/searchPatients.dto';
 import { Prisma } from '@prisma/client';
 import { StaffRepository } from 'src/staff/staff.repository';
+import { MedicalRecordRepository } from './medicalRecord.repository';
 
 @Injectable()
 export class PatientsService {
 
     constructor(
         private readonly patientsRepository: PatientsRepository,
+        private readonly medicalRecordRepository: MedicalRecordRepository,
         private readonly staffRepository: StaffRepository
     ) {}
 
@@ -106,8 +108,31 @@ export class PatientsService {
     }
 
 
+    /**
+     *  Retrieves the medical record along with the patient's profile information by patient ID.
+     * @param patientId 
+     * @returns An object containing the medical record and the patient's profile information
+     * @throws Error if the patient or medical record is not found
+     */
     async getMedicalRecordWithProfileByPatientId(patientId: number) {
         const patientInfos = await this.patientsRepository.getMedicalRecordWithProfileByPatientId(patientId);
         return patientInfos;
     }   
+
+
+    /**
+     * Modifies the medical record of a patient.
+     * @param medicalRecordId 
+     * @param data 
+     * @returns The updated medical record
+     * @throws Error if the medical record is not found
+     */
+    async modifyMedicalRecord(patientId: number, data: any) {
+        const medicalRecordId = await this.patientsRepository.getMedicalRecordIdByPatientId(patientId);
+        if (!medicalRecordId) {
+            throw new Error('Medical record not found for the specified patient');
+        }
+        const updatedMedicalRecord = await this.medicalRecordRepository.modifyMedicalRecord(medicalRecordId.medicalRecordId, data);
+        return updatedMedicalRecord;
+    }
 }
