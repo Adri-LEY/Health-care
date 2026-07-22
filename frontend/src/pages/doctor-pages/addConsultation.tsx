@@ -5,170 +5,193 @@ import styles from './addConsultation.module.css';
 import { PatientSidebar } from '../../components/PatientSideBar';
 import InputField from '../../components/InputField';
 import { ErrorBox } from '../../components/ErrorBox';
-
+import { PrescriptionForm } from '../../components/consultations/PrescriptionForm';
+import type { ElementPrescriptionItem, CatalogItem } from '../../components/consultations/PrescriptionForm';
 
 export default function AddConsultation() {
-    const { patientId } = useParams<{ patientId: string }>();
-    const navigate = useNavigate();
-    
-    // États pour les données du patient (Sidebar requis)
-    const [patientData, setPatientData] = useState<any | null>(null);
-    const [loadingPatient, setLoadingPatient] = useState(true);
+  const { patientId } = useParams<{ patientId: string }>();
+  const navigate = useNavigate();
 
-    // États du formulaire de consultation
-    const [visitReason, setVisitReason] = useState('');
-    const [observations, setObservations] = useState('');
-    const [submitting, setSubmitting] = useState(false);
-    
-    // Gestion des erreurs de l'API (Tableau de chaînes de class-validator)
-    const [errorMessages, setErrorMessages] = useState<string | string[]>([]);
+  const [patientData, setPatientData] = useState<any | null>(null);
+  const [loadingPatient, setLoadingPatient] = useState(true);
 
-    const apiUrl = import.meta.env.VITE_API_URL;
+  // Formulaire Consultation
+  const [visitReason, setVisitReason] = useState('');
+  const [observations, setObservations] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessages, setErrorMessages] = useState<string | string[]>([]);
 
-    useEffect(() => {
-        // Chargement du dossier pour alimenter le volet gauche (Sidebar)
-        const fetchPatient = async () => {
-            try {
-                const response = await fetch(`${apiUrl}/patients/medicalRecord/${patientId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                const json = await response.json();
-                setPatientData(json.data);
-            } catch (err) {
-                console.error("Impossible de récupérer les infos du patient", err);
-            } finally {
-                setLoadingPatient(false);
-            }
-        };
-        fetchPatient();
-    }, [patientId, apiUrl]);
+  // États du Catalogue & Ordonnance
+  const [showPrescription, setShowPrescription] = useState(false);
+  const [prescriptionItems, setPrescriptionItems] = useState<ElementPrescriptionItem[]>([]);
+  const [medicationsList, setMedicationsList] = useState<CatalogItem[]>([]);
+  const [equipmentsList, setEquipmentsList] = useState<CatalogItem[]>([]);
+  const [caresList, setCaresList] = useState<CatalogItem[]>([]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmitting(true);
-        setErrorMessages([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
-        if (!patientData?.medicalRecord?.id) {
-            setErrorMessages("Dossier médical introuvable.");
-            setSubmitting(false);
-            return;
-        }
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const headers = { Authorization: `Bearer ${token}` };
 
-        // Payload respectant le DTO NestJS (Sans biometrie pour le moment)
-        const payload = {
-            medicalRecordId: patientData.medicalRecord.id,
-            date: new Date().toISOString(), // Sauvegarde avec précision DateTime
-            visitReason,
-            observations
-        };
-
-        try {
-            const response = await fetch(`${apiUrl}/consultations/save-consultation`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const json = await response.json();
-
-            if (!response.ok) {
-                // Si class-validator renvoie un tableau de messages d'erreurs
-                if (json.message) {
-                    setErrorMessages(json.message);
-                } else {
-                    setErrorMessages("Une erreur inattendue est survenue.");
-                }
-                return;
-            }
-
-            // Succès : retour à l'historique ou dossier médical
-            navigate(`/patient/medicalRecord/consultations/${patientData.medicalRecord.id}`);
-
-        } catch (err) {
-            setErrorMessages("Erreur réseau. Veuillez vérifier votre connexion.");
-        } finally {
-            setSubmitting(false);
-        }
+    // 1. Récupération des données du patient
+    const fetchPatient = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/patients/medicalRecord/${patientId}`, { headers });
+        const json = await response.json();
+        setPatientData(json.data);
+      } catch (err) {
+        console.error("Impossible de récupérer les infos du patient", err);
+      } finally {
+        setLoadingPatient(false);
+      }
     };
 
-    if (loadingPatient) return <div className={styles.loading}>Chargement des informations du patient...</div>;
-    if (!patientData) return <div className={styles.container}><div className={styles.errorBox}>Patient introuvable.</div></div>;
+    // 2. Récupération des catalogues (médicaments, matériel, soins)
+    const fetchCatalogs = async () => {
+      try {
+        const [medRes, eqRes, careRes] = await Promise.all([
+          fetch(`${apiUrl}/prescription-catalog/medications`, { headers }),
+          fetch(`${apiUrl}/prescription-catalog/equipments`, { headers }),
+          fetch(`${apiUrl}/prescription-catalog/cares`, { headers }),
+        ]);
 
-    return (
-        <div className={styles.container}>
-            {/* Entête de page avec bouton retour */}
-            <div className={styles.header}>
-                <button className={styles.backButton} onClick={() => navigate(`/patient/medicalRecord/${patientData.medicalRecord.id}`)}>
-                    <ArrowLeft size={18} /> Retour
-                </button>
-                <div className={styles.titleSection}>
-                    <h1>Nouvelle Consultation</h1>
-                    <span className={styles.patientBadge}>
-                        ID Patient: #{patientData.id}
-                    </span>
-                </div>
-            </div>
+        if (medRes.ok) setMedicationsList(await medRes.json());
+        if (eqRes.ok) setEquipmentsList(await eqRes.json());
+        if (careRes.ok) setCaresList(await careRes.json());
+      } catch (err) {
+        console.error("Erreur lors du chargement des catalogues", err);
+      }
+    };
 
-            <div className={styles.dashboardGrid}>
-                {/* Colonne Gauche : Sidebar Médical existant */}
-                <PatientSidebar 
-                    patient={patientData} 
-                    isDoctor={true} 
-                    currentDoctorId={patientData.doctor?.id || null} 
-                />
+    fetchPatient();
+    fetchCatalogs();
+  }, [patientId, apiUrl]);
 
-                {/* Colonne Droite : Formulaire d'ajout */}
-                <div className={styles.mainContent}>
-                    
-                    {/* Affichage de la boîte rouge d'erreur si class-validator rejette la saisie */}
-                    <ErrorBox messages={errorMessages} />
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setErrorMessages([]);
 
-                    <div className={styles.formCard}>
-                        <h2>Saisie des observations cliniques</h2>
-                        
-                        <form onSubmit={handleSubmit} className={styles.form}>
-                            
-                            {/* Input standard pour le motif de la visite */}
-                            <InputField
-                                label="Motif de la visite"
-                                type="text"
-                                value={visitReason}
-                                onChange={setVisitReason}
-                                required
-                                subtext="Exemple : Consultation de suivi post-opératoire, Syndrome grippal..."
-                            />
+    if (!patientData?.medicalRecord?.id) {
+      setErrorMessages("Dossier médical introuvable.");
+      setSubmitting(false);
+      return;
+    }
 
-                            {/* Zone de texte sur-mesure pour les observations détaillées */}
-                            <InputField
-                                label="Observations médicales"
-                                type="textarea"
-                                rows={8}
-                                value={observations}
-                                onChange={setObservations}
-                                required
-                                subtext="Détails cliniques, résultats d'examens, recommandations..."
-                            />
+    // Construction du Payload en adéquation avec ConsultationSummaryDto
+    const payload: any = {
+      medicalRecordId: patientData.medicalRecord.id,
+      date: new Date().toISOString(),
+      visitReason,
+      observations,
+    };
 
-                            {/* Actions du formulaire */}
-                            <div className={styles.actions}>
-                                <button 
-                                    type="submit" 
-                                    className={styles.submitButton}
-                                    disabled={submitting}
-                                >
-                                    <PlusCircle size={18} />
-                                    {submitting ? 'Enregistrement...' : 'Valider la consultation'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+    // Si une ordonnance a été remplie, on l'ajoute au payload
+    if (showPrescription && prescriptionItems.length > 0) {
+      payload.prescription = {
+        elements: prescriptionItems.map((item) => ({
+          name: item.name,
+          description: item.description,
+          dosage: item.dosage,
+          duration: item.duration,
+          medicationId: item.medicationId,
+          equipmentId: item.equipmentId,
+          careId: item.careId,
+        })),
+      };
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/consultations/save-consultation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        setErrorMessages(json.message || "Une erreur inattendue est survenue.");
+        return;
+      }
+
+      navigate(`/patient/medicalRecord/consultations/${patientData.medicalRecord.id}`);
+    } catch (err) {
+      setErrorMessages("Erreur réseau. Veuillez vérifier votre connexion.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loadingPatient) return <div className={styles.loading}>Chargement des informations du patient...</div>;
+  if (!patientData) return <div className={styles.container}><div className={styles.errorBox}>Patient introuvable.</div></div>;
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={() => navigate(`/patient/medicalRecord/${patientData.medicalRecord.id}`)}>
+          <ArrowLeft size={18} /> Retour
+        </button>
+        <div className={styles.titleSection}>
+          <h1>Nouvelle Consultation</h1>
+          <span className={styles.patientBadge}>ID Patient: #{patientData.id}</span>
         </div>
-    );
+      </div>
+
+      <div className={styles.dashboardGrid}>
+        <PatientSidebar patient={patientData} isDoctor={true} currentDoctorId={patientData.doctor?.id || null} />
+
+        <div className={styles.mainContent}>
+          <ErrorBox messages={errorMessages} />
+
+          <div className={styles.formCard}>
+            <h2>Saisie des observations cliniques</h2>
+
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <InputField
+                label="Motif de la visite"
+                type="text"
+                value={visitReason}
+                onChange={setVisitReason}
+                required
+                subtext="Exemple : Consultation de suivi, Syndrome grippal..."
+              />
+
+              <InputField
+                label="Observations médicales"
+                type="textarea"
+                rows={6}
+                value={observations}
+                onChange={setObservations}
+                required
+                subtext="Détails cliniques, examens..."
+              />
+
+              {/* Sous-section Ordonnance insérée ici */}
+              <PrescriptionForm
+                showPrescription={showPrescription}
+                setShowPrescription={setShowPrescription}
+                items={prescriptionItems}
+                setItems={setPrescriptionItems}
+                medicationsList={medicationsList}
+                equipmentsList={equipmentsList}
+                caresList={caresList}
+              />
+
+              <div className={styles.actions}>
+                <button type="submit" className={styles.submitButton} disabled={submitting}>
+                  <PlusCircle size={18} />
+                  {submitting ? 'Enregistrement...' : 'Valider la consultation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

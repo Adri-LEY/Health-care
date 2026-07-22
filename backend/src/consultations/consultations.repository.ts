@@ -6,7 +6,7 @@ import { ConflictException } from "@nestjs/common/exceptions/conflict.exception"
 @Injectable()
 export default class ConsultationsRepository {
 
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     async getAllConsultations(medicalRecordId: number) {
         return await this.prisma.consultation.findMany({
@@ -28,7 +28,7 @@ export default class ConsultationsRepository {
                 date: true,
                 visitReason: true,
                 observations: true,
-                biometricMeasures:true,
+                biometricMeasures: true,
                 aiAnalysis: true,
                 prescription: {
                     select: {
@@ -48,7 +48,23 @@ export default class ConsultationsRepository {
                 visitReason: consultationSummaryDto.visitReason,
                 observations: consultationSummaryDto.observations,
                 biometricMeasures: consultationSummaryDto.biometricMeasures ? JSON.stringify(consultationSummaryDto.biometricMeasures) : "",
-                medicalRecordId: consultationSummaryDto.medicalRecordId
+                medicalRecordId: consultationSummaryDto.medicalRecordId,
+                prescription: consultationSummaryDto.prescription ? {
+                    create: {
+                        prescriptionDate: new Date(),
+                        prescriptionItems: {
+                            create: consultationSummaryDto.prescription.elements.map(item => ({
+                                name: item.name,
+                                description: item.description,
+                                dosage: item.dosage,
+                                duration: item.duration,
+                                medicationId: item.medicationId,
+                                equipmentId: item.equipmentId,
+                                careId: item.careId
+                            }))
+                        }
+                    }
+                } : undefined
             }
         });
     }

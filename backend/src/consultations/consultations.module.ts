@@ -3,9 +3,10 @@ import { ConsultationsService } from './consultations.service';
 import { ConsultationsController } from './consultations.controller';
 import { InfrastructureModule } from 'src/infrastructure/infrastructure.module';
 import ConsultationsRepository from './consultations.repository';
+import { PrescriptionCatalogModule } from 'src/prescription-catalog/prescription-catalog.module';
 
 @Module({
-  imports: [InfrastructureModule],
+  imports: [InfrastructureModule, PrescriptionCatalogModule],
   providers: [ConsultationsService, ConsultationsRepository],
   controllers: [ConsultationsController]
 })
