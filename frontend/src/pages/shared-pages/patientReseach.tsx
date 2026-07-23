@@ -140,11 +140,13 @@ export default function PatientResearch() {
                     <div className={styles['empty-list']}>Aucun patient ne correspond à la recherche.</div>
                 ) : (
                     filteredPatients.map((item) => (
-                        // C'est ici que tu mapperás ton PatientCard comme pour StaffCard :
+                        
+                        console.log("patient:", item),
+
                         <PatientCard 
-                            key={item.id}
+                            key={item.patient.id}
                             patient={item}
-                            onClick={() => navigate(`/patient/medicalRecord/${item.id}`)}
+                            onClick={() => navigate(`/patient/medicalRecord/${item.patient.id}`)}
                         />
                     ))
                 )}

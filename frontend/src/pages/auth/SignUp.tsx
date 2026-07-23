@@ -66,7 +66,7 @@ export default function SignUp() {
 
             localStorage.setItem('token', data.accessToken);
 
-            navigate('/dashboard');
+            navigate('/');
 
         } catch (error) {
             console.error('Erreur lors de la création du compte :', error);
@@ -77,7 +77,7 @@ export default function SignUp() {
     return (
         <main className={styles.page}>
             <section className={styles.card}>
-                <button type="button" onClick={() => navigate(-1)} className={styles.backButton}>
+                <button type="button" onClick={() => navigate('/login')} className={styles.backButton}>
                     <ArrowLeft size={18} aria-hidden="true" />
                     <span>Retour</span>
                 </button>

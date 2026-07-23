@@ -154,6 +154,10 @@ function AppContent() {
         {/* --- ACCÈS PARTAGÉ : MÉDECIN ET AIDE-SOIGNANT --- */}
         <Route element={<AllowedRolesRoute allowedRoles={['DOCTOR', 'NURSE_ASSISTANT']} />}>
           <Route path="/patientResearch" element={<PatientResearch />} />
+        </Route>
+
+        {/* --- ACCÈS PARTAGÉ : MÉDECIN, AIDE-SOIGNANT ET PATIENT --- */}
+        <Route element={<AllowedRolesRoute allowedRoles={['DOCTOR', 'NURSE_ASSISTANT', 'PATIENT']} />}>
           <Route path="/patient/medicalRecord/:patientId" element={<PatientMedicalRecord />} />
           <Route path="/patient/medicalRecord/consultations/:medicalRecordId" element={<PatientConsultations />} />
         </Route>

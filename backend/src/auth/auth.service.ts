@@ -57,11 +57,11 @@ export class AuthService {
 
     if (!user) throw new UnauthorizedException('Identifiants invalides');
 
-    if(user.password === null) throw new UnauthorizedException('Veuillez vous connecter via le fournisseur d\'authentification externe que vous avez utilisé pour créer votre compte.');
+    if (user.password === null) throw new UnauthorizedException('Veuillez vous connecter via le fournisseur d\'authentification externe que vous avez utilisé pour créer votre compte.');
 
-    if(user.userStatus === 'INACTIVE') throw new UnauthorizedException('Votre compte est inactif. Veuillez contacter l\'administrateur pour plus d\'informations.');
+    if (user.userStatus === 'INACTIVE') throw new UnauthorizedException('Votre compte est inactif. Veuillez contacter l\'administrateur pour plus d\'informations.');
 
-    if(user.userStatus === 'PENDING') throw new UnauthorizedException('Votre compte est en attente d\'activation. Veuillez vérifier votre email pour activer votre compte.');
+    if (user.userStatus === 'PENDING') throw new UnauthorizedException('Votre compte est en attente d\'activation. Veuillez vérifier votre email pour activer votre compte.');
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -230,6 +230,9 @@ export class AuthService {
               }
             }
           }
+        },
+        include: {
+          patient: true,
         }
       });
 
@@ -244,7 +247,8 @@ export class AuthService {
       const payload = {
         id: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        patientId: user.patient?.id
       };
 
       const accessToken = await this.jwtService.signAsync(payload);
