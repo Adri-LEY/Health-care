@@ -48,6 +48,16 @@ enum Imc {
   CLASS_3_OBESITY
 }
 
+enum MeasurementType {
+  TEMPERATURE
+  HEART_RATE
+  BLOOD_PRESSURE
+  WEIGHT
+  HEIGHT
+  OXYGEN_SATURATION
+  BLOOD_GLUCOSE
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   lastName  String   
@@ -141,6 +151,8 @@ model NurseAssistant {
   //Service spécifique
   serviceId      Int
   service        Service      @relation(fields: [serviceId], references: [id])
+
+  biometricMeasures BiometricMeasure[]
 }
 
 model Specialty {
@@ -156,6 +168,26 @@ model Service {
 }
 
 
+model BiometricMeasure {
+  id              Int          @id @default(autoincrement())
+  type            MeasurementType // Matches MeasurementType enum (WEIGHT, HEIGHT, BLOOD_PRESSURE...)
+  value           Float           // Numerical value (e.g., 70, 175, 37.5)
+  unit            String?         // Optional unit (e.g., "kg", "cm", "mmHg", "°C")
+  takenAt         DateTime        @default(now())
+
+  // ID of the nurse assistant who took the measurement
+  takenById       Int?
+  takenBy         NurseAssistant?  @relation(fields: [takenById], references: [id])
+
+  // Relation to MedicalRecord
+  medicalRecordId Int
+  medicalRecord   MedicalRecord   @relation(fields: [medicalRecordId], references: [id])
+
+  // Optional relation to Consultation
+  consultationId  Int?
+  consultation    Consultation?   @relation(fields: [consultationId], references: [id])
+}
+
 model MedicalRecord {
   id              Int      @id @default(autoincrement())
   poids           Float?
@@ -170,6 +202,9 @@ model MedicalRecord {
 
   //Liste des consultations
   consultations Consultation[]
+
+  //Liste des données biométriques
+  biometricMeasures BiometricMeasure[]
 }
 
 model Consultation {
@@ -178,6 +213,8 @@ model Consultation {
   visitReason         String
   observations        String
   biometricMeasures   String  
+
+  biometricMeasuresList BiometricMeasure[]
 
   // Relation 1-to-Many : Une consultation appartient à UN dossier médical
   medicalRecordId     Int
