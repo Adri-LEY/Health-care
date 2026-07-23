@@ -65,7 +65,7 @@ interface ConsultationDetails {
 }
 
 export default function PatientConsultations() {
-    const { patientId } = useParams<{ patientId: string }>();
+    const { medicalRecordId } = useParams<{ medicalRecordId: string }>();
     const navigate = useNavigate();
 
     const [history, setHistory] = useState<ConsultationListItem[]>([]);
@@ -83,11 +83,15 @@ export default function PatientConsultations() {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
+                console.log("Fetching consultation history for medicalRecordId:", medicalRecordId);
+
                 setLoadingHistory(true);
-                const response = await fetch(`${apiUrl}/consultations/history/${patientId}`, {
+                const response = await fetch(`${apiUrl}/consultations/history/${medicalRecordId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const json = await response.json();
+
+                console.log("Consultation history response:", json);
 
                 if (response.ok && json.data) {
                     setHistory(json.data);
@@ -105,10 +109,10 @@ export default function PatientConsultations() {
             }
         };
 
-        if (patientId) {
+        if (medicalRecordId) {
             fetchHistory();
         }
-    }, [patientId, apiUrl, token]);
+    }, [medicalRecordId, apiUrl, token]);
 
     // 2. Charger les détails à chaque fois qu'on sélectionne une consultation
     useEffect(() => {
@@ -162,7 +166,7 @@ export default function PatientConsultations() {
                     <button
                         type="button"
                         className={styles.backButton}
-                        onClick={() => navigate(`/patient/medicalRecord/${patientId}`)}
+                        onClick={() => navigate(`/patient/medicalRecord/${medicalRecordId}`)}
                     >
                         <ArrowLeft size={18} />
                         Retour au dossier médical
