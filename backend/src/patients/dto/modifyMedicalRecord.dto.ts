@@ -1,5 +1,5 @@
 import { IsEnum, IsNumber, IsOptional, IsString, Matches } from "class-validator";
-import { BloodType } from '@prisma/client';
+import { BloodType, Imc } from '@prisma/client';
 
 export class ModifyMedicalRecordDto {
     
@@ -26,4 +26,8 @@ export class ModifyMedicalRecordDto {
     @IsOptional()
     @IsString({ message: 'Les allergies doivent être une chaîne de caractères.' })
     allergies?: string;
+
+    @IsOptional()
+    @IsEnum(Imc, { message: 'L\'IMC doit être une catégorie d\'IMC valide.' })
+    imcCategory?: Imc;
 }

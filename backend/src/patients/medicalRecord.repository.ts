@@ -25,6 +25,7 @@ export class MedicalRecordRepository {
                 medical_history: data.medicalHistory,
                 family_history: data.familyHistory,
                 allergies: data.allergies,
+                imc: data.imcCategory,
             },
         });
     }

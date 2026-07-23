@@ -46,15 +46,6 @@ export default function PatientResearch() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const limit = 20;
 
-    // Fonctions de Toggle pour les filtres
-    const toggleGender = (gender: string) => {
-        setSelectedGenders(prev => prev.includes(gender) ? prev.filter(g => g !== gender) : [...prev, gender]);
-    };
-
-    const toggleType = (type: string) => {
-        setSelectedTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
-    };
-
     // Filtrage local ultra-rapide grâce à useMemo
     const filteredPatients = useMemo(() => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -124,7 +115,7 @@ export default function PatientResearch() {
             </p>
 
             <div className={styles['action-buttons-container']}>
-                <button type="button" className={styles['back-button']} onClick={() => navigate('/doctor')}>
+                <button type="button" className={styles['back-button']} onClick={() => navigate('/')}>
                     <ArrowLeft size={18} aria-hidden="true" /> Retour
                 </button>
             </div>
@@ -133,26 +124,7 @@ export default function PatientResearch() {
                 searchTerm={searchTerm}
                 searchPlaceholder="Rechercher un patient par nom, prénom, email ou téléphone..."
                 onSearchChange={setSearchTerm}
-                groups={[
-                    /*{
-                        title: "Genre",
-                        options: [
-                            { id: "M", name: "Homme" },
-                            { id: "F", name: "Femme" }
-                        ],
-                        selectedOptions: selectedGenders,
-                        onToggle: toggleGender
-                    },
-                    {
-                        title: "Prise en charge",
-                        options: [
-                            { id: "INTERN", name: "Patient Interne" },
-                            { id: "EXTERN", name: "Patient Externe" }
-                        ],
-                        selectedOptions: selectedTypes,
-                        onToggle: toggleType
-                    }*/
-                ]}
+                groups={[]}
             />
 
             <div className={styles['patient-list']}>
