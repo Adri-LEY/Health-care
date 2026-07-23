@@ -101,19 +101,26 @@ export class BiometricsRepository {
         let dia: number | string | null = null;
 
         for (const m of measures) {
-            // MAPPING DES TYPES -> CLEFS DTO
+            const val = Number(m.value);
+
             switch (m.type) {
                 case 'TEMPERATURE':
-                    resultMap.temperature = Number(m.value);
+                    resultMap.temperature = val;
                     break;
                 case 'HEART_RATE':
-                    resultMap.heartRate = Number(m.value);
+                    resultMap.heartRate = val;
                     break;
                 case 'HEIGHT':
-                    resultMap.height = String(m.value); // ex: "170"
+                    resultMap.height = val;
                     break;
                 case 'WEIGHT':
-                    resultMap.weight = Number(m.value);
+                    resultMap.weight = val;
+                    break;
+                case 'OXYGEN_SATURATION':
+                    resultMap.oxygenSaturation = val; // Nouvelle propriété
+                    break;
+                case 'BLOOD_GLUCOSE':
+                    resultMap.bloodGlucose = val;     // Nouvelle propriété
                     break;
                 case 'BLOOD_PRESSURE_SYS':
                 case 'SYSTOLIC':
@@ -127,14 +134,12 @@ export class BiometricsRepository {
                     resultMap.bloodPressure = String(m.value);
                     break;
                 default:
-                    // Pour tout autre type custom, on passe le type en camelCase (ex: BLOOD_GLUCOSE -> bloodGlucose)
-                    const key = m.type.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-                    resultMap[key] = m.value;
+                    const camelKey = m.type.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                    resultMap[camelKey] = isNaN(val) ? m.value : val;
                     break;
             }
         }
 
-        // Si la tension était stockée en deux lignes séparées SYS / DIA, on la fusionne en "SYS/DIA"
         if (sys !== null && dia !== null) {
             resultMap.bloodPressure = `${sys}/${dia}`;
         }
