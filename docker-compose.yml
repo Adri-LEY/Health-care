@@ -45,6 +45,9 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:5000
+    volumes:
+      - ./frontend:/app             # Synchronise le code source local
+      - /app/node_modules          # <-- VOICI LA CLE : Empêche le node_modules local d'écraser celui du conteneur
     depends_on:
       - backend
     networks:

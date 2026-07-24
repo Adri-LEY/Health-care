@@ -1,17 +1,31 @@
 import styles from './BiometricSection.module.css';
-import { Thermometer, Heart, Activity } from 'lucide-react';
+import { 
+    Thermometer, 
+    Heart, 
+    Activity, 
+    Scale, 
+    Ruler, 
+    Percent, 
+    Droplet 
+} from 'lucide-react';
 import BiometricItem from './BiometricItem';
 
+// Interface couvrant toutes les mesures biométriques courantes
+export interface BiometricData {
+    temperature?: number;
+    heartRate?: number;
+    bloodPressure?: string;
+    weight?: number;
+    height?: number;
+    oxygenSaturation?: number;
+    bloodGlucose?: number;
+}
+
 interface BiometricSectionProps {
-    biometrics: {
-        temperature?: number;
-        heartRate?: number;
-        bloodPressure?: string;
-    };
+    biometrics: BiometricData;
 }
 
 export default function BiometricSection({ biometrics }: BiometricSectionProps) {
-
     return (
         <div className={styles.detailSection}>
             <h3 className={styles.subSectionTitle}>
@@ -43,7 +57,39 @@ export default function BiometricSection({ biometrics }: BiometricSectionProps) 
                         icon={<Activity className={styles.biometricIconPressure} size={20} />}
                     />
                 )}
+                {biometrics.weight && (
+                    <BiometricItem
+                        label="Poids"
+                        value={biometrics.weight}
+                        unit="kg"
+                        icon={<Scale className={styles.biometricIconWeight} size={20} />}
+                    />
+                )}
+                {biometrics.height && (
+                    <BiometricItem
+                        label="Taille"
+                        value={biometrics.height}
+                        unit="cm"
+                        icon={<Ruler className={styles.biometricIconHeight} size={20} />}
+                    />
+                )}
+                {biometrics.oxygenSaturation && (
+                    <BiometricItem
+                        label="Saturation O₂"
+                        value={biometrics.oxygenSaturation}
+                        unit="%"
+                        icon={<Percent className={styles.biometricIconOxygen} size={20} />}
+                    />
+                )}
+                {biometrics.bloodGlucose && (
+                    <BiometricItem
+                        label="Glycémie"
+                        value={biometrics.bloodGlucose}
+                        unit="g/L"
+                        icon={<Droplet className={styles.biometricIconGlucose} size={20} />}
+                    />
+                )}
             </div>
         </div>
-    )
+    );
 }

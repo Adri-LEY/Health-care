@@ -1,4 +1,4 @@
-import styles from './BiometricSection.module.css';
+import styles from './BiometricItem.module.css';
 import { Thermometer, Heart, Activity } from 'lucide-react';
 
 interface BiometricItemProps {

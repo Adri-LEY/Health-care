@@ -48,6 +48,10 @@ interface Biometrics {
     temperature?: number;
     heartRate?: number;
     bloodPressure?: string;
+    weight?: number;
+    height?: number;
+    oxygenSaturation?: number;
+    bloodGlucose?: number;
 }
 
 interface ConsultationDetails {
