@@ -108,4 +108,15 @@ export class BiometricsService {
             consultationId,
         };
     }
+
+
+    /**
+     * Récupère les mesures biométriques récentes (dans les deux dernières heures) pour un dossier médical donné.
+     * @param medicalRecordId - L'ID du dossier médical pour lequel récupérer les mesures récentes.
+     * @returns Une liste de mesures biométriques récentes correspondant au dossier médical spécifié.
+     * @throws NotFoundException (HTTP 404) si le dossier médical n'est pas trouvé
+     */
+    async getRecentBiometricsWithinTwoHours(medicalRecordId: number) {
+        return this.biometricsRepository.getRecentBiometricsWithinTwoHoursForMedicalRecord(medicalRecordId);
+    }
 }

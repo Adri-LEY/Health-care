@@ -25,6 +25,13 @@ export class BiometricsController {
         return await this.biometrics.getHistory(medicalRecordId, type);
     }
 
+    @Get('/recent/:medicalRecordId')
+    async getRecentBiometrics(
+        @Param('medicalRecordId', ParseIntPipe) medicalRecordId: number,
+    ): Promise<any> {
+        return await this.biometrics.getRecentBiometricsWithinTwoHours(medicalRecordId);
+    }
+
     @Patch('/link-consultation/:consultationId')
     async linkBiometricsToConsultation(
         @Param('consultationId', ParseIntPipe) consultationId: number,

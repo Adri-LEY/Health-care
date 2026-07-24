@@ -177,4 +177,19 @@ export class BiometricsRepository {
             },
         });
     }
+
+
+    async getRecentBiometricsWithinTwoHoursForMedicalRecord(medicalRecordId: number): Promise<BiometricMeasure[]> {
+        const twoHoursAgo = new Date();
+        twoHoursAgo.setHours(twoHoursAgo.getHours() - 2);
+
+        return await this.prisma.biometricMeasure.findMany({
+            where: {
+                medicalRecordId: medicalRecordId,
+                takenAt: {
+                    gte: twoHoursAgo,
+                },
+            },
+        });
+    }
 }
