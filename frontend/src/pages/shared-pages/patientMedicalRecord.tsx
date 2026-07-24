@@ -265,18 +265,28 @@ export default function PatientMedicalRecord() {
                     <div className={styles.titleActions}>
                         {/* Bouton d'édition pour l'Aide-Soignante / Médecin */}
                         {canEdit && !isEditing && (
-                            <button
-                                className={styles.editButton}
-                                onClick={() => setIsEditing(true)}
-                            >
-                                <Edit3 size={18} />
-                                Modifier le dossier
-                            </button>
+                            <>
+                                <button className={styles.newDataButton} onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/biometrics`)}>
+                                    <Edit3 size={18} /> Renseigner données biométriques
+                                </button>
+
+                                <button
+                                    className={styles.editButton}
+                                    onClick={() => setIsEditing(true)}
+                                >
+                                    <Edit3 size={18} />
+                                    Modifier le dossier
+                                </button>
+                            </>
                         )}
 
                         {/* Actions de sauvegarde si en mode édition */}
                         {isEditing && (
                             <>
+                                <button className={styles.newDataButton} onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/biometrics`)}>
+                                    <Edit3 size={18} /> Renseigner données biométriques
+                                </button>
+
                                 <button
                                     className={styles.cancelButton}
                                     onClick={() => setIsEditing(false)}

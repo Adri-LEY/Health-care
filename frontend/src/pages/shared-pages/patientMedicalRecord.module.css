@@ -164,6 +164,22 @@
   transform: translateY(0);
 }
 
+.newDataButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #059669;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
 /* Version Responsive */
 @media (max-width: 768px) {
   .actionBanner {

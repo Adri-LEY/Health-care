@@ -19,6 +19,7 @@ import PatientConsultations from './pages/shared-pages/patientConsultations';
 import About from './pages/shared-pages/About';
 import AddConsultation from './pages/doctor-pages/addConsultation';
 import NurseMenu from './pages/nursePages/NurseMenu';
+import { BiometricsFormular } from './pages/nursePages/biometricsFormular';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -149,7 +150,10 @@ function AppContent() {
         {/* --- AIDE-SOIGNANT UNIQUEMENT --- */}
         <Route element={<AllowedRolesRoute allowedRoles={['NURSE_ASSISTANT']} />}>
           <Route path="/nurse" element={<NurseMenu />} />
+          <Route path="/patient/medicalRecord/:medicalRecordId/biometrics" element={<BiometricsFormular/>} />
         </Route>
+
+        
 
         {/* --- ACCÈS PARTAGÉ : MÉDECIN ET AIDE-SOIGNANT --- */}
         <Route element={<AllowedRolesRoute allowedRoles={['DOCTOR', 'NURSE_ASSISTANT']} />}>
