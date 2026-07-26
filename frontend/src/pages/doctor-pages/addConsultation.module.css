@@ -144,3 +144,100 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+
+/* Section biométriques récentes */
+/*A voir si ça peut être amélioré plus tard, car faute de temps*/
+
+.biometricsSection {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.biometricsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.biometricsTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selectAllLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+/* 👈 AJOUT : Zone déroulante avec scrollbar propre */
+.biometricsScrollContainer {
+  max-height: 280px; /* Hauteur maximale avant affichage du scroll */
+  overflow-y: auto;  /* Rend la liste déroulante si ça dépasse */
+  padding-right: 6px; /* Espace pour la barre de défilement */
+}
+
+/* Style discret pour la scrollbar */
+.biometricsScrollContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.biometricsScrollContainer::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.biometricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.selectableWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selectableWrapper:hover {
+  border-color: #cbd5e1;
+}
+
+.selectableWrapper.selected {
+  border-color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.checkboxInput {
+  width: 18px;
+  height: 18px;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.customMetricCard {
+  border: none !important;
+  background: transparent !important;
+  padding: 4px 0 !important;
+  flex: 1;
+}

@@ -65,6 +65,10 @@ export default class ConsultationsRepository {
                         }
                     }
                 } : undefined
+            },
+            select: {
+                id: true,
+                date: true, 
             }
         });
     }
