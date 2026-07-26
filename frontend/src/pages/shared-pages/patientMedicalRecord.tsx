@@ -19,6 +19,7 @@ import styles from './patientMedicalRecord.module.css';
 import { PatientSidebar } from '../../components/PatientSideBar';
 import { MetricCard } from '../../components/MetricCard';
 import { RecordDetailCard } from '../../components/RecordDetailCard';
+import { IMCGaugeBar } from '../../components/IMCGaugeBar';
 
 interface MedicalRecord {
     id: number;
@@ -411,7 +412,9 @@ export default function PatientMedicalRecord() {
                                 ? (IMCStatusMap[data.medicalRecord.imc] || data.medicalRecord.imc.replace('_', ' '))
                                 : 'Non renseigné'
                             }
-                        />
+                        >
+                            <IMCGaugeBar bmi={data.medicalRecord.poids && data.medicalRecord.taille ? (data.medicalRecord.poids / ((data.medicalRecord.taille) ** 2)) : 0} />
+                        </MetricCard>
                     </div>
 
                     {/* Section Antécédents et Allergies */}
