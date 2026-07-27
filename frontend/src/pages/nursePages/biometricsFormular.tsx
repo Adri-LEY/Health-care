@@ -227,11 +227,11 @@ export function BiometricsFormular() {
                             onChange={handleFieldChange('weight')} 
                         />
                         <InputField 
-                            label="Taille (cm)" 
+                            label="Taille (m)" 
                             value={formData.height} 
                             type="number" 
                             name="height" 
-                            subtext="Ex: 175"
+                            subtext="Ex: 1.75"
                             icon={<Ruler className={styles.iconHeight} size={18} />}
                             onChange={handleFieldChange('height')} 
                         />

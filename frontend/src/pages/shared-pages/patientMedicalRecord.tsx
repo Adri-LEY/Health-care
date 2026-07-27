@@ -395,7 +395,7 @@ export default function PatientMedicalRecord() {
                                 <MetricCard
                                     icon={<Ruler className={styles.iconBlue} />}
                                     label="Taille"
-                                    value={data.medicalRecord.taille ? `${data.medicalRecord.taille} cm` : 'Non renseigné'}
+                                    value={data.medicalRecord.taille ? `${data.medicalRecord.taille} m` : 'Non renseigné'}
                                 />
                                 <MetricCard
                                     icon={<Droplets className={styles.iconRed} />}

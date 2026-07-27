@@ -221,7 +221,7 @@ async function main() {
               poids: 95.0,
               taille: 1.78,
               bloodType: BloodType.AB,
-              imc: Imc.OBESITY,
+              imc: Imc.CLASS_1_OBESITY,
               medical_history: 'Hypercholestérolémie.',
               family_history: 'Cardiopathie ischémique côté paternel.',
               allergies: 'Iode',
@@ -603,22 +603,22 @@ async function main() {
       // Alimentation explicite de toutes les mesures biométriques (MedicalRecord & Consultation)
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 75.5, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.80, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.TEMPERATURE, value: 36.6, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEART_RATE, value: 72, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_PRESSURE, value: 122, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.OXYGEN_SATURATION, value: 99, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_GLUCOSE, value: 95, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.WEIGHT, value: 75.5, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2025-07-16T10:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.80, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2025-07-16T10:00:00.000Z') },
+          { type: MeasurementType.TEMPERATURE, value: 36.6, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2025-07-16T10:00:00.000Z') },
+          { type: MeasurementType.HEART_RATE, value: 72, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2025-07-16T10:00:00.000Z') },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 122, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2025-07-16T10:00:00.000Z') },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 99, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2025-07-16T10:00:00.000Z') },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 95, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2025-07-16T10:00:00.000Z') },
 
-          { type: MeasurementType.WEIGHT, value: 75.0, unit: 'kg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
-          { type: MeasurementType.TEMPERATURE, value: 38.2, unit: '°C', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
-          { type: MeasurementType.HEART_RATE, value: 80, unit: 'bpm', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
-          { type: MeasurementType.OXYGEN_SATURATION, value: 97, unit: '%', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
+          { type: MeasurementType.WEIGHT, value: 75.0, unit: 'kg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id, takenAt: new Date('2026-01-15T09:15:00.000Z') },
+          { type: MeasurementType.TEMPERATURE, value: 38.2, unit: '°C', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id, takenAt: new Date('2026-01-15T09:15:00.000Z') },
+          { type: MeasurementType.HEART_RATE, value: 80, unit: 'bpm', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id, takenAt: new Date('2026-01-15T09:15:00.000Z') },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 97, unit: '%', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id, takenAt: new Date('2026-01-15T09:15:00.000Z') },
 
-          { type: MeasurementType.WEIGHT, value: 75.5, unit: 'kg', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id },
-          { type: MeasurementType.HEART_RATE, value: 68, unit: 'bpm', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id },
-          { type: MeasurementType.OXYGEN_SATURATION, value: 98, unit: '%', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 75.5, unit: 'kg', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id, takenAt: new Date('2026-07-16T14:00:00.000Z') },
+          { type: MeasurementType.HEART_RATE, value: 68, unit: 'bpm', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id, takenAt: new Date('2026-07-16T14:00:00.000Z') },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 98, unit: '%', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id, takenAt: new Date('2026-07-16T14:00:00.000Z') }
         ]
       });
     }
@@ -696,15 +696,15 @@ async function main() {
 
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 88.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.72, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_PRESSURE, value: 140, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_GLUCOSE, value: 145, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.OXYGEN_SATURATION, value: 96, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.WEIGHT, value: 88.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.72, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 140, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 145, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 96, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
 
-          { type: MeasurementType.WEIGHT, value: 87.2, unit: 'kg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_GLUCOSE, value: 130, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_PRESSURE, value: 138, unit: 'mmHg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 87.2, unit: 'kg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id, takenAt: new Date('2026-07-16T14:00:00.000Z') },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 130, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id, takenAt: new Date('2026-07-16T14:00:00.000Z') },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 138, unit: 'mmHg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id, takenAt: new Date('2026-07-16T14:00:00.000Z') }
         ]
       });
     }
@@ -748,10 +748,10 @@ async function main() {
 
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 62.1, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.68, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.OXYGEN_SATURATION, value: 94, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEART_RATE, value: 72, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 62.1, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.68, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 94, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEART_RATE, value: 72, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
     }
@@ -809,11 +809,11 @@ async function main() {
 
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 95.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.78, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_PRESSURE, value: 145, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEART_RATE, value: 85, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_GLUCOSE, value: 110, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 95.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.78, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 145, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEART_RATE, value: 85, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 110, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
     }
@@ -857,10 +857,10 @@ async function main() {
 
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 54.2, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.55, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.TEMPERATURE, value: 36.2, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_PRESSURE, value: 130, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 54.2, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.55, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.TEMPERATURE, value: 36.2, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 130, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
     }
@@ -888,10 +888,10 @@ async function main() {
 
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 51.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.75, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEART_RATE, value: 62, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.OXYGEN_SATURATION, value: 99, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 51.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.75, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEART_RATE, value: 62, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 99, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
     }
@@ -926,10 +926,10 @@ async function main() {
 
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 112.5, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.60, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.OXYGEN_SATURATION, value: 93, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_PRESSURE, value: 135, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 112.5, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.60, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 93, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 135, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
     }
@@ -957,10 +957,10 @@ async function main() {
 
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 80.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.82, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.TEMPERATURE, value: 36.7, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEART_RATE, value: 66, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 80.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.82, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.TEMPERATURE, value: 36.7, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEART_RATE, value: 66, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
     }
@@ -988,9 +988,9 @@ async function main() {
 
       await prisma.biometricMeasure.createMany({
         data: [
-          { type: MeasurementType.WEIGHT, value: 70.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.HEIGHT, value: 1.77, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
-          { type: MeasurementType.BLOOD_PRESSURE, value: 118, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+          { type: MeasurementType.WEIGHT, value: 70.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.HEIGHT, value: 1.77, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 118, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
     }
