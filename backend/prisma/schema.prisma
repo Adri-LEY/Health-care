@@ -58,6 +58,13 @@ enum MeasurementType {
   BLOOD_GLUCOSE
 }
 
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   lastName  String   
@@ -98,6 +105,9 @@ model Patient {
   //clé étrangère vers Doctor (pour le médecin traitant)
   doctorId  Int?      
   doctor    Doctor?   @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  //Rendez-vous
+  appointments   Appointment[]
 }
 
 model Administrator {
@@ -138,6 +148,9 @@ model Doctor {
 
   // Liste des patients dont le médecin prend en charge
   patients       Patient[]
+
+  //Rendez-vous
+  appointments   Appointment[]
 }
 
 model NurseAssistant {
@@ -295,4 +308,33 @@ model ParamedicalCare {
   description       String             // descriptionSoin
 
   prescriptionItems PrescriptionItem[]
+}
+
+model TimeSlot {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  startTime DateTime
+  endTime   DateTime
+  isLocked  Boolean  @default(false)
+
+  // Un créneau peut être lié à 0 ou plusieurs rendez-vous (relation 1-to-many selon le diagramme UML)
+  appointments Appointment[]
+}
+
+model Appointment {
+  id            Int               @id @default(autoincrement())
+  dateTime      DateTime
+  status        AppointmentStatus @default(SCHEDULED)
+
+  // Relation avec le Patient (1-to-Many)
+  patientId     Int
+  patient       Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  // Relation avec le Doctor (1-to-Many)
+  doctorId      Int
+  doctor        Doctor            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  // Relation avec le Créneau (TimeSlot) - 0..* vers 1
+  timeSlotId    Int
+  timeSlot      TimeSlot          @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
 }
