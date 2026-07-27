@@ -1,4 +1,4 @@
-import { PrismaClient, Role, BloodType, Imc, UserStatus, RiskClass } from '@prisma/client';
+import { PrismaClient, Role, BloodType, Imc, UserStatus, RiskClass, MeasurementType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -15,11 +15,12 @@ async function main() {
   // ==========================================
   console.log('🧹 Nettoyage des tables existantes...');
 
-  // Tables dépendantes des consultations
+  // Tables dépendantes des consultations et dossiers
   await prisma.prescriptionItem.deleteMany({});
   await prisma.prescription.deleteMany({});
   await prisma.consultation.deleteMany({});
   await prisma.cardiologyAiAnalysis.deleteMany({});
+  await prisma.biometricMeasure.deleteMany({});
 
   // Tables de référence médicale
   await prisma.medication.deleteMany({});
@@ -39,14 +40,14 @@ async function main() {
   await prisma.specialty.deleteMany({});
   await prisma.service.deleteMany({});
 
-  const tables = [
+  const tablesWithSeq = [
     'User', 'Patient', 'MedicalStaff', 'Doctor', 'NurseAssistant',
     'Administrator', 'Specialty', 'Service', 'MedicalRecord',
     'Consultation', 'CardiologyAiAnalysis', 'Prescription',
     'PrescriptionItem', 'Medication', 'MedicalEquipment', 'ParamedicalCare'
   ];
 
-  for (const table of tables) {
+  for (const table of tablesWithSeq) {
     // Sous PostgreSQL, réinitialisation des incréments d'ID (séquences)
     await prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1;`);
   }
@@ -436,7 +437,7 @@ async function main() {
   // ==========================================
   console.log('🧑‍⚕️ Création des aides-soignants...');
 
-  await prisma.user.create({
+  const nurse1User = await prisma.user.create({
     data: {
       firstName: 'John',
       lastName: 'Doe',
@@ -457,6 +458,7 @@ async function main() {
         },
       },
     },
+    include: { medicalStaff: { include: { nurseAssistant: true } } }
   });
 
   await prisma.user.create({
@@ -482,6 +484,8 @@ async function main() {
     },
   });
 
+  const nurse1Id = nurse1User.medicalStaff?.nurseAssistant?.id;
+
   // ==========================================
   // 7. CRÉATION DE L'ADMINISTRATEUR
   // ==========================================
@@ -505,11 +509,10 @@ async function main() {
   });
 
   // ==========================================
-  // 8. CRÉATION DES CONSULTATIONS (Adapté au Schéma)
+  // 8. CRÉATION DES CONSULTATIONS ET MESURES BIOMÉTRIQUES
   // ==========================================
-  console.log('📅 Génération des consultations et des ordonnances...');
+  console.log('📅 Génération des consultations, mesures biométriques et ordonnances...');
 
-  // Récupérer tous les dossiers médicaux créés pour pouvoir y associer les consultations
   const records = await prisma.medicalRecord.findMany({
     include: {
       patient: {
@@ -524,29 +527,43 @@ async function main() {
     const patientName = `${record.patient?.user.firstName} ${record.patient?.user.lastName}`;
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Cas 1 : Patient Jean Dupont (3 consultations pour tester un historique complet)
+    // Cas 1 : Patient Jean Dupont
     // -----------------------------------------------------------------------------------------------------------------
     if (record.patient?.user.email === 'patient@test.com') {
       
-      // Consultation 1 : La plus ancienne (Il y a 1 an)
-      await prisma.consultation.create({
+      const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
-          date: new Date('2025-07-16T10:00:00.000Z'), // 👈 Remplacé createdAt par date
+          date: new Date('2025-07-16T10:00:00.000Z'),
           visitReason: 'Check-up initial d’entrée',
           observations: 'Première visite. Patient globalement en bonne santé. Prise de contact.',
-          biometricMeasures: JSON.stringify({ temperature: 36.6, heartRate: 72, bloodPressure: '122/80' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 36.6,
+            heartRate: 72,
+            bloodPressure: '122/80',
+            weight: 75.5,
+            height: 1.80,
+            oxygenSaturation: 99,
+            bloodGlucose: 95
+          }),
         }
       });
 
-      // Consultation 2 : Intermédiaire (Il y a 6 mois)
-      await prisma.consultation.create({
+      const c2 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
-          date: new Date('2026-01-15T09:15:00.000Z'), // 👈 Remplacé createdAt par date
+          date: new Date('2026-01-15T09:15:00.000Z'),
           visitReason: 'Syndrome grippal',
           observations: 'Fièvre modérée, courbatures et fatigue intense depuis 48h. Repos prescrit.',
-          biometricMeasures: JSON.stringify({ temperature: 38.2, heartRate: 80, bloodPressure: '118/75' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 38.2,
+            heartRate: 80,
+            bloodPressure: '118/75',
+            weight: 75.0,
+            height: 1.80,
+            oxygenSaturation: 97,
+            bloodGlucose: 100
+          }),
           prescription: {
             create: {
               prescriptionItems: {
@@ -565,33 +582,67 @@ async function main() {
         }
       });
 
-      // Consultation 3 : La plus récente (Aujourd'hui)
-      await prisma.consultation.create({
+      const c3 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
-          date: new Date('2026-07-16T14:00:00.000Z'), // 👈 Remplacé createdAt par date
+          date: new Date('2026-07-16T14:00:00.000Z'),
           visitReason: 'Contrôle annuel de routine',
           observations: 'Patient en excellente forme physique. Récupération post-grippale parfaite. Pratique une activité sportive régulière.',
-          biometricMeasures: JSON.stringify({ temperature: 36.7, heartRate: 68, bloodPressure: '120/80' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 36.7,
+            heartRate: 68,
+            bloodPressure: '120/80',
+            weight: 75.5,
+            height: 1.80,
+            oxygenSaturation: 98,
+            bloodGlucose: 92
+          }),
         }
+      });
+
+      // Alimentation explicite de toutes les mesures biométriques (MedicalRecord & Consultation)
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 75.5, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.80, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.TEMPERATURE, value: 36.6, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEART_RATE, value: 72, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 122, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 99, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 95, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+
+          { type: MeasurementType.WEIGHT, value: 75.0, unit: 'kg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
+          { type: MeasurementType.TEMPERATURE, value: 38.2, unit: '°C', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
+          { type: MeasurementType.HEART_RATE, value: 80, unit: 'bpm', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 97, unit: '%', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
+
+          { type: MeasurementType.WEIGHT, value: 75.5, unit: 'kg', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id },
+          { type: MeasurementType.HEART_RATE, value: 68, unit: 'bpm', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 98, unit: '%', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id }
+        ]
       });
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Cas 2 : Jean Dupont Bis (Senior - 2 consultations pour tester le suivi d'une maladie chronique)
+    // Cas 2 : Jean Dupont Bis
     // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'jean.dupont.bis@test.com') {
       
-      // Consultation 1 : Bilan initial (Il y a 6 mois)
-      await prisma.consultation.create({
+      const c1 = await prisma.consultation.create({
         data: {
-          medicalRecord: {
-            connect: { id: record.id }
-          },
-          date: new Date('2026-01-10T11:00:00.000Z'), // 👈 Remplacé createdAt par date
+          medicalRecord: { connect: { id: record.id } },
+          date: new Date('2026-01-10T11:00:00.000Z'),
           visitReason: 'Bilan de découverte - Diabète de type 2',
           observations: 'Découverte fortuite de glycémies à jeun élevées. Mise en place d’un protocole diététique et thérapeutique initial.',
-          biometricMeasures: JSON.stringify({ temperature: 36.4, heartRate: 75, bloodPressure: '140/88' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 36.4,
+            heartRate: 75,
+            bloodPressure: '140/88',
+            weight: 88.0,
+            height: 1.72,
+            oxygenSaturation: 96,
+            bloodGlucose: 145
+          }),
           aiAnalysis: {
             create: {
               riskScore: 55.0,
@@ -602,16 +653,21 @@ async function main() {
         }
       });
 
-      // Consultation 2 : Suivi trimestriel actuel (Aujourd'hui)
-      await prisma.consultation.create({
+      const c2 = await prisma.consultation.create({
         data: {
-          medicalRecord: {
-            connect: { id: record.id }
-          },
-          date: new Date('2026-07-16T10:30:00.000Z'), // 👈 Remplacé createdAt par date
+          medicalRecord: { connect: { id: record.id } },
+          date: new Date('2026-07-16T10:30:00.000Z'),
           visitReason: 'Suivi trimestriel diabète et cardiologie',
           observations: 'Légers picotements signalés aux extrémités. Tension légèrement élevée mais stable par rapport au dernier contrôle.',
-          biometricMeasures: JSON.stringify({ temperature: 36.5, heartRate: 78, bloodPressure: '138/85' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 36.5,
+            heartRate: 78,
+            bloodPressure: '138/85',
+            weight: 87.2,
+            height: 1.72,
+            oxygenSaturation: 97,
+            bloodGlucose: 130
+          }),
           aiAnalysis: {
             create: {
               riskScore: 62.5,
@@ -637,18 +693,40 @@ async function main() {
           }
         }
       });
+
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 88.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.72, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 140, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 145, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 96, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+
+          { type: MeasurementType.WEIGHT, value: 87.2, unit: 'kg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 130, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 138, unit: 'mmHg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id }
+        ]
+      });
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Cas 3 : Patricia Martinez (Asthme)
+    // Cas 3 : Patricia Martinez
     // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'pat.martinez@test.com') {
-      await prisma.consultation.create({
+      const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
           visitReason: 'Suivi de crise d’asthme saisonnière',
           observations: 'Sifflements bronchiques légers entendus à l’auscultation.',
-          biometricMeasures: JSON.stringify({ temperature: 36.8, heartRate: 72, bloodPressure: '115/75' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 36.8,
+            heartRate: 72,
+            bloodPressure: '115/75',
+            weight: 62.1,
+            height: 1.68,
+            oxygenSaturation: 94,
+            bloodGlucose: 88
+          }),
           prescription: {
             create: {
               prescriptionItems: {
@@ -667,20 +745,35 @@ async function main() {
           }
         }
       });
+
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 62.1, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.68, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 94, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEART_RATE, value: 72, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+        ]
+      });
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Cas 4 : Patrick Paterson (Hypercholestérolémie, Obésité)
+    // Cas 4 : Patrick Paterson
     // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'patrick.paterson@test.com') {
-      await prisma.consultation.create({
+      const c1 = await prisma.consultation.create({
         data: {
-          medicalRecord: {
-            connect: { id: record.id }
-          },
+          medicalRecord: { connect: { id: record.id } },
           visitReason: 'Bilan lipidique et douleurs thoraciques d’effort',
           observations: 'Patient se plaint d’oppressions thoraciques lors d’efforts modérés. Perte de poids fortement recommandée.',
-          biometricMeasures: JSON.stringify({ temperature: 36.6, heartRate: 85, bloodPressure: '145/92' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 36.6,
+            heartRate: 85,
+            bloodPressure: '145/92',
+            weight: 95.0,
+            height: 1.78,
+            oxygenSaturation: 97,
+            bloodGlucose: 110
+          }),
           aiAnalysis: {
             create: {
               riskScore: 88.4,
@@ -703,7 +796,7 @@ async function main() {
                     name: 'Kardegic 75mg',
                     description: 'Antiagrégant plaquettaire',
                     dosage: '1 sachet par jour au milieu du déjeuner',
-                    duration: '6 months',
+                    duration: '6 mois',
                     medicationId: kardegic.id,
                     equipmentId: bloodPressureMonitor.id
                   }
@@ -713,18 +806,36 @@ async function main() {
           }
         }
       });
+
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 95.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.78, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 145, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEART_RATE, value: 85, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 110, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+        ]
+      });
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Cas 5 : Marie Durand (Senior, Ostéoporose)
+    // Cas 5 : Marie Durand
     // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'marie.durand@test.com') {
-      await prisma.consultation.create({
+      const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
           visitReason: 'Douleurs articulaires diffuses',
           observations: 'Mobilité difficile. Douleur d’arthrose accrue due au froid.',
-          biometricMeasures: JSON.stringify({ temperature: 36.2, heartRate: 70, bloodPressure: '130/80' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 36.2,
+            heartRate: 70,
+            bloodPressure: '130/80',
+            weight: 54.2,
+            height: 1.55,
+            oxygenSaturation: 98,
+            bloodGlucose: 90
+          }),
           prescription: {
             create: {
               prescriptionItems: {
@@ -743,34 +854,66 @@ async function main() {
           }
         }
       });
-    }
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 6 : Arthur Le Pennec (Jeune patient)
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'arthur.lp@test.com') {
-      await prisma.consultation.create({
-        data: {
-          medicalRecordId: record.id,
-          visitReason: 'Suivi de posture (scoliose)',
-          observations: 'Pas d’aggravation de la courbure. Continuer les exercices physiques.',
-          biometricMeasures: JSON.stringify({ temperature: 36.6, heartRate: 62, bloodPressure: '110/70' })
-        }
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 54.2, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.55, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.TEMPERATURE, value: 36.2, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 130, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+        ]
       });
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Cas 7 : Chantal Gomez (Obésité classe 2, Suivi apnée)
+    // Cas 6 : Arthur Le Pennec
+    // -----------------------------------------------------------------------------------------------------------------
+    else if (record.patient?.user.email === 'arthur.lp@test.com') {
+      const c1 = await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          visitReason: 'Suivi de posture (scoliose)',
+          observations: 'Pas d’aggravation de la courbure. Continuer les exercices physiques.',
+          biometricMeasures: JSON.stringify({
+            temperature: 36.6,
+            heartRate: 62,
+            bloodPressure: '110/70',
+            weight: 51.0,
+            height: 1.75,
+            oxygenSaturation: 99,
+            bloodGlucose: 85
+          })
+        }
+      });
+
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 51.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.75, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEART_RATE, value: 62, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 99, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+        ]
+      });
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 7 : Chantal Gomez
     // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'chantal.gomez@test.com') {
-      await prisma.consultation.create({
+      const c1 = await prisma.consultation.create({
         data: {
-          medicalRecord: {
-            connect: { id: record.id }
-          },
+          medicalRecord: { connect: { id: record.id } },
           visitReason: 'Fatigue diurne et suivi sommeil',
           observations: 'Somnolence résiduelle persistante. L’appareil PPC est bien supporté.',
-          biometricMeasures: JSON.stringify({ temperature: 36.4, heartRate: 74, bloodPressure: '135/88' }),
+          biometricMeasures: JSON.stringify({
+            temperature: 36.4,
+            heartRate: 74,
+            bloodPressure: '135/88',
+            weight: 112.5,
+            height: 1.60,
+            oxygenSaturation: 93,
+            bloodGlucose: 105
+          }),
           aiAnalysis: {
             create: {
               riskScore: 45.0,
@@ -780,33 +923,75 @@ async function main() {
           }
         }
       });
-    }
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 8 : Jean Rey (Contrôle post-opératoire simple)
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'jean.rey@test.com') {
-      await prisma.consultation.create({
-        data: {
-          medicalRecordId: record.id,
-          visitReason: 'Contrôle post-appendicectomie',
-          observations: 'Cicatrice saine, propre et solide. Reprise totale des activités physiques autorisée.',
-          biometricMeasures: JSON.stringify({ temperature: 36.7, heartRate: 66, bloodPressure: '120/75' })
-        }
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 112.5, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.60, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 93, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 135, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+        ]
       });
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Cas 9 : Lucas Dubois (Patient en attente/Pending)
+    // Cas 8 : Jean Rey
+    // -----------------------------------------------------------------------------------------------------------------
+    else if (record.patient?.user.email === 'jean.rey@test.com') {
+      const c1 = await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          visitReason: 'Contrôle post-appendicectomie',
+          observations: 'Cicatrice saine, propre et solide. Reprise totale des activités physiques autorisée.',
+          biometricMeasures: JSON.stringify({
+            temperature: 36.7,
+            heartRate: 66,
+            bloodPressure: '120/75',
+            weight: 80.0,
+            height: 1.82,
+            oxygenSaturation: 98,
+            bloodGlucose: 91
+          })
+        }
+      });
+
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 80.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.82, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.TEMPERATURE, value: 36.7, unit: '°C', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEART_RATE, value: 66, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+        ]
+      });
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Cas 9 : Lucas Dubois
     // -----------------------------------------------------------------------------------------------------------------
     else if (record.patient?.user.email === 'lucas.pending@test.com') {
-      await prisma.consultation.create({
+      const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
           visitReason: 'Suivi de fracture du scaphoïde',
           observations: 'Plâtre en bon état. Pas de douleur signalée.',
-          biometricMeasures: JSON.stringify({ temperature: 36.8, heartRate: 64, bloodPressure: '118/78' })
+          biometricMeasures: JSON.stringify({
+            temperature: 36.8,
+            heartRate: 64,
+            bloodPressure: '118/78',
+            weight: 70.0,
+            height: 1.77,
+            oxygenSaturation: 99,
+            bloodGlucose: 89
+          })
         }
+      });
+
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 70.0, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.HEIGHT, value: 1.77, unit: 'm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 118, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id }
+        ]
       });
     }
 

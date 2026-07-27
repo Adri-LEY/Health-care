@@ -10,12 +10,16 @@ import {
     Calculator,
     Users,
     History,
-    PlusCircle
+    PlusCircle,
+    Edit3,
+    Check,
+    X
 } from 'lucide-react';
 import styles from './patientMedicalRecord.module.css';
 import { PatientSidebar } from '../../components/PatientSideBar';
 import { MetricCard } from '../../components/MetricCard';
 import { RecordDetailCard } from '../../components/RecordDetailCard';
+import { IMCGaugeBar } from '../../components/IMCGaugeBar';
 
 interface MedicalRecord {
     id: number;
@@ -72,9 +76,22 @@ export default function PatientMedicalRecord() {
     const [data, setData] = useState<PatientFullData | null>(null);
 
     const [isDoctor, setIsDoctor] = useState(false);
+    const [isNurseAssistant, setIsNurseAssistant] = useState(false);
     const [currentDoctorId, setCurrentDoctorId] = useState<number | null>(null);
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    // Formulaire d'édition pour ModifyMedicalRecordDto
+    const [formData, setFormData] = useState({
+        poids: '',
+        taille: '',
+        bloodType: '',
+        medical_history: '',
+        family_history: '',
+        allergies: ''
+    });
 
     const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -88,6 +105,20 @@ export default function PatientMedicalRecord() {
             });
             const json = await response.json();
             console.log('Données du dossier médical récupérées :', json.data);
+
+            // Pré-remplir le formulaire
+            if (json.data?.medicalRecord) {
+                const mr = json.data.medicalRecord;
+                setFormData({
+                    poids: mr.poids ? String(mr.poids) : '',
+                    taille: mr.taille ? String(mr.taille) : '',
+                    bloodType: mr.bloodType || '',
+                    medical_history: mr.medical_history || '',
+                    family_history: mr.family_history || '',
+                    allergies: mr.allergies || ''
+                });
+            }
+
             setData(json.data);
         } catch (error) {
             console.error("Erreur lors du chargement du dossier :", error);
@@ -109,6 +140,7 @@ export default function PatientMedicalRecord() {
             console.log('Profil utilisateur récupéré :', json);
 
             setIsDoctor(json.role === 'DOCTOR');
+            setIsNurseAssistant(json.role === 'NURSE_ASSISTANT');
             setCurrentDoctorId(json.userDetails?.doctor?.id || null);
         } catch (error) {
             console.error("Erreur lors du chargement du profil utilisateur :", error);
@@ -121,6 +153,43 @@ export default function PatientMedicalRecord() {
         fetchCurrentUserProfile();
         fetchRecord();
     }, [patientId, apiUrl]);
+
+
+    // Soumission de la modification (POST /patients/:patientId/vitals)
+    const handleSaveVitals = async () => {
+        setSaving(true);
+        try {
+            const payload = {
+                poids: formData.poids ? Number(formData.poids) : undefined,
+                taille: formData.taille ? Number(formData.taille) : undefined,
+                bloodType: formData.bloodType || undefined,
+                medicalHistory: formData.medical_history,
+                familyHistory: formData.family_history,
+                allergies: formData.allergies,
+            };
+
+            const response = await fetch(`${apiUrl}/patients/${patientId}/vitals`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error("Erreur lors de la mise à jour du dossier.");
+            }
+
+            await fetchRecord(); // Rafraîchir les données
+            setIsEditing(false);
+        } catch (err) {
+            console.error(err);
+            alert("Impossible de sauvegarder les modifications.");
+        } finally {
+            setSaving(false);
+        }
+    };
 
 
     const onAssignDoctor = async (assign: boolean) => {
@@ -174,23 +243,72 @@ export default function PatientMedicalRecord() {
     if (loading) return <div className={styles.loading}>Chargement du dossier médical...</div>;
     if (!data) return <div className={styles.error}>Dossier introuvable.</div>;
 
+    // L'aide-soignante peut modifier le dossier.
+    const canEdit = isNurseAssistant;
+
     return (
         <div className={styles.container}>
             {/* Header avec bouton retour */}
             <div className={styles.header}>
                 <button className={styles.backButton} onClick={() => {
-                    if (isDoctor) {
+                    if (isDoctor || isNurseAssistant) {
                         navigate('/patientResearch');
                     }
                     else navigate('/patient');
                 }}>
                     <ArrowLeft size={18} /> Retour
                 </button>
+
                 <div className={styles.titleSection}>
                     <h1>Dossier Médical</h1>
-                    <span className={styles.patientBadge}>
-                        ID Patient: #{data.id}
-                    </span>
+
+
+                    <div className={styles.titleActions}>
+                        {/* Bouton d'édition pour l'Aide-Soignante / Médecin */}
+                        {canEdit && !isEditing && (
+                            <>
+                                <button className={styles.newDataButton} onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/biometrics`)}>
+                                    <Edit3 size={18} /> Renseigner données biométriques
+                                </button>
+
+                                <button
+                                    className={styles.editButton}
+                                    onClick={() => setIsEditing(true)}
+                                >
+                                    <Edit3 size={18} />
+                                    Modifier le dossier
+                                </button>
+                            </>
+                        )}
+
+                        {/* Actions de sauvegarde si en mode édition */}
+                        {isEditing && (
+                            <>
+                                <button className={styles.newDataButton} onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/biometrics`)}>
+                                    <Edit3 size={18} /> Renseigner données biométriques
+                                </button>
+
+                                <button
+                                    className={styles.cancelButton}
+                                    onClick={() => setIsEditing(false)}
+                                    disabled={saving}
+                                >
+                                    <X size={18} /> Annuler
+                                </button>
+                                <button
+                                    className={styles.saveButton}
+                                    onClick={handleSaveVitals}
+                                    disabled={saving}
+                                >
+                                    <Check size={18} /> {saving ? 'Enregistrement...' : 'Enregistrer'}
+                                </button>
+                            </>
+                        )}
+
+                        <span className={styles.patientBadge}>
+                            ID Patient: #{data.id}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -233,21 +351,60 @@ export default function PatientMedicalRecord() {
 
                     {/* Section Biométrie (Poids, Taille, IMC) */}
                     <div className={styles.metricsGrid}>
-                        <MetricCard
-                            icon={<Scale className={styles.icon} />}
-                            label="Poids"
-                            value={data.medicalRecord.poids ? `${data.medicalRecord.poids} kg` : 'Non renseigné'}
-                        />
-                        <MetricCard
-                            icon={<Ruler className={styles.iconBlue} />}
-                            label="Taille"
-                            value={data.medicalRecord.taille ? `${data.medicalRecord.taille} cm` : 'Non renseigné'}
-                        />
-                        <MetricCard
-                            icon={<Droplets className={styles.iconRed} />}
-                            label="Groupe Sanguin"
-                            value={data.medicalRecord.bloodType ? data.medicalRecord.bloodType : 'Non renseigné'}
-                        />
+                        {isEditing ? (
+                            <>
+                                <div className={styles.inputMetricCard}>
+                                    <label><Scale size={16} className={styles.icon} /> Poids (kg)</label>
+                                    <input
+                                        type="number"
+                                        value={formData.poids}
+                                        onChange={(e) => setFormData({ ...formData, poids: e.target.value })}
+                                        placeholder="ex: 70"
+                                    />
+                                </div>
+                                <div className={styles.inputMetricCard}>
+                                    <label><Ruler size={16} className={styles.iconBlue} /> Taille (cm)</label>
+                                    <input
+                                        type="number"
+                                        value={formData.taille}
+                                        onChange={(e) => setFormData({ ...formData, taille: e.target.value })}
+                                        placeholder="ex: 175"
+                                    />
+                                </div>
+                                <div className={styles.inputMetricCard}>
+                                    <label><Droplets size={16} className={styles.iconRed} /> Groupe Sanguin</label>
+                                    <select
+                                        value={formData.bloodType}
+                                        onChange={(e) => setFormData({ ...formData, bloodType: e.target.value })}
+                                    >
+                                        <option value="">Sélectionner</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="AB">AB</option>
+                                        <option value="O">O</option>
+                                    </select>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <MetricCard
+                                    icon={<Scale className={styles.icon} />}
+                                    label="Poids"
+                                    value={data.medicalRecord.poids ? `${data.medicalRecord.poids} kg` : 'Non renseigné'}
+                                />
+                                <MetricCard
+                                    icon={<Ruler className={styles.iconBlue} />}
+                                    label="Taille"
+                                    value={data.medicalRecord.taille ? `${data.medicalRecord.taille} cm` : 'Non renseigné'}
+                                />
+                                <MetricCard
+                                    icon={<Droplets className={styles.iconRed} />}
+                                    label="Groupe Sanguin"
+                                    value={data.medicalRecord.bloodType ? data.medicalRecord.bloodType.replace('_', ' ') : 'Non renseigné'}
+                                />
+                            </>
+                        )}
+
                         <MetricCard
                             icon={<Calculator className={styles.iconGreen} />}
                             label="Statut IMC"
@@ -255,7 +412,9 @@ export default function PatientMedicalRecord() {
                                 ? (IMCStatusMap[data.medicalRecord.imc] || data.medicalRecord.imc.replace('_', ' '))
                                 : 'Non renseigné'
                             }
-                        />
+                        >
+                            <IMCGaugeBar bmi={data.medicalRecord.poids && data.medicalRecord.taille ? (data.medicalRecord.poids / ((data.medicalRecord.taille) ** 2)) : 0} />
+                        </MetricCard>
                     </div>
 
                     {/* Section Antécédents et Allergies */}
@@ -263,20 +422,50 @@ export default function PatientMedicalRecord() {
                         <RecordDetailCard
                             icon={<AlertTriangle className={styles.icon} />}
                             title="Allergies"
-                            children={data.medicalRecord.allergies || "Aucune allergie répertoriée."}
-                        />
+                        >
+                            {isEditing ? (
+                                <textarea
+                                    className={styles.editTextarea}
+                                    value={formData.allergies}
+                                    onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
+                                    rows={3}
+                                />
+                            ) : (
+                                data.medicalRecord.allergies || "Aucune allergie répertoriée."
+                            )}
+                        </RecordDetailCard>
 
                         <RecordDetailCard
                             icon={<FileText className={styles.icon} />}
                             title="Antécédents Médicaux"
-                            children={data.medicalRecord.medical_history || "Aucun antécédent médical répertorié."}
-                        />
+                        >
+                            {isEditing ? (
+                                <textarea
+                                    className={styles.editTextarea}
+                                    value={formData.medical_history}
+                                    onChange={(e) => setFormData({ ...formData, medical_history: e.target.value })}
+                                    rows={3}
+                                />
+                            ) : (
+                                data.medicalRecord.medical_history || "Aucun antécédent médical répertorié."
+                            )}
+                        </RecordDetailCard>
 
                         <RecordDetailCard
                             icon={<Users className={styles.icon} />}
                             title="Antécédents Familiaux"
-                            children={data.medicalRecord.family_history || "Aucun antécédent familial répertorié."}
-                        />
+                        >
+                            {isEditing ? (
+                                <textarea
+                                    className={styles.editTextarea}
+                                    value={formData.family_history}
+                                    onChange={(e) => setFormData({ ...formData, family_history: e.target.value })}
+                                    rows={3}
+                                />
+                            ) : (
+                                data.medicalRecord.family_history || "Aucun antécédent familial répertorié."
+                            )}
+                        </RecordDetailCard>
                     </div>
 
                 </div>

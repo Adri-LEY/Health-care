@@ -1,21 +1,60 @@
 import { Type } from "class-transformer";
-import { ArrayMinSize, IsArray, IsDate, IsDateString, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, ValidateNested } from "class-validator";
+import { ArrayMinSize, IsArray, IsDate, IsDateString, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, Min, ValidateNested } from "class-validator";
 
 
 
 export class BiometricMeasuresDto {
-    @IsOptional()
-    @IsNumber({}, { message: 'La température doit être un nombre.' })
-    temperature?: number;
+  // --- Mesures existantes ---
 
-    @IsOptional()
-    @IsNumber({}, { message: 'Le rythme cardiaque doit être un nombre entier.' })
-    heartRate?: number;
+  @IsOptional()
+  @IsNumber({}, { message: 'La température doit être un nombre.' })
+  temperature?: number;
 
-    @IsOptional()
-    @IsString()
-    @Matches(/^\d{2,3}\/\d{2,3}$/, { message: 'La tension artérielle doit être au format "SYS/DIA" (ex: 118/75).' })
-    bloodPressure?: string;
+  @IsOptional()
+  @IsNumber({}, { message: 'Le rythme cardiaque doit être un nombre entier.' })
+  heartRate?: number;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{2,3}\/\d{2,3}$/, { message: 'La tension artérielle doit être au format "SYS/DIA" (ex: 118/75).' })
+  bloodPressure?: string;
+
+  // --- Nouvelles mesures biométriques ---
+  @IsOptional()
+  @IsNumber({}, { message: 'La taille doit être un nombre (en cm ou m).' })
+  @Min(0, { message: 'La taille doit être positive.' })
+  height?: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Le poids doit être un nombre (en kg).' })
+  @Min(0, { message: 'Le poids doit être positif.' })
+  weight?: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'La saturation en oxygène doit être un nombre.' })
+  @Min(0, { message: 'La SpO2 ne peut pas être inférieure à 0%.' })
+  @Max(100, { message: 'La SpO2 ne peut pas dépasser 100%.' })
+  oxygenSaturation?: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'La fréquence respiratoire doit être un nombre.' })
+  @Min(0, { message: 'La fréquence respiratoire doit être positive.' })
+  respiratoryRate?: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'La glycémie doit être un nombre (en g/L ou mmol/L).' })
+  @Min(0, { message: 'La glycémie doit être positive.' })
+  bloodGlucose?: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Le périmètre crânien doit être un nombre (en cm).' })
+  @Min(0, { message: 'Le périmètre crânien doit être positif.' })
+  headCircumference?: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: "L'IMC doit être un nombre." })
+  @Min(0, { message: "L'IMC doit être positif." })
+  imc?: number;
 }
 
 export class PrescriptionItemDto {

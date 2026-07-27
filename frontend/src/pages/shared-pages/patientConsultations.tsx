@@ -48,6 +48,10 @@ interface Biometrics {
     temperature?: number;
     heartRate?: number;
     bloodPressure?: string;
+    weight?: number;
+    height?: number;
+    oxygenSaturation?: number;
+    bloodGlucose?: number;
 }
 
 interface ConsultationDetails {
@@ -83,11 +87,15 @@ export default function PatientConsultations() {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
+                console.log("Fetching consultation history for medicalRecordId:", medicalRecordId);
+
                 setLoadingHistory(true);
                 const response = await fetch(`${apiUrl}/consultations/history/${medicalRecordId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const json = await response.json();
+
+                console.log("Consultation history response:", json);
 
                 if (response.ok && json.data) {
                     setHistory(json.data);

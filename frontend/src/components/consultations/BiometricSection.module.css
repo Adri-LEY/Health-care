@@ -2,27 +2,15 @@
   color: #ef4444;
 }
 
-/* Grille des mesures biométriques */
+/* Grille réactive pour accueillir 3, 4 ou plus de constantes */
 .biometricsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-top: 10px;
 }
 
-/* Cartes individuelles de biométrie */
-
-.biometricItem:hover {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.biometricInfo {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Couleurs spécifiques des icônes biométriques */
+/* Styles et couleurs pour chaque type de constante */
 .biometricIconTemp {
   color: #f97316; /* Orange */
   background-color: #fff7ed;
@@ -42,6 +30,38 @@
 .biometricIconPressure {
   color: #3b82f6; /* Bleu */
   background-color: #eff6ff;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconWeight {
+  color: #8b5cf6; /* Violet */
+  background-color: #f5f3ff;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconHeight {
+  color: #10b981; /* Vert */
+  background-color: #ecfdf5;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconOxygen {
+  color: #06b6d4; /* Cyan */
+  background-color: #ecfeff;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconGlucose {
+  color: #eab308; /* Jaune/Ambre */
+  background-color: #fefce8;
   padding: 8px;
   border-radius: 10px;
   box-sizing: content-box;

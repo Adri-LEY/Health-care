@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PatientsRepository } from './patients.repository';
 import { SearchPatientsDto } from './dto/searchPatients.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, Imc } from '@prisma/client';
 import { StaffRepository } from 'src/staff/staff.repository';
+import { MedicalRecordRepository } from './medicalRecord.repository';
+import { ModifyMedicalRecordDto } from './dto/modifyMedicalRecord.dto';
 
 @Injectable()
 export class PatientsService {
 
     constructor(
         private readonly patientsRepository: PatientsRepository,
+        private readonly medicalRecordRepository: MedicalRecordRepository,
         private readonly staffRepository: StaffRepository
-    ) {}
+    ) { }
 
     /**
      * Assigns a doctor to a patient
@@ -24,7 +27,7 @@ export class PatientsService {
             throw new Error(`Patient with ID ${patientId} not found`);
         }
 
-        if(patient.doctorId) {
+        if (patient.doctorId) {
             throw new Error(`Patient with ID ${patientId} already has a doctor assigned`);
         }
 
@@ -106,8 +109,59 @@ export class PatientsService {
     }
 
 
+    /**
+     *  Retrieves the medical record along with the patient's profile information by patient ID.
+     * @param patientId 
+     * @returns An object containing the medical record and the patient's profile information
+     * @throws Error if the patient or medical record is not found
+     */
     async getMedicalRecordWithProfileByPatientId(patientId: number) {
         const patientInfos = await this.patientsRepository.getMedicalRecordWithProfileByPatientId(patientId);
         return patientInfos;
-    }   
+    }
+
+    /**
+     * Calculates the Body Mass Index (BMI and IMC in French) category based on weight and height.
+     * @param poids 
+     * @param taille 
+     * @returns A string representing the BMI category (IMC category)
+     */
+    getPatientImc(poids: number, taille: number): Imc {
+        if (!poids || !taille) {
+            throw new Error('Both weight (poids) and height (taille) must be provided to calculate BMI.');
+        }
+
+        const tailleEnMètres = taille / 100;
+        const imc = poids / (tailleEnMètres * tailleEnMètres);
+
+        if (imc < 18.5) return "UNDERWEIGHT";
+        else if (imc >= 18.5 && imc < 25) return "NORMAL_WEIGHT";
+        else if (imc >= 25 && imc < 30) return "OVERWEIGHT";
+        else if (imc >= 30 && imc < 35) return "OBESITY";
+        else if (imc >= 35 && imc < 40) return "CLASS_1_OBESITY";
+        else if (imc >= 40 && imc < 45) return "CLASS_2_OBESITY";
+        else return "CLASS_3_OBESITY";
+    }
+
+    /**
+     * Modifies the medical record of a patient.
+     * @param medicalRecordId 
+     * @param data 
+     * @returns The updated medical record
+     * @throws Error if the medical record is not found
+     */
+    async modifyMedicalRecord(patientId: number, data: ModifyMedicalRecordDto) {
+        const medicalRecordId = await this.patientsRepository.getMedicalRecordIdByPatientId(patientId);
+
+        if (data.poids && data.taille) {
+            const imcCategory = this.getPatientImc(data.poids, data.taille);
+            data.imcCategory = imcCategory;
+        }
+
+        if (!medicalRecordId) {
+            throw new Error('Medical record not found for the specified patient');
+        }
+        const updatedMedicalRecord = await this.medicalRecordRepository.modifyMedicalRecord(medicalRecordId.medicalRecordId, data);
+        return updatedMedicalRecord;
+    }
 }

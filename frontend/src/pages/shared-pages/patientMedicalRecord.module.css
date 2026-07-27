@@ -42,6 +42,13 @@
   gap: 15px;
 }
 
+/* Nouveau conteneur pour regrouper le bouton et le badge ID à droite du titre */
+.titleActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .titleWithBadges {
   display: flex;
   align-items: center;
@@ -157,6 +164,22 @@
   transform: translateY(0);
 }
 
+.newDataButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #059669;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
 /* Version Responsive */
 @media (max-width: 768px) {
   .actionBanner {
@@ -235,6 +258,102 @@
   background-color: #1d4ed8;
   transform: translateY(-1px);
   box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+}
+
+/* Bouton Modifier le dossier */
+.editButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #059669;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editButton:hover {
+  background-color: #047857;
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancelButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #cbd5e1;
+  color: #334155;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Cartes d'inputs pour les métriques en mode édition */
+.inputMetricCard {
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #3b82f6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputMetricCard label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inputMetricCard input, .inputMetricCard select {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.inputMetricCard input:focus, .inputMetricCard select:focus {
+  border-color: #2563eb;
+}
+
+/* Zone de texte pour antécédents/allergies en mode édition */
+.editTextarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  outline: none;
+}
+
+.editTextarea:focus {
+  border-color: #2563eb;
 }
 
 /* Version Responsive */

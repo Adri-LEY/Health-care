@@ -24,3 +24,13 @@
   color: #0f172a;
   margin-top: 2px;
 }
+
+.biometricItem:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.biometricInfo {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, ParseUUIDPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { UserStatusGuard } from 'src/auth/status.guard';
 import { PatientsService } from './patients.service';
@@ -6,6 +6,7 @@ import { SearchPatientsDto } from './dto/searchPatients.dto';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { PatientRecordOwnerGuard } from 'src/auth/patientRecordOwnerGuard';
+import { ModifyMedicalRecordDto } from './dto/modifyMedicalRecord.dto';
 
 @Controller('patients')
 @UseGuards(JwtGuard, UserStatusGuard, RolesGuard) // Ajout du RoleGuard pour vérifier le rôle de l'utilisateur
@@ -71,6 +72,21 @@ export class PatientsController {
 
         return {
             message: `Medical record for patient with ID ${patientId}`,
+            data: result,
+        };
+    }
+
+    @Post(':patientId/vitals')
+    @Roles('DOCTOR', 'NURSE_ASSISTANT')
+    @HttpCode(HttpStatus.OK)
+    async modifyMedicalRecord(
+        @Param('patientId', ParseIntPipe) patientId: number,
+        @Body() data: ModifyMedicalRecordDto
+    ) {
+        console.log(`Received request to modify medical record for patient with ID ${patientId}`);
+        const result = await this.patientsService.modifyMedicalRecord(patientId, data);
+        return {
+            message: `Medical record for patient with ID ${patientId} has been updated`,
             data: result,
         };
     }
