@@ -31,7 +31,7 @@ interface SidebarProps {
     onAssignDoctor?: (assign: boolean) => Promise<void>;
 }
 
-export function PatientSidebar({ patient, isDoctor, currentDoctorId, onAssignDoctor }: SidebarProps) {
+export function PatientSideBar({ patient, isDoctor, currentDoctorId, onAssignDoctor }: SidebarProps) {
     
     console.log('Patient data in PatientSidebar:', patient);
     console.log('isDoctor:', isDoctor);

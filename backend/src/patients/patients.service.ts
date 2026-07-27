@@ -49,13 +49,21 @@ export class PatientsService {
             throw new Error(`Patient with ID ${patientId} not found`);
         }
 
-        if (!patient.doctorId) {
-            throw new Error(`Patient with ID ${patientId} does not have a doctor assigned`);
-        }
+        if(user.role === 'DOCTOR'){
+            if (!patient.doctorId) {
+                throw new Error(`Patient with ID ${patientId} does not have a doctor assigned`);
+            }
 
-        if (patient.doctorId !== userDoctorId) {
-            throw new Error(`User is not the assigned doctor for patient with ID ${patientId}`);
+            if (patient.doctorId !== userDoctorId) {
+                throw new Error(`User is not the assigned doctor for patient with ID ${patientId}`);
+            }
         }
+        else if(user.role === 'ADMINISTRATOR'){
+            if (!patient.doctorId) {
+                throw new Error(`Patient with ID ${patientId} does not have a doctor assigned`);
+            }
+        }
+        
 
         return this.patientsRepository.removeDoctorFromPatient(patientId);
     }
@@ -163,5 +171,17 @@ export class PatientsService {
         }
         const updatedMedicalRecord = await this.medicalRecordRepository.modifyMedicalRecord(medicalRecordId.medicalRecordId, data);
         return updatedMedicalRecord;
+    }
+
+
+
+    /**
+     * Retrieves the profile of a patient. (Special informations for Administrator)
+     * @param patientId
+     * @returns The patient's profile information
+     * @throws Error if the patient is not found
+     */
+    getPatientProfile(patientId: number) {
+        return this.patientsRepository.getPatientProfileByPatientId(patientId);
     }
 }

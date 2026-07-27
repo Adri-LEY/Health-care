@@ -96,7 +96,7 @@ model Patient {
 
   
   //clé étrangère vers Doctor (pour le médecin traitant)
-  doctorId  Int?      @unique
+  doctorId  Int?      
   doctor    Doctor?   @relation(fields: [doctorId], references: [id], onDelete: Restrict)
 }
 

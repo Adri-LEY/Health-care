@@ -15,7 +15,6 @@ import {
     Percent
 } from 'lucide-react';
 import styles from './patientConsultations.module.css';
-import { PatientSidebar } from '../../components/PatientSideBar';
 import ConsultationHistory from '../../components/consultations/ConsultationHistory';
 import BiometricSection from '../../components/consultations/BiometricSection';
 import ObservationSection from '../../components/consultations/ObservationSection';

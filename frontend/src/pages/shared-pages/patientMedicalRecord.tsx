@@ -16,7 +16,7 @@ import {
     X
 } from 'lucide-react';
 import styles from './patientMedicalRecord.module.css';
-import { PatientSidebar } from '../../components/PatientSideBar';
+import { PatientSideBar } from '../../components/PatientSideBar';
 import { MetricCard } from '../../components/MetricCard';
 import { RecordDetailCard } from '../../components/RecordDetailCard';
 import { IMCGaugeBar } from '../../components/IMCGaugeBar';
@@ -315,7 +315,7 @@ export default function PatientMedicalRecord() {
             <div className={styles.dashboardGrid}>
 
                 {/* Colonne Gauche : Informations du Patient */}
-                <PatientSidebar patient={data} isDoctor={isDoctor} currentDoctorId={currentDoctorId} onAssignDoctor={onAssignDoctor} />
+                <PatientSideBar patient={data} isDoctor={isDoctor} currentDoctorId={currentDoctorId} onAssignDoctor={onAssignDoctor} />
 
                 {/* Colonne Droite : Données Médicales */}
                 <div className={styles.mainContent}>
@@ -395,7 +395,7 @@ export default function PatientMedicalRecord() {
                                 <MetricCard
                                     icon={<Ruler className={styles.iconBlue} />}
                                     label="Taille"
-                                    value={data.medicalRecord.taille ? `${data.medicalRecord.taille} cm` : 'Non renseigné'}
+                                    value={data.medicalRecord.taille ? `${data.medicalRecord.taille} m` : 'Non renseigné'}
                                 />
                                 <MetricCard
                                     icon={<Droplets className={styles.iconRed} />}

@@ -15,6 +15,10 @@ export default function AdminMenu() {
         <button type="button" className={styles.button} onClick={() => navigate('/admin/staffList')}>
           Gérer le personnel
         </button>
+
+        <button type="button" className={styles.button} onClick={() => navigate('/patientResearch')}>
+          Rechercher un patient
+        </button>
       </section>
     </main>
   );

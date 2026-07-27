@@ -12,7 +12,7 @@ import {
   Droplet
 } from 'lucide-react';
 import styles from './addConsultation.module.css';
-import { PatientSidebar } from '../../components/PatientSideBar';
+import { PatientSideBar } from '../../components/PatientSideBar';
 import InputField from '../../components/InputField';
 import { ErrorBox } from '../../components/ErrorBox';
 import { PrescriptionForm } from '../../components/consultations/PrescriptionForm';
@@ -206,7 +206,7 @@ export default function AddConsultation() {
       </div>
 
       <div className={styles.dashboardGrid}>
-        <PatientSidebar patient={patientData} isDoctor={true} currentDoctorId={patientData.doctor?.id || null} />
+        <PatientSideBar patient={patientData} isDoctor={true} currentDoctorId={patientData.doctor?.id || null} />
 
         <div className={styles.mainContent}>
           <ErrorBox messages={errorMessages} />

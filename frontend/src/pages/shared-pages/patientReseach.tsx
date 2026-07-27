@@ -32,6 +32,8 @@ export interface PatientData {
 }
 
 export default function PatientResearch() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
     const navigate = useNavigate();
     const [patients, setPatients] = useState<PatientData[]>([]);
     const [loading, setLoading] = useState(false); // À passer à true lors de ton fetch
@@ -146,7 +148,15 @@ export default function PatientResearch() {
                         <PatientCard 
                             key={item.patient.id}
                             patient={item}
-                            onClick={() => navigate(`/patient/medicalRecord/${item.patient.id}`)}
+                            onClick={() => 
+                                {
+                                    if(user.role === 'ADMINISTRATOR') {
+                                        navigate(`/admin/patientManagement/${item.patient.id}`)
+                                    } else {
+                                        navigate(`/patient/medicalRecord/${item.patient.id}`)
+                                    }
+                                }
+                            }
                         />
                     ))
                 )}

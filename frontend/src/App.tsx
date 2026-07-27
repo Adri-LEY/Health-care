@@ -20,6 +20,7 @@ import About from './pages/shared-pages/About';
 import AddConsultation from './pages/doctor-pages/addConsultation';
 import NurseMenu from './pages/nursePages/NurseMenu';
 import { BiometricsFormular } from './pages/nursePages/biometricsFormular';
+import PatientManagement from './pages/admin-pages/patientManagement';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -131,6 +132,7 @@ function AppContent() {
           <Route path="/admin" element={<AdminMenu />} />
           <Route path="/admin/staffList" element={<StaffList />} />
           <Route path="/admin/addStaff" element={<AddStaff />} />
+          <Route path="/admin/patientManagement/:patientId" element={<PatientManagement />} />
         </Route>
 
         {/* --- PATIENT --- */}
@@ -156,7 +158,7 @@ function AppContent() {
         
 
         {/* --- ACCÈS PARTAGÉ : MÉDECIN ET AIDE-SOIGNANT --- */}
-        <Route element={<AllowedRolesRoute allowedRoles={['DOCTOR', 'NURSE_ASSISTANT']} />}>
+        <Route element={<AllowedRolesRoute allowedRoles={['DOCTOR', 'NURSE_ASSISTANT', 'ADMINISTRATOR']} />}>
           <Route path="/patientResearch" element={<PatientResearch />} />
         </Route>
 
