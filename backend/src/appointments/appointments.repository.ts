@@ -50,6 +50,7 @@ export class AppointmentsRepository {
                 date: true,
                 startTime: true,
                 endTime: true,
+                isLocked: true,
             },
         });
 

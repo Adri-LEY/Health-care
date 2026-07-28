@@ -1,0 +1,8 @@
+.container {
+  display: flex;
+  justify-content: center; /* Centrage horizontal */
+  align-items: flex-start; /* Aligne le calendrier en haut */
+  width: 100%;
+  padding: 40px 20px;      /* 40px de marge en haut, 20px sur les côtés */
+  box-sizing: border-box;
+}
