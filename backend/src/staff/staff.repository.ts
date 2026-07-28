@@ -135,4 +135,39 @@ export class StaffRepository {
       },
     });
   }
+
+
+  /**
+   * Retrieves the profile of a doctor by their ID
+   * @param doctorId 
+   * @returns The doctor's profile including user information and specialty
+   */
+  async getDoctorProfileById(doctorId: number) {
+    return await this.prisma.doctor.findUnique({
+      where: { id: doctorId },
+      select: {
+        id: true,
+        specialty: {
+          select: {
+            specialtyName: true,
+          },
+        },
+        staff: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+                role: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }

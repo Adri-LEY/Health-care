@@ -1,8 +1,19 @@
 .container {
   display: flex;
-  justify-content: center; /* Centrage horizontal */
-  align-items: flex-start; /* Aligne le calendrier en haut */
+  justify-content: center;
+  align-items: flex-start;
+  gap: 24px;                  
   width: 100%;
-  padding: 40px 20px;      /* 40px de marge en haut, 20px sur les côtés */
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
   box-sizing: border-box;
+}
+
+/* Bascule en colonne sur petit écran */
+@media (max-width: 850px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
 }

@@ -306,4 +306,19 @@ export class StaffService {
       throw error;
     }
   }
+
+  /**
+   * Retrieves the doctor ID associated with a given user ID.
+   * @param userId 
+   * @returns The doctor ID if found, otherwise null.
+   * @throws NotFoundException if the user is not found.
+   */
+  getDoctorProfileById(userId: number) {
+    try {
+      return this.staffRepository.getDoctorProfileById(userId);
+    } catch (error) {
+      console.error('Error retrieving doctor profile:', error);
+      throw new NotFoundException(`Doctor profile for user ID ${userId} not found`);
+    }
+  }
 }
