@@ -536,11 +536,7 @@ async function main() {
   for (const record of records) {
     const patientName = `${record.patient?.user.firstName} ${record.patient?.user.lastName}`;
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 1 : Patient Jean Dupont
-    // -----------------------------------------------------------------------------------------------------------------
     if (record.patient?.user.email === 'patient@test.com') {
-      
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
@@ -610,7 +606,6 @@ async function main() {
         }
       });
 
-      // Alimentation explicite de toutes les mesures biométriques (MedicalRecord & Consultation)
       await prisma.biometricMeasure.createMany({
         data: [
           { type: MeasurementType.WEIGHT, value: 75.5, unit: 'kg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2025-07-16T10:00:00.000Z') },
@@ -631,13 +626,7 @@ async function main() {
           { type: MeasurementType.OXYGEN_SATURATION, value: 98, unit: '%', medicalRecordId: record.id, consultationId: c3.id, takenById: nurse1Id, takenAt: new Date('2026-07-16T14:00:00.000Z') }
         ]
       });
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 2 : Jean Dupont Bis
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'jean.dupont.bis@test.com') {
-      
+    } else if (record.patient?.user.email === 'jean.dupont.bis@test.com') {
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecord: { connect: { id: record.id } },
@@ -717,12 +706,7 @@ async function main() {
           { type: MeasurementType.BLOOD_PRESSURE, value: 138, unit: 'mmHg', medicalRecordId: record.id, consultationId: c2.id, takenById: nurse1Id, takenAt: new Date('2026-07-16T14:00:00.000Z') }
         ]
       });
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 3 : Patricia Martinez
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'pat.martinez@test.com') {
+    } else if (record.patient?.user.email === 'pat.martinez@test.com') {
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
@@ -764,12 +748,7 @@ async function main() {
           { type: MeasurementType.HEART_RATE, value: 72, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 4 : Patrick Paterson
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'patrick.paterson@test.com') {
+    } else if (record.patient?.user.email === 'patrick.paterson@test.com') {
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecord: { connect: { id: record.id } },
@@ -826,12 +805,7 @@ async function main() {
           { type: MeasurementType.BLOOD_GLUCOSE, value: 110, unit: 'mg/dL', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 5 : Marie Durand
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'marie.durand@test.com') {
+    } else if (record.patient?.user.email === 'marie.durand@test.com') {
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
@@ -873,12 +847,7 @@ async function main() {
           { type: MeasurementType.BLOOD_PRESSURE, value: 130, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 6 : Arthur Le Pennec
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'arthur.lp@test.com') {
+    } else if (record.patient?.user.email === 'arthur.lp@test.com') {
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
@@ -904,12 +873,7 @@ async function main() {
           { type: MeasurementType.OXYGEN_SATURATION, value: 99, unit: '%', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 7 : Chantal Gomez
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'chantal.gomez@test.com') {
+    } else if (record.patient?.user.email === 'chantal.gomez@test.com') {
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecord: { connect: { id: record.id } },
@@ -942,12 +906,7 @@ async function main() {
           { type: MeasurementType.BLOOD_PRESSURE, value: 135, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 8 : Jean Rey
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'jean.rey@test.com') {
+    } else if (record.patient?.user.email === 'jean.rey@test.com') {
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
@@ -973,12 +932,7 @@ async function main() {
           { type: MeasurementType.HEART_RATE, value: 66, unit: 'bpm', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Cas 9 : Lucas Dubois
-    // -----------------------------------------------------------------------------------------------------------------
-    else if (record.patient?.user.email === 'lucas.pending@test.com') {
+    } else if (record.patient?.user.email === 'lucas.pending@test.com') {
       const c1 = await prisma.consultation.create({
         data: {
           medicalRecordId: record.id,
@@ -1015,6 +969,8 @@ async function main() {
 
   const patient1 = await prisma.patient.findFirst({ where: { user: { email: 'patient@test.com' } } });
   const patient2 = await prisma.patient.findFirst({ where: { user: { email: 'pat.martinez@test.com' } } });
+  const patient3 = await prisma.patient.findFirst({ where: { user: { email: 'patrick.paterson@test.com' } } });
+  const patient4 = await prisma.patient.findFirst({ where: { user: { email: 'marie.durand@test.com' } } });
 
   const startDate = new Date();
   startDate.setUTCHours(0, 0, 0, 0);
@@ -1042,7 +998,7 @@ async function main() {
       slotStart.setUTCHours(h, m, 0, 0);
       slotEnd.setUTCHours(h, m + 30, 0, 0);
 
-      // Création du TimeSlot
+      // Création du TimeSlot partagé
       const slot = await prisma.timeSlot.create({
         data: {
           date: currentDate,
@@ -1052,9 +1008,11 @@ async function main() {
         },
       });
 
-      // Simuler des rendez-vous déjà réservés pour tester les filtres
+      // -------------------------------------------------------------
+      // RENDEZ-VOUS POUR DOCTEUR 1 (Dr. Sarah Connor)
+      // -------------------------------------------------------------
       if (dayOffset === 1 && hour === 10 && doctor1Id && patient1) {
-        // Demain à 10h00 : RDV confirmé
+        // Demain à 10h00 : RDV confirmé pour Doctor 1
         await prisma.appointment.create({
           data: {
             dateTime: slot.startTime,
@@ -1065,7 +1023,7 @@ async function main() {
           },
         });
       } else if (dayOffset === 2 && hour === 14 && doctor1Id && patient2) {
-        // Dans 2 jours à 14h00 : RDV programmé
+        // Dans 2 jours à 14h00 : RDV programmé pour Doctor 1
         await prisma.appointment.create({
           data: {
             dateTime: slot.startTime,
@@ -1076,10 +1034,37 @@ async function main() {
           },
         });
       }
+
+      // -------------------------------------------------------------
+      // RENDEZ-VOUS POUR DOCTEUR 2 (Dr. Gregory House)
+      // -------------------------------------------------------------
+      if (dayOffset === 1 && hour === 11 && doctor2Id && patient3) {
+        // Demain à 11h00 : RDV confirmé pour Doctor 2
+        await prisma.appointment.create({
+          data: {
+            dateTime: slot.startTime,
+            status: AppointmentStatus.CONFIRMED,
+            patientId: patient3.id,
+            doctorId: doctor2Id,
+            timeSlotId: slot.id,
+          },
+        });
+      } else if (dayOffset === 3 && hour === 15.5 && doctor2Id && patient4) {
+        // Dans 3 jours à 15h30 : RDV programmé pour Doctor 2
+        await prisma.appointment.create({
+          data: {
+            dateTime: slot.startTime,
+            status: AppointmentStatus.SCHEDULED,
+            patientId: patient4.id,
+            doctorId: doctor2Id,
+            timeSlotId: slot.id,
+          },
+        });
+      }
     }
   }
 
-  console.log('✅ Seeding terminé avec succès ! Des dizaines de créneaux ont été créés.');
+  console.log('✅ Seeding terminé avec succès ! Les médecins ont des rendez-vous distincts.');
 }
 
 main()

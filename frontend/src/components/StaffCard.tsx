@@ -10,9 +10,10 @@ export type StaffMember = {
         createdAt: string;
         updatedAt: string;
         role: string;
-        userStatus: string;
+        userStatus?: string;
     };
     doctor?: {
+        id?: number;
         registrationId: string;
         specialty?: {
             id: number;
@@ -62,13 +63,13 @@ export default function StaffCard({ member, onSelect }: StaffCardProps) {
                 {specialtyOrService || 'Aucune information complémentaire'}
             </span>
 
-            {user.userStatus === 'ACTIVE' && (
+            {user.userStatus && user.userStatus === 'ACTIVE' && (
                 <span className={styles['staff-status-active']}>
                     Actif
                 </span>
             )}
 
-            {user.userStatus === 'INACTIVE' && (
+            {user.userStatus && user.userStatus === 'INACTIVE' && (
                 <span className={styles['staff-status-inactive']}>
                     Inactif
                 </span>

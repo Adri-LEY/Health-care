@@ -43,7 +43,17 @@ export default function PatientMenu() {
                 <button type="button" className={styles.button} onClick={() => navigate(`/patient/medicalRecord/${patientId}`)}>
                     Consulter mon dossier médical
                 </button>
+
+                <button type="button" className={styles.button} onClick={() => navigate('/doctorResearch')}>
+                    Rechercher un médecin
+                </button>
             </section>
+            {/*<section className={styles.card}>
+                <h2 className={styles.title}>Mes rendez-vous</h2>
+                <p className={styles.text}>
+                    Consultez vos rendez-vous passés et à venir.
+                </p>
+            </section>*/}
         </main>
     );
 }

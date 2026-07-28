@@ -52,6 +52,21 @@ export class StaffService {
     }
   }
 
+  /**
+   * Retrieves all doctors based on the provided specialty IDs.
+   * @param specialtyId 
+   * @returns A promise resolving to the list of doctors.
+   * @throws InternalServerErrorException if there is an error during retrieval.
+   */
+  getAllDoctors(specialtyId?: number[]) {
+    const whereConditions: Prisma.DoctorWhereInput = {};
+
+    if (specialtyId && specialtyId.length > 0) {
+      whereConditions.specialtyId = { in: specialtyId };
+    }
+
+    return this.staffRepository.findAllDoctors(whereConditions);
+  }
 
   /**
    * Creates a new staff member.

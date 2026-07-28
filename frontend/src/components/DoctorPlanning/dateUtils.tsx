@@ -17,17 +17,17 @@ export function formatTimeUTC(isoString: string): string {
 // Formate un ISOString "2026-07-28T08:30:00.000Z" -> "08h30"
 export const formatSlotTime = (isoString: string) => {
   const date = new Date(isoString);
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
   return `${hours}h${minutes}`;
 };
 
 // Extrait la clé "YYYY-MM-DD" d'un objet Date ou ISO string
 export const toDateKey = (dateInput: Date | string) => {
   const d = new Date(dateInput);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 

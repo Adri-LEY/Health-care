@@ -42,6 +42,16 @@ export class StaffController {
     );
   }
 
+  @Get('getAllDoctors')
+  @HttpCode(HttpStatus.OK)
+  async getAllDoctors(@Query('specialtyId') specialtyId?: string) {
+    const specialtyIdsArray = specialtyId 
+      ? specialtyId.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+      : undefined;
+
+    return this.staffService.getAllDoctors(specialtyIdsArray);
+  }
+
   @Post('createNewStaffMember')
   @UseGuards(RolesGuard)
   @Roles('ADMINISTRATOR') // Seul un administrateur peut créer un nouveau membre du personnel

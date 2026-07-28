@@ -37,6 +37,7 @@ export class AppointmentsRepository {
                 },
                 appointments: {
                     none: {
+                        doctorId: doctorId,
                         status: { in: ['SCHEDULED', 'CONFIRMED'] }, // Pas de RDV actif dessus
                     },
                 },
