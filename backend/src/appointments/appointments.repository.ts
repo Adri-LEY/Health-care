@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common/decorators/core/injectable.decorator";
 import { PrismaService } from "src/prisma/prisma.service";
+import { AppointmentDto } from "./dto/appointment.dto";
 
 @Injectable()
 export class AppointmentsRepository {
@@ -61,5 +62,88 @@ export class AppointmentsRepository {
             weekEnd: endOfWeek.toISOString().split('T')[0],
             timeSlots,
         };
+    }
+
+
+    async appointmentExists(patientId: number, appointmentDTO: AppointmentDto) {
+        const appointmentExists = await this.prisma.appointment.findFirst({
+            where: {
+                doctorId: appointmentDTO.doctorId,
+                patientId: patientId,
+                timeSlotId: appointmentDTO.timeSlotId,
+                status: { in: ['SCHEDULED', 'CONFIRMED'] },
+            },
+        });
+
+        return appointmentExists !== null;
+    }
+
+    async createAppointment(patientId: number, appointmentDTO: AppointmentDto) {
+        const timeSlot = await this.prisma.timeSlot.findUnique({
+            where: { id: appointmentDTO.timeSlotId },
+            select: {
+                date: true,
+                startTime: true,
+                endTime: true,
+            },
+        });
+
+        if(!timeSlot) {
+            throw new Error("Time slot not found");
+        }
+
+        return await this.prisma.appointment.create({
+            data: {
+                dateTime: timeSlot.date,
+                doctorId: appointmentDTO.doctorId,
+                patientId: patientId,
+                timeSlotId: appointmentDTO.timeSlotId,
+                status: 'SCHEDULED',
+            },
+        });
+    }
+
+    async cancelAppointment(patientId: number, appointmentId: number) {
+        const result = await this.prisma.appointment.update({
+            where: { id: appointmentId, patientId },
+            data: { status: 'CANCELLED' },
+        });
+        return result;
+    }
+
+    getAppointmentsByPatientId(patientId: number) {
+        return this.prisma.appointment.findMany({
+            where: { patientId },
+            select: {
+                id: true,
+                dateTime: true,
+                status: true,
+                doctor: {
+                    select: {
+                        staff: {
+                            select: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        email: true,
+                                        phone: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                timeSlot: {
+                    select: {
+                        id: true,
+                        date: true,
+                        startTime: true,
+                        endTime: true,
+                    },
+                },
+            },
+        });
     }
 }
