@@ -5,7 +5,7 @@ import { AppointmentDto } from './dto/appointment.dto';
 @Injectable()
 export class AppointmentsService {
 
-    constructor(private readonly appointmentsRepository: AppointmentsRepository) {}
+    constructor(private readonly appointmentsRepository: AppointmentsRepository) { }
 
     /**
      * Retrieves the availabilities of a doctor for a given week.
@@ -18,13 +18,23 @@ export class AppointmentsService {
     }
 
     /**
+     * Retrieves the schedule of a doctor for a given week.
+     * @param doctorId - The ID of the doctor.
+     * @param dateQuery - Optional date string to determine the week. If not provided, the current week is used.
+     * @returns An object containing the start and end dates of the week, along with the scheduled appointments.
+    */
+    async getScheduleForDoctor(doctorId: number, dateQuery?: string) {
+        return this.appointmentsRepository.getScheduleForDoctor(doctorId, dateQuery);
+    }
+
+    /**
      * Creates a new appointment for a patient with a specific doctor at a given time slot.
      * @param doctorId - The ID of the doctor.
      * @param patientId - The ID of the patient.
      * @param timeSlotId - The ID of the time slot.
      * @returns The created appointment.
      */
-    async createAppointment(patientId: number, appointmentDTO : AppointmentDto) {
+    async createAppointment(patientId: number, appointmentDTO: AppointmentDto) {
         const appointmentExists = await this.appointmentsRepository.appointmentExists(patientId, appointmentDTO);
         if (appointmentExists) {
             throw new UnauthorizedException("Appointment already exists");
