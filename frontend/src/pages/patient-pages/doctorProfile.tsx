@@ -5,11 +5,19 @@ import { DoctorAvailabilities } from '../../components/DoctorPlanning/DoctorAvai
 import { DoctorCard, type DoctorProfileData } from '../../components/DoctorPlanning/DoctorCard';
 import styles from './doctorProfile.module.css';
 import { ArrowLeft } from 'lucide-react';
+import { AppointmentModal } from '../../components/appointments/AppointmentModal';
+import { Message } from '../../components/Message';
 
 export function DoctorProfile() {
     const doctorId = useParams<{ doctorId: string }>().doctorId;
     const [slots, setSlots] = useState<TimeSlotProps[]>([]);
     const [doctorData, setDoctorData] = useState<DoctorProfileData | null>(null);
+
+    const [selectedSlot, setSelectedSlot] = useState<TimeSlotProps | null>(null);
+
+    const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
+    const [successMessageOpen, setSuccessMessageOpen] = useState(false);
+    const [errorMessageOpen, setErrorMessageOpen] = useState(false);
 
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -26,6 +34,33 @@ export function DoctorProfile() {
             }
         } catch (error) {
             console.error('Error fetching doctor availabilities:', error);
+        }
+    };
+
+    const createAppointment = async (doctorId: number, timeSlotId: number) => {
+        try {
+            const response = await fetch(`${apiUrl}/appointments/create-appointment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ doctorId, timeSlotId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Appointment created:', data);
+                
+                setSuccessMessageOpen(true); // Affiche le message de succès
+            } else {
+                const errorData = await response.json();
+                console.error('Error creating appointment:', errorData);
+            }
+        } catch (error) {
+            console.error('Error creating appointment:', error);
+
+            setSuccessMessageOpen(false); // Cache le message de succès en cas d'erreur
         }
     };
 
@@ -58,7 +93,7 @@ export function DoctorProfile() {
             getDoctorAvailabilities(parsedId);
             getDoctorProfile(parsedId);
         }
-    }, [doctorId]);
+    }, [doctorId, successMessageOpen]); // Ajout de successMessageOpen pour recharger les disponibilités après la confirmation du rendez-vous
 
     return (
         <div className={styles.pageWrapper}>
@@ -81,10 +116,48 @@ export function DoctorProfile() {
                 <DoctorCard doctor={doctorData} />
                 <DoctorAvailabilities 
                     availableSlots={slots} 
-                    onSelectSlot={(slot) => console.log('Selected slot:', slot)} 
+                    onSelectSlot={(slot) => {
+                        setSelectedSlot(slot);
+                        setAppointmentModalOpen(true);
+                    }} 
                     maxRows={4} 
                 />
             </div>
+
+            {/* Modal de confirmation de rendez-vous */}
+            <AppointmentModal
+                isOpen={appointmentModalOpen}
+                date={selectedSlot ? new Date(selectedSlot.date) : new Date()}
+                startTime={selectedSlot ? new Date(selectedSlot.startTime) : new Date()}
+                endTime={selectedSlot ? new Date(selectedSlot.endTime) : new Date()}
+                doctorName={doctorData?.staff?.user?.firstName && doctorData?.staff?.user?.lastName ? `${doctorData.staff.user.firstName} ${doctorData.staff.user.lastName}` : undefined}
+                specialtyName={doctorData?.specialty?.specialtyName}
+                onClose={() => setAppointmentModalOpen(false)}
+                onConfirm={() => {
+                    // Logique pour confirmer le rendez-vous
+                    console.log('Rendez-vous confirmé pour le créneau :', selectedSlot);
+                    createAppointment(doctorData?.id || 0, selectedSlot?.id || 0);
+                    setAppointmentModalOpen(false);
+                }}
+            />
+
+            {/* Message de succès après la confirmation du rendez-vous */}
+            <Message
+                isOpen={successMessageOpen}
+                title="Rendez-vous confirmé !"
+                message={`Votre rendez-vous avec Dr. ${doctorData?.staff?.user?.firstName} ${doctorData?.staff?.user?.lastName} a été confirmé pour le ${selectedSlot ? new Date(selectedSlot.date).toLocaleDateString() : ''} à ${selectedSlot ? new Date(selectedSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}.`}
+                buttonText="OK"
+                onClose={() => setSuccessMessageOpen(false)}
+            />
+
+            {/* Message d'erreur si la confirmation du rendez-vous échoue */}
+            <Message
+                isOpen={errorMessageOpen}
+                title="Erreur lors de la confirmation"
+                message="Une erreur est survenue lors de la confirmation de votre rendez-vous. Veuillez réessayer."
+                buttonText="OK"
+                onClose={() => setErrorMessageOpen(false)}
+            />
         </div>
     );
 }
