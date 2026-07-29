@@ -61,7 +61,7 @@ enum MeasurementType {
 enum AppointmentStatus {
   SCHEDULED
   CONFIRMED
-  COMPLETED
+  MISSED
   CANCELLED
 }
 

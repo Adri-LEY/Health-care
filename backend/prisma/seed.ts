@@ -1016,7 +1016,7 @@ async function main() {
         await prisma.appointment.create({
           data: {
             dateTime: slot.startTime,
-            status: AppointmentStatus.CONFIRMED,
+            status: AppointmentStatus.SCHEDULED,
             patientId: patient1.id,
             doctorId: doctor1Id,
             timeSlotId: slot.id,

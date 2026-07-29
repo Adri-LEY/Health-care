@@ -23,6 +23,7 @@ import { BiometricsFormular } from './pages/nursePages/biometricsFormular';
 import PatientManagement from './pages/admin-pages/patientManagement';
 import {DoctorProfile} from './pages/patient-pages/doctorProfile';
 import DoctorResearch from './pages/patient-pages/doctorResearch';
+import { AppointmentsList } from './pages/patient-pages/appointments';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -142,6 +143,7 @@ function AppContent() {
           <Route path="/patient" element={<PatientMenu />} />
           <Route path="/doctorResearch" element={<DoctorResearch />} />
           <Route path="/doctor/:doctorId/profile" element={<DoctorProfile />} />
+          <Route path="/my-appointments" element={<AppointmentsList />} />
         </Route>
 
         {/* --- MÉDECIN UNIQUEMENT --- */}
