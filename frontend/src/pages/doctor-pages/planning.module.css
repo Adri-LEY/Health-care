@@ -1,0 +1,90 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0 20px 0;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  text-align: center;
+}
+
+.headerSpacer {
+  width: 95px;
+}
+
+/* --- LE WRAPPER --- */
+.calendarWrapper {
+  width: 100%;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  overflow: hidden; 
+}
+
+/* Masque l'overflow horizontal indésirable causé par la scrollbar verticale */
+:global(.fc-scroller) {
+  overflow-x: hidden !important; 
+}
+
+/*  Hauteur des créneaux de 30 minutes */
+:global(.fc .fc-timegrid-slot) {
+  height: 60px !important;
+}
+
+/* 3. Ajustement de la largeur des tables internes pour éviter le dépassement */
+:global(.fc-col-header), 
+:global(.fc-timegrid-body) {
+  width: 100% !important;
+}
+
+/* 4. Style des cartes de RDV */
+:global(.fc-timegrid-event) {
+  border-radius: 8px !important;
+  border: none !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Disposition du texte dans le créneau */
+.eventCardContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  color: #ffffff;
+}
+
+.eventTime {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+}
+
+.eventTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}

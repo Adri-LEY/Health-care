@@ -40,7 +40,7 @@ export default function PatientMenu() {
                     La connexion a réussi. Cet espace contiendra bientôt vos outils de santé spécifiques.
                 </p>
 
-                <div className={styles.actionsMenu}>
+                <div className={styles.actions}>
 
                     <button type="button" className={styles.button} onClick={() => navigate(`/patient/medicalRecord/${patientId}`)}>
                         Consulter mon dossier médical
