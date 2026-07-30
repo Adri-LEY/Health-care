@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type TimeSlotProps } from '../../components/DoctorPlanning/dateUtils';
+import { type TimeSlotProps, getMonday, toDateKey } from '../../components/DoctorPlanning/dateUtils';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DoctorAvailabilities } from '../../components/DoctorPlanning/DoctorAvailabilities';
 import { DoctorCard, type DoctorProfileData } from '../../components/DoctorPlanning/DoctorCard';
@@ -13,6 +13,9 @@ export function DoctorProfile() {
     const [slots, setSlots] = useState<TimeSlotProps[]>([]);
     const [doctorData, setDoctorData] = useState<DoctorProfileData | null>(null);
 
+    // 💡 1. État pour la date de début (Lundi) de la semaine visualisée
+    const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
+
     const [selectedSlot, setSelectedSlot] = useState<TimeSlotProps | null>(null);
 
     const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
@@ -20,17 +23,17 @@ export function DoctorProfile() {
     const [errorMessageOpen, setErrorMessageOpen] = useState(false);
 
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
     const navigate = useNavigate();
 
     const getDoctorAvailabilities = async (id: number, dateQuery?: string) => {
         try {
-            const response = await fetch(`${apiUrl}/appointments/doctor/${id}/availabilities${dateQuery ? `?date=${dateQuery}` : ''}`, {
+            const url = `${apiUrl}/appointments/doctor/${id}/availabilities${dateQuery ? `?date=${dateQuery}` : ''}`;
+            const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             if (response.ok) {
                 const data = await response.json();
-                setSlots(data.timeSlots);
+                setSlots(data.timeSlots || []);
             }
         } catch (error) {
             console.error('Error fetching doctor availabilities:', error);
@@ -49,18 +52,13 @@ export function DoctorProfile() {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                console.log('Appointment created:', data);
-                
-                setSuccessMessageOpen(true); // Affiche le message de succès
+                setSuccessMessageOpen(true);
             } else {
-                const errorData = await response.json();
-                console.error('Error creating appointment:', errorData);
+                setErrorMessageOpen(true);
             }
         } catch (error) {
             console.error('Error creating appointment:', error);
-
-            setSuccessMessageOpen(false); // Cache le message de succès en cas d'erreur
+            setErrorMessageOpen(true);
         }
     };
 
@@ -70,34 +68,35 @@ export function DoctorProfile() {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
 
-            console.log('Response from getDoctorProfile:', response);
-
             if (response.ok) {
                 const data = await response.json();
-                console.log('data', data);
                 setDoctorData(data);
             }
-            else {
-                throw new Error(`Failed to fetch doctor profile: ${response.statusText}`);
-            }
-
-
         } catch (error) {
             console.error('Error fetching doctor profile:', error);
         }
     };
 
+    // Charger les infos du médecin une seule fois au montage
     useEffect(() => {
         const parsedId = doctorId ? parseInt(doctorId) : 0;
         if (parsedId) {
-            getDoctorAvailabilities(parsedId);
             getDoctorProfile(parsedId);
         }
-    }, [doctorId, successMessageOpen]); // Ajout de successMessageOpen pour recharger les disponibilités après la confirmation du rendez-vous
+    }, [doctorId]);
+
+    // 💡 2. Recharger les créneaux dès que la semaine change ou après un RDV confirmé
+    useEffect(() => {
+        const parsedId = doctorId ? parseInt(doctorId) : 0;
+        if (parsedId) {
+            // Transmet la date au format YYYY-MM-DD (ex: 2026-08-03)
+            const formattedDate = toDateKey(currentMonday);
+            getDoctorAvailabilities(parsedId, formattedDate);
+        }
+    }, [doctorId, currentMonday, successMessageOpen]);
 
     return (
         <div className={styles.pageWrapper}>
-            {/* Header avec bouton Retour et Titre */}
             <div className={styles.pageHeader}>
                 <button 
                     type="button" 
@@ -107,15 +106,17 @@ export function DoctorProfile() {
                     <ArrowLeft size={18} aria-hidden="true" />
                     Retour
                 </button>
-                
                 <h2 className={styles.pageTitle}>Détails du Médecin</h2>
             </div>
 
-            {/* Contenu principal */}
             <div className={styles.container}>     
                 <DoctorCard doctor={doctorData} />
+                
+                {/* 💡 3. Transmettre currentMonday et onWeekChange */}
                 <DoctorAvailabilities 
                     availableSlots={slots} 
+                    currentMonday={currentMonday}
+                    onWeekChange={(newMonday) => setCurrentMonday(newMonday)}
                     onSelectSlot={(slot) => {
                         setSelectedSlot(slot);
                         setAppointmentModalOpen(true);
@@ -124,7 +125,6 @@ export function DoctorProfile() {
                 />
             </div>
 
-            {/* Modal de confirmation de rendez-vous */}
             <AppointmentModal
                 isOpen={appointmentModalOpen}
                 date={selectedSlot ? new Date(selectedSlot.date) : new Date()}
@@ -134,23 +134,19 @@ export function DoctorProfile() {
                 specialtyName={doctorData?.specialty?.specialtyName}
                 onClose={() => setAppointmentModalOpen(false)}
                 onConfirm={() => {
-                    // Logique pour confirmer le rendez-vous
-                    console.log('Rendez-vous confirmé pour le créneau :', selectedSlot);
                     createAppointment(doctorData?.id || 0, selectedSlot?.id || 0);
                     setAppointmentModalOpen(false);
                 }}
             />
 
-            {/* Message de succès après la confirmation du rendez-vous */}
             <Message
                 isOpen={successMessageOpen}
                 title="Rendez-vous confirmé !"
-                message={`Votre rendez-vous avec Dr. ${doctorData?.staff?.user?.firstName} ${doctorData?.staff?.user?.lastName} a été confirmé pour le ${selectedSlot ? new Date(selectedSlot.date).toLocaleDateString() : ''} à ${selectedSlot ? new Date(selectedSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}.`}
+                message={`Votre rendez-vous a été confirmé pour le ${selectedSlot ? new Date(selectedSlot.date).toLocaleDateString() : ''}.`}
                 buttonText="OK"
                 onClose={() => setSuccessMessageOpen(false)}
             />
 
-            {/* Message d'erreur si la confirmation du rendez-vous échoue */}
             <Message
                 isOpen={errorMessageOpen}
                 title="Erreur lors de la confirmation"
