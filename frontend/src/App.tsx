@@ -142,7 +142,6 @@ function AppContent() {
         {/* --- PATIENT --- */}
         <Route element={<AllowedRolesRoute allowedRoles={['PATIENT']} />}>
           <Route path="/patient" element={<PatientMenu />} />
-          <Route path="/doctorResearch" element={<DoctorResearch />} />
           <Route path="/doctor/:doctorId/profile" element={<DoctorProfile />} />
           <Route path="/my-appointments" element={<AppointmentsList />} />
         </Route>
@@ -161,6 +160,7 @@ function AppContent() {
         <Route element={<AllowedRolesRoute allowedRoles={['NURSE_ASSISTANT']} />}>
           <Route path="/nurse" element={<NurseMenu />} />
           <Route path="/patient/medicalRecord/:medicalRecordId/biometrics" element={<BiometricsFormular/>} />
+          <Route path="/doctor/:doctorId/planning" element={<DoctorPlanning />} />
         </Route>
 
         
@@ -174,6 +174,7 @@ function AppContent() {
         <Route element={<AllowedRolesRoute allowedRoles={['DOCTOR', 'NURSE_ASSISTANT', 'PATIENT']} />}>
           <Route path="/patient/medicalRecord/:patientId" element={<PatientMedicalRecord />} />
           <Route path="/patient/medicalRecord/consultations/:medicalRecordId" element={<PatientConsultations />} />
+          <Route path="/doctorResearch" element={<DoctorResearch />} />
         </Route>
       </Routes>
     </>

@@ -14,7 +14,7 @@ export class AppointmentsController {
 
     constructor(private readonly appointmentsService: AppointmentsService) { }
 
-    @Roles('PATIENT') 
+    @Roles('PATIENT') // Seuls les patients, les assistants médicaux, les médecins et les administrateurs peuvent accéder à cette route
     @Get('/doctor/:doctorId/availabilities')
     async getDoctorAvailabilities(
         @Param('doctorId', ParseIntPipe) doctorId: number,
@@ -23,7 +23,7 @@ export class AppointmentsController {
         return await this.appointmentsService.getDoctorAvailabilities(doctorId, dateQuery);
     }
 
-    @Roles('DOCTOR')
+    @Roles('DOCTOR', 'NURSE_ASSISTANT', 'ADMINISTRATOR') // Seuls les médecins, les assistants médicaux et les administrateurs peuvent accéder à cette route
     @Get('/doctor/:doctorId/schedule')
     async getScheduleForDoctor(
         @Param('doctorId', ParseIntPipe) doctorId: number,
@@ -66,5 +66,15 @@ export class AppointmentsController {
         const patientIdFromToken = loggedInUser.id; // Récupère l'ID du patient depuis le token JWT
 
         return await this.appointmentsService.getAppointmentsByPatientId(patientIdFromToken);
+    }
+
+
+    @Roles('NURSE_ASSISTANT')
+    @Post('/set-appointment-presence/:appointmentId')
+    async setAppointmentPresence(
+        @Param('appointmentId', ParseIntPipe) appointmentId: number,
+        @Body('isPresent') isPresent: boolean
+    ) {
+        return await this.appointmentsService.setAppointmentPresence(appointmentId, isPresent);
     }
 }

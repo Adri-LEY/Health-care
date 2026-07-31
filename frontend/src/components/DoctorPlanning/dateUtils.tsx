@@ -49,11 +49,16 @@ export function groupSlotsByDay(slots: TimeSlotProps[]) {
   return grouped; // Ex: { "2026-07-28": [slot1, slot2], "2026-07-29": [slot3] }
 }
 
-export const getMonday = (d: Date) => {
+export const getMonday = (d: Date): Date => {
   const date = new Date(d);
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(date.setDate(diff));
+  // Réinitialiser les heures en UTC pour éviter les pièges de minuit / heure d'été
+  date.setUTCHours(0, 0, 0, 0);
+  
+  const day = date.getUTCDay(); // 0 = Dimanche, 1 = Lundi...
+  const distanceToMonday = day === 0 ? -6 : 1 - day;
+  
+  date.setUTCDate(date.getUTCDate() + distanceToMonday);
+  return date;
 };
 
 export const addDays = (d: Date, days: number) => {

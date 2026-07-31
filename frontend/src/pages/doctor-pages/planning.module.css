@@ -59,11 +59,21 @@
 }
 
 /* 4. Style des cartes de RDV */
+/* Style des cartes de RDV */
 :global(.fc-timegrid-event) {
   border-radius: 8px !important;
   border: none !important;
   padding: 6px 10px !important;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+  cursor: pointer !important; /* 👈 Rendre le curseur cliquable */
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+/* Effet au survol (hover) */
+:global(.fc-timegrid-event:hover) {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25) !important;
+  z-index: 10 !important;
 }
 
 /* Disposition du texte dans le créneau */
@@ -87,4 +97,234 @@
   font-size: 0.95rem;
   font-weight: 700;
   line-height: 1.2;
+}
+
+
+
+
+
+
+/* Overlay semi-transparent */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.55); /* Slate foncé avec opacité */
+  backdrop-filter: blur(4px); /* Petit effet de flou en arrière-plan */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Carte principale de la modale */
+.modalCard {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 420px;
+  max-width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* En-tête */
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.closeIconButton {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeIconButton:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Badge de statut */
+.statusBadge {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.statusBadge[data-status="SCHEDULED"] {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.statusBadge[data-status="CONFIRMED"] {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.statusBadge[data-status="MISSED"] {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+/* Grille des informations */
+.patientGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.infoGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.infoLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.infoValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Zone d'actions */
+.modalActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.confirmPresenceButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #16a34a;
+  color: #ffffff;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.confirmPresenceButton:hover {
+  background-color: #15803d;
+}
+
+.confirmPresenceButton:active {
+  transform: scale(0.98);
+}
+
+.confirmMissedButton{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #dc2626;
+    color: #ffffff;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.confirmMissedButton:hover {
+    background-color: #b91c1c;
+}
+
+.confirmMissedButton:active {
+    transform: scale(0.98);
+}
+
+.confirmedMessage {
+    color: #16a34a;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.missedMessage {
+    color: #dc2626;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.canceledMessage {
+    color: #f97316;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.medicalRecordButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: #3b82f6;
+  border: 1.5px solid #3b82f6;
+  padding: 11px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.medicalRecordButton:hover {
+  background-color: #eff6ff;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }

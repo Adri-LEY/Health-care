@@ -12,9 +12,15 @@ export default function NurseMenu() {
           La connexion a réussi. Cet espace contiendra bientôt vos outils de santé spécifiques.
         </p>
 
-        <button type="button" className={styles.button} onClick={() => navigate('/patientResearch')}>
+        <div className={styles.actions}>
+          <button type="button" className={styles.button} onClick={() => navigate('/patientResearch')}>
             Rechercher un patient
-        </button>
+          </button>
+
+          <button type="button" className={styles.button} onClick={() => navigate('/doctorResearch')}>
+            Rechercher le planning d'un médecin
+          </button>
+        </div>
       </section>
     </main>
   );

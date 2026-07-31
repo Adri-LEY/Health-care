@@ -15,6 +15,8 @@ export function DoctorProfile() {
 
     // 💡 1. État pour la date de début (Lundi) de la semaine visualisée
     const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
+    console.log("new Date():", new Date());
+    console.log("Initial currentMonday:", currentMonday, "for doctorId:", doctorId);
 
     const [selectedSlot, setSelectedSlot] = useState<TimeSlotProps | null>(null);
 
@@ -26,13 +28,18 @@ export function DoctorProfile() {
     const navigate = useNavigate();
 
     const getDoctorAvailabilities = async (id: number, dateQuery?: string) => {
+        console.log(`Fetching availabilities for doctor ${id} with date query: ${dateQuery}`);
+
         try {
+            console.log(`Fetching availabilities for doctor ${id} with date query: ${dateQuery}`);
+
             const url = `${apiUrl}/appointments/doctor/${id}/availabilities${dateQuery ? `?date=${dateQuery}` : ''}`;
             const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             if (response.ok) {
                 const data = await response.json();
+                console.log(`Availabilities for doctor ${id}:`, data.timeSlots);
                 setSlots(data.timeSlots || []);
             }
         } catch (error) {
@@ -90,7 +97,9 @@ export function DoctorProfile() {
         const parsedId = doctorId ? parseInt(doctorId) : 0;
         if (parsedId) {
             // Transmet la date au format YYYY-MM-DD (ex: 2026-08-03)
+            console.log("currentMonday:", currentMonday);
             const formattedDate = toDateKey(currentMonday);
+            console.log(`Fetching availabilities for doctor ${parsedId} for week starting on ${formattedDate}`);
             getDoctorAvailabilities(parsedId, formattedDate);
         }
     }, [doctorId, currentMonday, successMessageOpen]);
@@ -101,7 +110,7 @@ export function DoctorProfile() {
                 <button 
                     type="button" 
                     className={styles.backButton} 
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate("doctorResearch")}
                 >
                     <ArrowLeft size={18} aria-hidden="true" />
                     Retour

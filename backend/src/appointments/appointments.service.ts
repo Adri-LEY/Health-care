@@ -62,8 +62,32 @@ export class AppointmentsService {
      * Retrieves all appointments for a specific patient.
      * @param patientId - The ID of the patient.
      * @returns An array of appointments for the patient.
+     * @throws BadRequestException if no appointments are found for the patient.
      */
     getAppointmentsByPatientId(patientId: number) {
-        return this.appointmentsRepository.getAppointmentsByPatientId(patientId);
+        const appointments = this.appointmentsRepository.getAppointmentsByPatientId(patientId);
+
+        if (!appointments) {
+            throw new BadRequestException("No appointments found for the patient");
+        }
+
+        return appointments;
+    }
+
+    /**
+     * Sets the presence status of an appointment.
+     * @param appointmentId - The ID of the appointment.
+     * @param isPresent - A boolean indicating if the patient was present (true) or absent (false).
+     * @returns The updated appointment with the new presence status.
+     * @throws BadRequestException if the appointment does not exist.
+     */
+    setAppointmentPresence(appointmentId: number, isPresent: boolean) {
+        const result = this.appointmentsRepository.setAppointmentPresence(appointmentId, isPresent);
+
+        if (!result) {
+            throw new BadRequestException("Appointment not found");
+        }
+
+        return result;
     }
 }

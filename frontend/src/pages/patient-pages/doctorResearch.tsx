@@ -6,6 +6,8 @@ import SearchComponent from '../../components/searchComponent';
 import styles from './doctorResearch.module.css';
 
 export default function DoctorResearch() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
     const navigate = useNavigate();
     const [doctorsList, setDoctorsList] = useState<StaffMember[]>([]);
     const [loading, setLoading] = useState(true);
@@ -150,7 +152,14 @@ export default function DoctorResearch() {
                         <StaffCard
                             key={doctor.user.id}
                             member={doctor}
-                            onSelect={() => navigate(`/doctor/${doctor.doctor?.id}/profile`)}
+                            onSelect={() => 
+                            {
+                                if (user.role === 'PATIENT') {
+                                    navigate(`/doctor/${doctor.doctor?.id}/profile`);
+                                } else if (user.role === 'NURSE_ASSISTANT') {
+                                    navigate(`/doctor/${doctor.doctor?.id}/planning`);
+                                }
+                            }}
                         />
                     ))
                 )}
