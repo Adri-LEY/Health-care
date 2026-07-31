@@ -104,6 +104,7 @@ export class AppointmentsRepository {
                     gte: startOfWeek,
                     lte: endOfWeek,
                 },
+                status: { in: ['SCHEDULED', 'CONFIRMED', 'MISSED'] },
             },
             orderBy: [
                 { dateTime: 'asc' },
@@ -114,6 +115,7 @@ export class AppointmentsRepository {
                 status: true,
                 patient: {
                     select: {
+                        id: true,
                         user: {
                             select: {
                                 id: true,
@@ -228,9 +230,9 @@ export class AppointmentsRepository {
 
         return this.prisma.appointment.update({
             where: { id: appointmentId },
-            data: { 
-                status: isPresent===true ? AppointmentStatus.CONFIRMED : AppointmentStatus.MISSED
-             },
+            data: {
+                status: isPresent === true ? AppointmentStatus.CONFIRMED : AppointmentStatus.MISSED
+            },
         });
     }
 }

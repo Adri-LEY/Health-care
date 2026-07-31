@@ -23,7 +23,7 @@ export default function DoctorPlanning() {
     if (user.role == 'NURSE_ASSISTANT') {
         doctorId = useParams<{ doctorId: string }>().doctorId;
     }
-    
+
 
     const [events, setEvents] = useState<Record<string, unknown>[]>([]);
 
@@ -65,6 +65,8 @@ export default function DoctorPlanning() {
             const formattedEvents = dataFromBack.map((item) => {
                 const patientName = `${item.patient.user.firstName} ${item.patient.user.lastName}`;
 
+                console.log('item:', item);
+
                 return {
                     id: item.id.toString(),
                     title: patientName,
@@ -75,7 +77,7 @@ export default function DoctorPlanning() {
                     extendedProps: {
                         id: item.id,
                         status: item.status,
-                        patient: item.patient.user,
+                        patient: item.patient,
                         timeSlotId: item.timeSlot.id,
                     },
                 };
@@ -175,7 +177,7 @@ export default function DoctorPlanning() {
                 events={events}
 
                 eventContent={(eventInfo) => {
-                    const patient = eventInfo.event.extendedProps?.patient;
+                    const patient = eventInfo.event.extendedProps?.patient.user;
                     const name = patient
                         ? `${patient.firstName} ${patient.lastName}`
                         : eventInfo.event.title;
@@ -210,9 +212,9 @@ export default function DoctorPlanning() {
                         {/* Badge du Statut du RDV */}
                         {selectedAppointment && (
                             <div className={styles.statusBadge} data-status={selectedAppointment.status}>
-                                {selectedAppointment.status === 'CONFIRMED' && (<><Circle size={16} color="green" fill='green'/> 'Patient Présent'</>)}
-                                {selectedAppointment.status === 'SCHEDULED' && (<><CircleDot size={16} color="blue" fill='blue'/> 'Rendez-vous Planifié'</>)}
-                                {selectedAppointment.status === 'MISSED' && (<><CircleDot size={16} color="red" fill='red'/> 'Patient Absent'</>)}
+                                {selectedAppointment.status === 'CONFIRMED' && (<><Circle size={16} color="green" fill='green' /> Patient Présent</>)}
+                                {selectedAppointment.status === 'SCHEDULED' && (<><CircleDot size={16} color="blue" fill='blue' /> Rendez-vous Planifié</>)}
+                                {selectedAppointment.status === 'MISSED' && (<><CircleDot size={16} color="red" fill='red' /> Patient Absent</>)}
                             </div>
                         )}
 
@@ -221,21 +223,21 @@ export default function DoctorPlanning() {
                             <div className={styles.infoGroup}>
                                 <span className={styles.infoLabel}>Patient</span>
                                 <span className={styles.infoValue}>
-                                    <User size={16} color="gray" /> {selectedPatient ? `${selectedPatient.firstName} ${selectedPatient.lastName}` : 'Nom inconnu'}
+                                    <User size={16} color="gray" /> {selectedPatient ? `${selectedPatient.user.firstName} ${selectedPatient.user.lastName}` : 'Nom inconnu'}
                                 </span>
                             </div>
 
                             <div className={styles.infoGroup}>
                                 <span className={styles.infoLabel}>Téléphone</span>
                                 <span className={styles.infoValue}>
-                                    <Phone size={16} color="red" /> {selectedPatient?.phone || 'Non renseigné'}
+                                    <Phone size={16} color="red" /> {selectedPatient?.user.phone || 'Non renseigné'}
                                 </span>
                             </div>
 
                             <div className={styles.infoGroup}>
                                 <span className={styles.infoLabel}>Email</span>
                                 <span className={styles.infoValue}>
-                                    <Mail size={16} color="blue" /> {selectedPatient?.email || 'Non renseigné'}
+                                    <Mail size={16} color="blue" /> {selectedPatient?.user.email || 'Non renseigné'}
                                 </span>
                             </div>
                         </div>
@@ -243,28 +245,35 @@ export default function DoctorPlanning() {
                         {/* Actions de l'Aide-Soignant */}
                         <div className={styles.modalActions}>
                             {/* Affiché uniquement si le RDV n'est pas encore confirmé */}
-                            {selectedAppointment?.status === 'SCHEDULED' && user.role === 'NURSE_ASSISTANT' && (
+                            {selectedAppointment?.status && ['SCHEDULED', 'MISSED', 'CONFIRMED'].includes(selectedAppointment.status) && user.role === 'NURSE_ASSISTANT' && (
 
                                 <>
 
-                                    <button
-                                        className={styles.confirmMissedButton}
-                                        onClick={() => { setAppointmentStatusCheck(true);
-                                            handlePresenceConfirmation(false); }}
-                                    >
-                                        <X size={18} color="red" />
-                                        Marquer comme Absent
-                                    </button>
+                                    {['SCHEDULED', 'CONFIRMED'].includes(selectedAppointment.status) && (
+                                        <button
+                                            className={styles.confirmMissedButton}
+                                            onClick={() => {
+                                                setAppointmentStatusCheck(true);
+                                                handlePresenceConfirmation(false);
+                                            }}
+                                        >
+                                            <X size={18} color="red" />
+                                            Marquer comme Absent
+                                        </button>
+                                    )}
 
-                                    <button
-                                        className={styles.confirmPresenceButton}
-                                        onClick={() => { 
-                                            setAppointmentStatusCheck(true);
-                                            handlePresenceConfirmation(true); }}
-                                    >
-                                        <UserCheck size={18} color="green" />
-                                        Confirmer la Présence
-                                    </button>
+                                    {['SCHEDULED', 'MISSED'].includes(selectedAppointment.status) && (
+                                        <button
+                                            className={styles.confirmPresenceButton}
+                                            onClick={() => {
+                                                setAppointmentStatusCheck(true);
+                                                handlePresenceConfirmation(true);
+                                            }}
+                                        >
+                                            <UserCheck size={18} color="green" />
+                                            Confirmer la Présence
+                                        </button>
+                                    )}
                                 </>
                             )}
 

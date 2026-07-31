@@ -10,10 +10,11 @@ export interface TimeSlotProps {
 export function formatTimeUTC(isoString: string): string {
   const date = new Date(isoString);
   // Utiliser getHours() au lieu de getUTCHours() si tu veux l'heure locale du navigateur
-  const hours = String(date.getHours()).padStart(2, '0'); 
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const hours = String(date.getUTCHours()).padStart(2, '0'); 
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
 }
+
 
 // Formate un ISOString "2026-07-28T08:30:00.000Z" -> "08h30"
 export const formatSlotTime = (isoString: string) => {

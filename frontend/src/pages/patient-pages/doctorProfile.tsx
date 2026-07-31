@@ -110,7 +110,7 @@ export function DoctorProfile() {
                 <button 
                     type="button" 
                     className={styles.backButton} 
-                    onClick={() => navigate("doctorResearch")}
+                    onClick={() => navigate("/doctorResearch")}
                 >
                     <ArrowLeft size={18} aria-hidden="true" />
                     Retour
