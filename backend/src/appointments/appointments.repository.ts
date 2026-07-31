@@ -177,6 +177,34 @@ export class AppointmentsRepository {
                 timeSlotId: appointmentDTO.timeSlotId,
                 status: 'SCHEDULED',
             },
+            select: {
+                id: true,
+                dateTime: true,
+                status: true,
+                doctor: {
+                    select: {
+                        id: true,
+                        staff: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        email: true,
+                                        phone: true,
+                                    },
+                                },
+                            },
+                        },
+                        specialty: {
+                            select: {
+                                specialtyName: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -184,6 +212,34 @@ export class AppointmentsRepository {
         const result = await this.prisma.appointment.update({
             where: { id: appointmentId, patientId },
             data: { status: 'CANCELLED' },
+            select: {
+                id: true,
+                dateTime: true,
+                status: true,
+                doctor: {
+                    select: {
+                        id: true,
+                        staff: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        email: true,
+                                        phone: true,
+                                    },
+                                },
+                            },
+                        },
+                        specialty: {
+                            select: {
+                                specialtyName: true,
+                            },
+                        },
+                    },
+                },
+            }
         });
         return result;
     }

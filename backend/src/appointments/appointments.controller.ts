@@ -42,11 +42,12 @@ export class AppointmentsController {
 
         console.log(`Logged in user: `, loggedInUser);
         
+        const userIdFromToken = loggedInUser.id; // Récupère l'ID de l'utilisateur depuis le token JWT
         const patientIdFromToken = loggedInUser.patientId; // Récupère l'ID du patient depuis le token JWT
 
         console.log(`Creating appointment for patient ID: ${patientIdFromToken} with data: `, appointmentDTO);
 
-        return await this.appointmentsService.createAppointment(patientIdFromToken, appointmentDTO);
+        return await this.appointmentsService.createAppointment(userIdFromToken, patientIdFromToken, appointmentDTO);
     }
 
     @Roles('PATIENT')
@@ -57,8 +58,9 @@ export class AppointmentsController {
     ) {
         const loggedInUser = req.user; // Récupère l'ID de l'utilisateur connecté depuis le token JWT
         const patientIdFromToken = loggedInUser.patientId; // Récupère l'ID du patient depuis le token JWT
+        const userIdFromToken = loggedInUser.id; // Récupère l'ID de l'utilisateur depuis le token JWT
 
-        return await this.appointmentsService.cancelAppointment(patientIdFromToken, appointmentId);
+        return await this.appointmentsService.cancelAppointment(userIdFromToken, patientIdFromToken, appointmentId);
     }
 
     @Roles('PATIENT')
