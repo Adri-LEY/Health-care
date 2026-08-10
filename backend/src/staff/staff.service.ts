@@ -52,6 +52,21 @@ export class StaffService {
     }
   }
 
+  /**
+   * Retrieves all doctors based on the provided specialty IDs.
+   * @param specialtyId 
+   * @returns A promise resolving to the list of doctors.
+   * @throws InternalServerErrorException if there is an error during retrieval.
+   */
+  getAllDoctors(specialtyId?: number[]) {
+    const whereConditions: Prisma.DoctorWhereInput = {};
+
+    if (specialtyId && specialtyId.length > 0) {
+      whereConditions.specialtyId = { in: specialtyId };
+    }
+
+    return this.staffRepository.findAllDoctors(whereConditions);
+  }
 
   /**
    * Creates a new staff member.
@@ -304,6 +319,21 @@ export class StaffService {
     } catch (error) {
       console.error('Error setting specialty for doctor:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Retrieves the doctor ID associated with a given user ID.
+   * @param userId 
+   * @returns The doctor ID if found, otherwise null.
+   * @throws NotFoundException if the user is not found.
+   */
+  getDoctorProfileById(userId: number) {
+    try {
+      return this.staffRepository.getDoctorProfileById(userId);
+    } catch (error) {
+      console.error('Error retrieving doctor profile:', error);
+      throw new NotFoundException(`Doctor profile for user ID ${userId} not found`);
     }
   }
 }

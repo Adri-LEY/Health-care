@@ -40,9 +40,20 @@ export default function PatientMenu() {
                     La connexion a réussi. Cet espace contiendra bientôt vos outils de santé spécifiques.
                 </p>
 
-                <button type="button" className={styles.button} onClick={() => navigate(`/patient/medicalRecord/${patientId}`)}>
-                    Consulter mon dossier médical
-                </button>
+                <div className={styles.actionsMenu}>
+
+                    <button type="button" className={styles.button} onClick={() => navigate(`/patient/medicalRecord/${patientId}`)}>
+                        Consulter mon dossier médical
+                    </button>
+
+                    <button type="button" className={styles.button} onClick={() => navigate('/doctorResearch')}>
+                        Rechercher un médecin
+                    </button>
+
+                    <button type="button" className={styles.button} onClick={() => navigate('/my-appointments')}>
+                        Consulter mes rendez-vous
+                    </button>
+                </div>
             </section>
         </main>
     );

@@ -26,6 +26,25 @@ const staffInclude = {
   },
 } as const;
 
+
+const doctorInclude = {
+  user: {
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      role: true,
+    },
+  },
+  doctor: {
+    select: {
+      id: true,
+      specialty: true,
+    },
+  },
+} as const;
+
 @Injectable()
 export class StaffRepository {
   constructor(private readonly prisma: PrismaService) { }
@@ -34,6 +53,15 @@ export class StaffRepository {
     return this.prisma.medicalStaff.findMany({
       where,
       include: staffInclude,
+    });
+  }
+
+  findAllDoctors(where: Prisma.DoctorWhereInput) {
+    return this.prisma.medicalStaff.findMany({
+      where: {
+        doctor: where,
+      },
+      include: doctorInclude,
     });
   }
 
@@ -135,4 +163,42 @@ export class StaffRepository {
       },
     });
   }
+
+
+  /**
+   * Retrieves the profile of a doctor by their ID
+   * @param doctorId 
+   * @returns The doctor's profile including user information and specialty
+   */
+  async getDoctorProfileById(doctorId: number) {
+    return await this.prisma.doctor.findUnique({
+      where: { id: doctorId },
+      select: {
+        id: true,
+        specialty: {
+          select: {
+            specialtyName: true,
+          },
+        },
+        staff: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+                role: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+
+
 }
