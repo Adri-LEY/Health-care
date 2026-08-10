@@ -10,10 +10,11 @@ export interface TimeSlotProps {
 export function formatTimeUTC(isoString: string): string {
   const date = new Date(isoString);
   // Utiliser getHours() au lieu de getUTCHours() si tu veux l'heure locale du navigateur
-  const hours = String(date.getHours()).padStart(2, '0'); 
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const hours = String(date.getUTCHours()).padStart(2, '0'); 
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
 }
+
 
 // Formate un ISOString "2026-07-28T08:30:00.000Z" -> "08h30"
 export const formatSlotTime = (isoString: string) => {
@@ -49,11 +50,16 @@ export function groupSlotsByDay(slots: TimeSlotProps[]) {
   return grouped; // Ex: { "2026-07-28": [slot1, slot2], "2026-07-29": [slot3] }
 }
 
-export const getMonday = (d: Date) => {
+export const getMonday = (d: Date): Date => {
   const date = new Date(d);
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(date.setDate(diff));
+  // Réinitialiser les heures en UTC pour éviter les pièges de minuit / heure d'été
+  date.setUTCHours(0, 0, 0, 0);
+  
+  const day = date.getUTCDay(); // 0 = Dimanche, 1 = Lundi...
+  const distanceToMonday = day === 0 ? -6 : 1 - day;
+  
+  date.setUTCDate(date.getUTCDate() + distanceToMonday);
+  return date;
 };
 
 export const addDays = (d: Date, days: number) => {

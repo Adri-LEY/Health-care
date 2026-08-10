@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common/decorators/core/injectable.decorator";
 import { PrismaService } from "src/prisma/prisma.service";
 import { AppointmentDto } from "./dto/appointment.dto";
+import { start } from "repl";
+import { AppointmentStatus } from "@prisma/client/edge";
 
 @Injectable()
 export class AppointmentsRepository {
@@ -35,13 +37,13 @@ export class AppointmentsRepository {
                     gte: startOfWeek,
                     lte: endOfWeek,
                 },
-                isLocked: false, // Créneau non verrouillée
                 startTime: {
-                    gte: localNow,
+                    gte: localNow.toISOString(),
                 },
                 endTime: {
-                    gte: localNow,
+                    gte: localNow.toISOString(),
                 },
+                isLocked: false, // Créneau non verrouillée
                 appointments: {
                     none: {
                         doctorId: doctorId,
@@ -62,6 +64,8 @@ export class AppointmentsRepository {
             },
         });
 
+        console.log(`Time slots for doctor ${doctorId} between ${startOfWeek.toISOString()} and ${endOfWeek.toISOString()}:`, timeSlots);
+
         // 5. Renvoyer le résultat enrichi des dates de début et fin de semaine
         return {
             weekStart: startOfWeek.toISOString().split('T')[0],
@@ -71,7 +75,14 @@ export class AppointmentsRepository {
     }
 
     async getScheduleForDoctor(doctorId: number, dateQuery?: string) {
-        const baseDate = dateQuery ? new Date(dateQuery) : new Date();
+        let baseDate = dateQuery ? new Date(dateQuery) : new Date();
+        if (dateQuery && dateQuery !== 'undefined' && dateQuery !== 'null') {
+            const parsedDate = new Date(dateQuery);
+            // On vérifie si la Date est valide en testant isNaN(parsedDate.getTime())
+            if (!isNaN(parsedDate.getTime())) {
+                baseDate = parsedDate;
+            }
+        }
 
         // 2. Calculer le Lundi de la semaine en cours (00:00:00)
         const startOfWeek = new Date(baseDate);
@@ -93,6 +104,7 @@ export class AppointmentsRepository {
                     gte: startOfWeek,
                     lte: endOfWeek,
                 },
+                status: { in: ['SCHEDULED', 'CONFIRMED', 'MISSED'] },
             },
             orderBy: [
                 { dateTime: 'asc' },
@@ -103,6 +115,7 @@ export class AppointmentsRepository {
                 status: true,
                 patient: {
                     select: {
+                        id: true,
                         user: {
                             select: {
                                 id: true,
@@ -152,7 +165,7 @@ export class AppointmentsRepository {
             },
         });
 
-        if(!timeSlot) {
+        if (!timeSlot) {
             throw new Error("Time slot not found");
         }
 
@@ -164,6 +177,34 @@ export class AppointmentsRepository {
                 timeSlotId: appointmentDTO.timeSlotId,
                 status: 'SCHEDULED',
             },
+            select: {
+                id: true,
+                dateTime: true,
+                status: true,
+                doctor: {
+                    select: {
+                        id: true,
+                        staff: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        email: true,
+                                        phone: true,
+                                    },
+                                },
+                            },
+                        },
+                        specialty: {
+                            select: {
+                                specialtyName: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -171,6 +212,34 @@ export class AppointmentsRepository {
         const result = await this.prisma.appointment.update({
             where: { id: appointmentId, patientId },
             data: { status: 'CANCELLED' },
+            select: {
+                id: true,
+                dateTime: true,
+                status: true,
+                doctor: {
+                    select: {
+                        id: true,
+                        staff: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        email: true,
+                                        phone: true,
+                                    },
+                                },
+                            },
+                        },
+                        specialty: {
+                            select: {
+                                specialtyName: true,
+                            },
+                        },
+                    },
+                },
+            }
         });
         return result;
     }
@@ -207,6 +276,18 @@ export class AppointmentsRepository {
                         endTime: true,
                     },
                 },
+            },
+        });
+    }
+
+
+    setAppointmentPresence(appointmentId: number, isPresent: boolean) {
+        console.log(`Setting presence for appointment ${appointmentId} to ${isPresent}`);
+
+        return this.prisma.appointment.update({
+            where: { id: appointmentId },
+            data: {
+                status: isPresent === true ? AppointmentStatus.CONFIRMED : AppointmentStatus.MISSED
             },
         });
     }

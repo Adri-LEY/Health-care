@@ -14,7 +14,7 @@ export class AppointmentsController {
 
     constructor(private readonly appointmentsService: AppointmentsService) { }
 
-    @Roles('PATIENT') 
+    @Roles('PATIENT') // Seuls les patients, les assistants médicaux, les médecins et les administrateurs peuvent accéder à cette route
     @Get('/doctor/:doctorId/availabilities')
     async getDoctorAvailabilities(
         @Param('doctorId', ParseIntPipe) doctorId: number,
@@ -23,7 +23,7 @@ export class AppointmentsController {
         return await this.appointmentsService.getDoctorAvailabilities(doctorId, dateQuery);
     }
 
-    @Roles('DOCTOR')
+    @Roles('DOCTOR', 'NURSE_ASSISTANT', 'ADMINISTRATOR') // Seuls les médecins, les assistants médicaux et les administrateurs peuvent accéder à cette route
     @Get('/doctor/:doctorId/schedule')
     async getScheduleForDoctor(
         @Param('doctorId', ParseIntPipe) doctorId: number,
@@ -39,10 +39,15 @@ export class AppointmentsController {
         @Body() appointmentDTO : AppointmentDto
     ) {
         const loggedInUser = req.user; // Récupère l'ID de l'utilisateur connecté depuis le token JWT
-        
-        const patientIdFromToken = loggedInUser.id; // Récupère l'ID du patient depuis le token JWT
 
-        return await this.appointmentsService.createAppointment(patientIdFromToken, appointmentDTO);
+        console.log(`Logged in user: `, loggedInUser);
+        
+        const userIdFromToken = loggedInUser.id; // Récupère l'ID de l'utilisateur depuis le token JWT
+        const patientIdFromToken = loggedInUser.patientId; // Récupère l'ID du patient depuis le token JWT
+
+        console.log(`Creating appointment for patient ID: ${patientIdFromToken} with data: `, appointmentDTO);
+
+        return await this.appointmentsService.createAppointment(userIdFromToken, patientIdFromToken, appointmentDTO);
     }
 
     @Roles('PATIENT')
@@ -52,9 +57,10 @@ export class AppointmentsController {
         @Param('appointmentId', ParseIntPipe) appointmentId: number
     ) {
         const loggedInUser = req.user; // Récupère l'ID de l'utilisateur connecté depuis le token JWT
-        const patientIdFromToken = loggedInUser.id; // Récupère l'ID du patient depuis le token JWT
+        const patientIdFromToken = loggedInUser.patientId; // Récupère l'ID du patient depuis le token JWT
+        const userIdFromToken = loggedInUser.id; // Récupère l'ID de l'utilisateur depuis le token JWT
 
-        return await this.appointmentsService.cancelAppointment(patientIdFromToken, appointmentId);
+        return await this.appointmentsService.cancelAppointment(userIdFromToken, patientIdFromToken, appointmentId);
     }
 
     @Roles('PATIENT')
@@ -63,8 +69,18 @@ export class AppointmentsController {
         @Req() req,
     ) {
         const loggedInUser = req.user; // Récupère l'ID de l'utilisateur connecté depuis le token JWT
-        const patientIdFromToken = loggedInUser.id; // Récupère l'ID du patient depuis le token JWT
+        const patientIdFromToken = loggedInUser.patientId; // Récupère l'ID du patient depuis le token JWT
 
         return await this.appointmentsService.getAppointmentsByPatientId(patientIdFromToken);
+    }
+
+
+    @Roles('NURSE_ASSISTANT')
+    @Post('/set-appointment-presence/:appointmentId')
+    async setAppointmentPresence(
+        @Param('appointmentId', ParseIntPipe) appointmentId: number,
+        @Body('isPresent') isPresent: boolean
+    ) {
+        return await this.appointmentsService.setAppointmentPresence(appointmentId, isPresent);
     }
 }

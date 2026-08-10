@@ -57,11 +57,3 @@
   background: #1d4ed8;
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
 }
-
-
-.actionsMenu {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 24px;
-}
