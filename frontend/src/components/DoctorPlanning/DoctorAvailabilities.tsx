@@ -5,16 +5,23 @@ import { SlotsGrid } from "./SlotsGrid";
 
 interface DoctorAvailabilitiesProps {
   availableSlots?: TimeSlotProps[];
+  currentMonday?: Date;
+  onWeekChange?: (newMonday: Date) => void;
   onSelectSlot?: (slot: TimeSlotProps) => void;
   maxRows?: number;
 }
 
 export function DoctorAvailabilities({
   availableSlots = [],
+  currentMonday: externalMonday,
+  onWeekChange,
   onSelectSlot,
   maxRows = 4,
 }: DoctorAvailabilitiesProps) {
-  const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
+  // Gestion locale de secours au cas où les props ne sont pas transmises
+  const [localMonday, setLocalMonday] = useState<Date>(() => getMonday(new Date()));
+  const currentMonday = externalMonday || localMonday;
+
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const weekDays = Array.from({ length: 6 }).map((_, i) => addDays(currentMonday, i));
@@ -22,13 +29,18 @@ export function DoctorAvailabilities({
   const dayNameFormatter = new Intl.DateTimeFormat("fr-FR", { weekday: "long" });
   const dayDateFormatter = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" });
 
-  // Réinitialiser l'extension quand on change de semaine
   const handleWeekChange = (offset: number) => {
-    setCurrentMonday((prev) => addDays(prev, offset));
+    const nextMonday = addDays(currentMonday, offset);
     setIsExpanded(false);
+
+    if (onWeekChange) {
+      // Notifie le composant parent pour recharger l'API
+      onWeekChange(nextMonday);
+    } else {
+      setLocalMonday(nextMonday);
+    }
   };
 
-  // Vérifie si au moins un jour de la semaine a plus de créneaux que maxRows
   const hasMoreSlots = weekDays.some((day) => {
     const targetDateKey = toDateKey(day);
     const daySlots = availableSlots.filter((s) => {
@@ -38,7 +50,6 @@ export function DoctorAvailabilities({
     return daySlots.length > maxRows;
   });
 
-  // Détermine le nombre de lignes à afficher
   const currentMaxRows = isExpanded ? undefined : maxRows;
 
   return (
@@ -88,7 +99,6 @@ export function DoctorAvailabilities({
         maxRows={currentMaxRows} 
       />
 
-      {/* Bouton voir plus de disponibilités */}
       {hasMoreSlots && (
         <div className={styles["more-slots-container"]}>
           <button

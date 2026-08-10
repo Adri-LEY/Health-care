@@ -9,8 +9,9 @@ export interface TimeSlotProps {
 // Fonction pour extraire l'heure au format "08:00" en UTC strict
 export function formatTimeUTC(isoString: string): string {
   const date = new Date(isoString);
-  const hours = String(date.getUTCHours()).padStart(2, '0');
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  // Utiliser getHours() au lieu de getUTCHours() si tu veux l'heure locale du navigateur
+  const hours = String(date.getHours()).padStart(2, '0'); 
+  const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
 }
 

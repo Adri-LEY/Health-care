@@ -23,6 +23,15 @@ export class AppointmentsController {
         return await this.appointmentsService.getDoctorAvailabilities(doctorId, dateQuery);
     }
 
+    @Roles('DOCTOR')
+    @Get('/doctor/:doctorId/schedule')
+    async getScheduleForDoctor(
+        @Param('doctorId', ParseIntPipe) doctorId: number,
+        @Query('date') dateQuery?: string
+    ) {
+        return await this.appointmentsService.getScheduleForDoctor(doctorId, dateQuery);
+    }
+
     @Roles('PATIENT')
     @Post('/create-appointment')
     async createAppointment(

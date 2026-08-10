@@ -963,29 +963,27 @@ async function main() {
   }
 
   // ==========================================
-  // 9. PLANIFICATION DES CRÉNEAUX ET RENDEZ-VOUS
+  // 9. PLANIFICATION DES CRÉNEAUX ET RENDEZ-VOUS (SUR 60 JOURS)
   // ==========================================
-  console.log('🗓️ Génération automatique d’une grille complète de créneaux sur 4 semaines...');
+  console.log('🗓️ Génération des créneaux et rendez-vous sur 60 jours (~2 mois)...');
 
-  const patient1 = await prisma.patient.findFirst({ where: { user: { email: 'patient@test.com' } } });
-  const patient2 = await prisma.patient.findFirst({ where: { user: { email: 'pat.martinez@test.com' } } });
-  const patient3 = await prisma.patient.findFirst({ where: { user: { email: 'patrick.paterson@test.com' } } });
-  const patient4 = await prisma.patient.findFirst({ where: { user: { email: 'marie.durand@test.com' } } });
+  // Récupération de tous les patients enregistrés
+  const allPatients = await prisma.patient.findMany({});
 
   const startDate = new Date();
   startDate.setUTCHours(0, 0, 0, 0);
 
-  // Générer des créneaux pour les 28 prochains jours (4 semaines)
-  for (let dayOffset = 0; dayOffset < 28; dayOffset++) {
+  // 1. Boucle principale sur 60 jours pour TOUS les créneaux (TimeSlots)
+  for (let dayOffset = 0; dayOffset < 60; dayOffset++) {
     const currentDate = new Date(startDate);
     currentDate.setDate(startDate.getDate() + dayOffset);
 
     const dayOfWeek = currentDate.getDay();
 
-    // Exclure le week-end (0 = Dimanche, 6 = Samedi)
+    // On saute les week-ends (0 = Dimanche, 6 = Samedi)
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
-    // Horaires de travail : 08h00 à 12h00 puis 14h00 à 17h00 (créneaux de 30 min)
+    // Définition des heures de consultation (de 8h à 12h et de 14h à 17h, par tranches de 30 min)
     const hours = [8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 14, 14.5, 15, 15.5, 16, 16.5];
 
     for (const hour of hours) {
@@ -998,7 +996,7 @@ async function main() {
       slotStart.setUTCHours(h, m, 0, 0);
       slotEnd.setUTCHours(h, m + 30, 0, 0);
 
-      // Création du TimeSlot partagé
+      // Création systématique du créneau horaire
       const slot = await prisma.timeSlot.create({
         data: {
           date: currentDate,
@@ -1009,61 +1007,67 @@ async function main() {
       });
 
       // -------------------------------------------------------------
-      // RENDEZ-VOUS POUR DOCTEUR 1 (Dr. Sarah Connor)
+      // 2. AFFECTATION DES RENDEZ-VOUS (DOCTEUR 1 - Sarah Connor)
       // -------------------------------------------------------------
-      if (dayOffset === 1 && hour === 10 && doctor1Id && patient1) {
-        // Demain à 10h00 : RDV confirmé pour Doctor 1
-        await prisma.appointment.create({
-          data: {
-            dateTime: slot.startTime,
-            status: AppointmentStatus.SCHEDULED,
-            patientId: patient1.id,
-            doctorId: doctor1Id,
-            timeSlotId: slot.id,
-          },
-        });
-      } else if (dayOffset === 2 && hour === 14 && doctor1Id && patient2) {
-        // Dans 2 jours à 14h00 : RDV programmé pour Doctor 1
-        await prisma.appointment.create({
-          data: {
-            dateTime: slot.startTime,
-            status: AppointmentStatus.SCHEDULED,
-            patientId: patient2.id,
-            doctorId: doctor1Id,
-            timeSlotId: slot.id,
-          },
-        });
+      if (doctor1Id && allPatients.length > 0) {
+        // Sélection de certains créneaux pour ne pas surcharger la grille
+        if ((dayOffset % 2 === 0 && hour === 9) || (dayOffset % 3 === 0 && hour === 10.5) || (dayOffset % 5 === 0 && hour === 14)) {
+          const patient = allPatients[(dayOffset + Math.floor(hour)) % allPatients.length];
+
+          let status: AppointmentStatus;
+
+          if (dayOffset <= 2) {
+            // CAS RÉCENTS / PASSÉS : Le patient est soit venu (Vert), soit annulé (Rouge)
+            status = (hour === 9 && dayOffset === 2) ? AppointmentStatus.CANCELLED : AppointmentStatus.CONFIRMED;
+          } else {
+            // CAS FUTURS : Uniquement prévus (Bleu)
+            status = AppointmentStatus.SCHEDULED;
+          }
+
+          await prisma.appointment.create({
+            data: {
+              dateTime: slot.startTime,
+              status: status,
+              patientId: patient.id,
+              doctorId: doctor1Id,
+              timeSlotId: slot.id,
+            },
+          });
+        }
       }
 
       // -------------------------------------------------------------
-      // RENDEZ-VOUS POUR DOCTEUR 2 (Dr. Gregory House)
+      // 3. AFFECTATION DES RENDEZ-VOUS (DOCTEUR 2 - Gregory House)
       // -------------------------------------------------------------
-      if (dayOffset === 1 && hour === 11 && doctor2Id && patient3) {
-        // Demain à 11h00 : RDV confirmé pour Doctor 2
-        await prisma.appointment.create({
-          data: {
-            dateTime: slot.startTime,
-            status: AppointmentStatus.CONFIRMED,
-            patientId: patient3.id,
-            doctorId: doctor2Id,
-            timeSlotId: slot.id,
-          },
-        });
-      } else if (dayOffset === 3 && hour === 15.5 && doctor2Id && patient4) {
-        // Dans 3 jours à 15h30 : RDV programmé pour Doctor 2
-        await prisma.appointment.create({
-          data: {
-            dateTime: slot.startTime,
-            status: AppointmentStatus.SCHEDULED,
-            patientId: patient4.id,
-            doctorId: doctor2Id,
-            timeSlotId: slot.id,
-          },
-        });
+      if (doctor2Id && allPatients.length > 0) {
+        if ((dayOffset % 2 !== 0 && hour === 11) || (dayOffset % 4 === 0 && hour === 15) || (dayOffset % 3 === 0 && hour === 8.5)) {
+          const patient = allPatients[(dayOffset + Math.floor(hour) + 2) % allPatients.length];
+
+          let status: AppointmentStatus;
+
+          if (dayOffset <= 2) {
+            // CAS RÉCENTS / PASSÉS
+            status = (hour === 11 && dayOffset === 1) ? AppointmentStatus.CANCELLED : AppointmentStatus.CONFIRMED;
+          } else {
+            // CAS FUTURS
+            status = AppointmentStatus.SCHEDULED;
+          }
+
+          await prisma.appointment.create({
+            data: {
+              dateTime: slot.startTime,
+              status: status,
+              patientId: patient.id,
+              doctorId: doctor2Id,
+              timeSlotId: slot.id,
+            },
+          });
+        }
       }
     }
   }
 
+  console.log('✅ Base de données alimentée avec succès : Créneaux générés sur 60 jours !');
   console.log('✅ Seeding terminé avec succès ! Les médecins ont des rendez-vous distincts.');
 }
 

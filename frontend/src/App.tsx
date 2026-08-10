@@ -24,6 +24,7 @@ import PatientManagement from './pages/admin-pages/patientManagement';
 import {DoctorProfile} from './pages/patient-pages/doctorProfile';
 import DoctorResearch from './pages/patient-pages/doctorResearch';
 import { AppointmentsList } from './pages/patient-pages/appointments';
+import DoctorPlanning from './pages/doctor-pages/planning';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -153,6 +154,7 @@ function AppContent() {
             path="/patient/medicalRecord/:medicalRecordId/add-consultation/:patientId" 
             element={<AddConsultation />} 
           />
+          <Route path="/doctor/planning" element={<DoctorPlanning />} />
         </Route>
 
         {/* --- AIDE-SOIGNANT UNIQUEMENT --- */}
