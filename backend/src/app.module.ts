@@ -12,9 +12,10 @@ import { ConsultationsModule } from './consultations/consultations.module';
 import { PrescriptionCatalogModule } from './prescription-catalog/prescription-catalog.module';
 import { BiometricsModule } from './biometrics/biometrics.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
-  imports: [InfrastructureModule, AuthModule, UsersModule, StaffModule, SpecialtyModule, ServiceModule, PatientsModule, ConsultationsModule, PrescriptionCatalogModule, BiometricsModule, AppointmentsModule],
+  imports: [InfrastructureModule, AuthModule, UsersModule, StaffModule, SpecialtyModule, ServiceModule, PatientsModule, ConsultationsModule, PrescriptionCatalogModule, BiometricsModule, AppointmentsModule, AiModule],
   controllers: [AppController],
   providers: [AppService],
 })

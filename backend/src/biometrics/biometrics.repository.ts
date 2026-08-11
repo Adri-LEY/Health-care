@@ -122,16 +122,34 @@ export class BiometricsRepository {
                 case 'BLOOD_GLUCOSE':
                     resultMap.bloodGlucose = val;     // Nouvelle propriété
                     break;
-                case 'BLOOD_PRESSURE_SYS':
+                case 'BLOOD_PRESSURE_SYSTOLIC':
                 case 'SYSTOLIC':
-                    sys = m.value;
+                    sys = isNaN(val) ? m.value : val;
                     break;
-                case 'BLOOD_PRESSURE_DIA':
+                case 'BLOOD_PRESSURE_DIASTOLIC':
                 case 'DIASTOLIC':
-                    dia = m.value;
+                    dia = isNaN(val) ? m.value : val;
                     break;
                 case 'BLOOD_PRESSURE':
-                    resultMap.bloodPressure = String(m.value);
+                    if(typeof m.value === 'string' && m.value.includes('/')) {
+                        resultMap.bloodPressure = String(m.value);
+
+                        // Découpage automatique si le format est "120/80"
+                        if (typeof m.value === 'string' && m.value.includes('/')) {
+                            const [parsedSys, parsedDia] = m.value.split('/');
+                            if (parsedSys && parsedDia) {
+                                sys = parsedSys.trim();
+                                dia = parsedDia.trim();
+                            }
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        resultMap.bloodPressure = isNaN(val) ? m.value : val;
+                    }
+                case 'CHOLESTEROL':
+                    resultMap.cholesterol = val;
                     break;
                 default:
                     const camelKey = m.type.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -142,6 +160,12 @@ export class BiometricsRepository {
 
         if (sys !== null && dia !== null) {
             resultMap.bloodPressure = `${sys}/${dia}`;
+            resultMap.systolic = sys;
+            resultMap.diastolic = dia;
+        } else if (sys !== null) {
+            resultMap.systolic = sys;
+        } else if (dia !== null) {
+            resultMap.diastolic = dia;
         }
 
         return JSON.stringify(resultMap);
@@ -190,6 +214,12 @@ export class BiometricsRepository {
                     gte: twoHoursAgo,
                 },
             },
+        });
+    }
+
+    async getBiometricMeasureById(id: number): Promise<BiometricMeasure | null> {
+        return await this.prisma.biometricMeasure.findUnique({
+            where: { id },
         });
     }
 }

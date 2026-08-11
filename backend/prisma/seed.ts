@@ -379,7 +379,36 @@ async function main() {
           },
         },
       },
-    }
+    },
+    {
+      firstName: 'Alexandre',
+      lastName: 'TestIA',
+      email: 'alex.testia@test.com',
+      phone: '+33612349999',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 52,
+          gender: 'M',
+          birthDate: new Date('1974-04-12'),
+          address: '10 Promenade des Anglais, Nice',
+          intern: false,
+          medicalRecord: {
+            create: {
+              poids: 82.0,
+              taille: 1.76,
+              bloodType: BloodType.A,
+              imc: Imc.OVERWEIGHT,
+              medical_history: 'Légère hypertension.',
+              family_history: 'Infarctus du myocarde paternel à 60 ans.',
+              allergies: 'Aucune',
+            },
+          },
+        },
+      },
+    },
   ];
 
   for (const patient of patientsData) {
@@ -957,7 +986,46 @@ async function main() {
           { type: MeasurementType.BLOOD_PRESSURE, value: 118, unit: 'mmHg', medicalRecordId: record.id, consultationId: c1.id, takenById: nurse1Id, takenAt: new Date('2026-01-10T11:00:00.000Z') }
         ]
       });
+    } else if (record.patient?.user.email === 'alex.testia@test.com') {
+      // Horodatage dynamique : il y a 30 minutes
+      const recentDate = new Date(Date.now() - 30 * 60 * 1000);
+
+      const cFresh = await prisma.consultation.create({
+        data: {
+          medicalRecordId: record.id,
+          date: recentDate,
+          visitReason: 'Bilan cardiovasculaire récent pour test IA',
+          observations: 'Constantes prises en salle d’attente il y a moins d’une heure.',
+          biometricMeasures: JSON.stringify({
+            temperature: 36.8,
+            heartRate: 82,
+            bloodPressure: '138/88',
+            weight: 82.0,
+            height: 1.76,
+            oxygenSaturation: 98,
+            bloodGlucose: 115,
+            cholesterol: 2.15
+          }),
+        }
+      });
+
+      // Insertion des mesures biométriques individuelles (moins de 2h)
+      await prisma.biometricMeasure.createMany({
+        data: [
+          { type: MeasurementType.WEIGHT, value: 82.0, unit: 'kg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.HEIGHT, value: 1.76, unit: 'm', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.BLOOD_PRESSURE_SYSTOLIC, value: 138, unit: 'mmHg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.BLOOD_PRESSURE_DIASTOLIC, value: 88, unit: 'mmHg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.BLOOD_PRESSURE, value: 138, unit: 'mmHg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.CHOLESTEROL, value: 2.15, unit: 'g/L', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.BLOOD_GLUCOSE, value: 115, unit: 'mg/dL', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.HEART_RATE, value: 82, unit: 'bpm', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.TEMPERATURE, value: 36.8, unit: '°C', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.OXYGEN_SATURATION, value: 98, unit: '%', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate }
+        ]
+      });
     }
+    
 
     console.log(` ✅ Consultation(s) générée(s) pour le dossier de : ${patientName}`);
   }

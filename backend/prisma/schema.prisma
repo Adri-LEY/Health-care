@@ -52,10 +52,13 @@ enum MeasurementType {
   TEMPERATURE
   HEART_RATE
   BLOOD_PRESSURE
+  BLOOD_PRESSURE_SYSTOLIC  
+  BLOOD_PRESSURE_DIASTOLIC 
   WEIGHT
   HEIGHT
   OXYGEN_SATURATION
   BLOOD_GLUCOSE
+  CHOLESTEROL
 }
 
 enum AppointmentStatus {
@@ -184,7 +187,11 @@ model Service {
 model BiometricMeasure {
   id              Int          @id @default(autoincrement())
   type            MeasurementType // Matches MeasurementType enum (WEIGHT, HEIGHT, BLOOD_PRESSURE...)
-  value           Float           // Numerical value (e.g., 70, 175, 37.5)
+  
+  value           Float?          
+  // Ajouter un champ texte optionnel pour les formats spéciaux (ex: "120/80")
+  stringValue     String?
+
   unit            String?         // Optional unit (e.g., "kg", "cm", "mmHg", "°C")
   takenAt         DateTime        @default(now())
 
