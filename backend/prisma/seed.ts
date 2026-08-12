@@ -1014,9 +1014,7 @@ async function main() {
         data: [
           { type: MeasurementType.WEIGHT, value: 82.0, unit: 'kg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
           { type: MeasurementType.HEIGHT, value: 1.76, unit: 'm', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
-          { type: MeasurementType.BLOOD_PRESSURE_SYSTOLIC, value: 138, unit: 'mmHg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
-          { type: MeasurementType.BLOOD_PRESSURE_DIASTOLIC, value: 88, unit: 'mmHg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
-          { type: MeasurementType.BLOOD_PRESSURE, value: 138, unit: 'mmHg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
+          { type: MeasurementType.BLOOD_PRESSURE, stringValue: '138/88', unit: 'mmHg', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
           { type: MeasurementType.CHOLESTEROL, value: 2.15, unit: 'g/L', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
           { type: MeasurementType.BLOOD_GLUCOSE, value: 115, unit: 'mg/dL', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },
           { type: MeasurementType.HEART_RATE, value: 82, unit: 'bpm', medicalRecordId: record.id, consultationId: cFresh.id, takenById: nurse1Id, takenAt: recentDate },

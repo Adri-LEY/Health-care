@@ -1,5 +1,6 @@
+import { RiskClass } from "@prisma/client/index-browser";
 import { Type } from "class-transformer";
-import { ArrayMinSize, IsArray, IsDate, IsDateString, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, Min, ValidateNested } from "class-validator";
+import { ArrayMinSize, IsArray, IsDate, IsDateString, IsEnum, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, Min, ValidateNested } from "class-validator";
 
 
 
@@ -45,6 +46,11 @@ export class BiometricMeasuresDto {
   @IsNumber({}, { message: 'La glycémie doit être un nombre (en g/L ou mmol/L).' })
   @Min(0, { message: 'La glycémie doit être positive.' })
   bloodGlucose?: number;
+
+    @IsOptional()
+    @IsNumber({}, { message: 'Le cholestérol doit être un nombre (en g/L ou mmol/L).' })
+    @Min(0, { message: 'Le cholestérol doit être positif.' })
+  cholesterol?: number;
 
   @IsOptional()
   @IsNumber({}, { message: 'Le périmètre crânien doit être un nombre (en cm).' })
@@ -99,6 +105,17 @@ export class PrescriptionDto {
     elements!: PrescriptionItemDto[];
 }
 
+export class AIPredictionResultDto {
+    @IsNumber({}, { message: 'Le score de risque doit être un nombre.' })
+    @IsNotEmpty({ message: 'Le score de risque est obligatoire.' })
+    riskScore!: number;
+    
+    @IsEnum(RiskClass, { message: 'La classe de risque doit être "Low", "Moderate" ou "High".' })    
+    riskClass!: RiskClass;
+
+    @IsString()
+    message!: string;
+}
 
 export class ConsultationSummaryDto {
 
@@ -121,4 +138,9 @@ export class ConsultationSummaryDto {
     @ValidateNested({ each: true })
     @Type(() => PrescriptionDto)
     prescription?: PrescriptionDto;
+
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() => AIPredictionResultDto)
+    aiPredictionResult?: AIPredictionResultDto;
 }

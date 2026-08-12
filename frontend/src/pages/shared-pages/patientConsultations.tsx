@@ -51,6 +51,7 @@ interface Biometrics {
     height?: number;
     oxygenSaturation?: number;
     bloodGlucose?: number;
+    cholesterol?: number;
 }
 
 interface ConsultationDetails {
@@ -130,6 +131,8 @@ export default function PatientConsultations() {
                 if (response.ok && json.data) {
                     setDetails(json.data);
                 }
+
+                console.log("Consultation details response:", json);
             } catch (err) {
                 console.error("Erreur lors de la récupération du détail", err);
             } finally {

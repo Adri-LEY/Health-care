@@ -6,13 +6,13 @@ import { JwtGuard } from 'src/auth/jwt.guard';
 import { UserStatusGuard } from 'src/auth/status.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 
-@UseGuards(JwtGuard, UserStatusGuard, RolesGuard) // Ajout du JwtGuard pour sécuriser les routes
+//@UseGuards(JwtGuard, UserStatusGuard, RolesGuard) // Ajout du JwtGuard pour sécuriser les routes
 @Controller('ai')
 export class AiController {
 
     constructor(private readonly aiService: AiService) {}
 
-    // @Roles('DOCTOR')
+    //@Roles('DOCTOR')
     @Post('/predict')
     async predict(@Body() predictionInputs: PredictionInputsDto): Promise<any> {
         const result = await this.aiService.predict(predictionInputs);

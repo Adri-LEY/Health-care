@@ -18,17 +18,22 @@ import { ErrorBox } from '../../components/ErrorBox';
 import { PrescriptionForm } from '../../components/consultations/PrescriptionForm';
 import type { ElementPrescriptionItem, CatalogItem } from '../../components/consultations/PrescriptionForm';
 import { MetricCard } from '../../components/MetricCard';
+import { AiPredictionSection } from '../../components/AI/AIPredictionSection';
+import type { AiPredictionResult } from '../../components/AI/AIPredictionSection';
 
 // Mappeur pour associer dynamiquement l'icône et l'intitulé selon le type Prisma
 const MEASURE_CONFIG: Record<string, { label: string; icon: React.ReactNode }> = {
   TEMPERATURE: { label: 'Température', icon: <Thermometer size={18} color="#f97316" /> },
   HEART_RATE: { label: 'Fréquence cardiaque', icon: <Heart size={18} color="#ef4444" /> },
+  // BLOOD_PRESSURE_SYSTOLIC: { label: 'Tension artérielle (SYS)', icon: <Activity size={18} color="#3b82f6" /> },
+  // BLOOD_PRESSURE_DIASTOLIC: { label: 'Tension artérielle (DIA)', icon: <Activity size={18} color="#3b82f6" /> },
   BLOOD_PRESSURE: { label: 'Tension artérielle', icon: <Activity size={18} color="#3b82f6" /> },
   WEIGHT: { label: 'Poids', icon: <Scale size={18} color="#8b5cf6" /> },
   HEIGHT: { label: 'Taille', icon: <Ruler size={18} color="#10b981" /> },
   OXYGEN_SATURATION: { label: 'SpO2', icon: <Percent size={18} color="#06b6d4" /> },
   BLOOD_GLUCOSE: { label: 'Glycémie', icon: <Droplet size={18} color="#eab308" /> },
 };
+
 
 export default function AddConsultation() {
   const { patientId } = useParams<{ patientId: string }>();
@@ -50,9 +55,12 @@ export default function AddConsultation() {
   const [equipmentsList, setEquipmentsList] = useState<CatalogItem[]>([]);
   const [caresList, setCaresList] = useState<CatalogItem[]>([]);
 
-  // 👈 NOUVEAU : Biométrie récente & Sélection
+  // Biométrie récente & Sélection
   const [recentBiometrics, setRecentBiometrics] = useState<any[]>([]);
   const [selectedMeasureIds, setSelectedMeasureIds] = useState<number[]>([]);
+
+  // Résultat de la prédiction AI
+  const [aiPredictionResult, setAiPredictionResult] = useState<AiPredictionResult | null>(null);
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -125,14 +133,40 @@ export default function AddConsultation() {
       return;
     }
 
+    const biometricMeasuresObj: Record<string, any> = {};
+
+    selectedMeasureIds.forEach(id => {
+      const measure = recentBiometrics.find(m => m.id === id);
+      if (!measure) return;
+
+      const val = measure.value !== undefined ? Number(measure.value) : measure.stringValue;
+
+      if (measure.type === 'TEMPERATURE') biometricMeasuresObj.temperature = val;
+      if (measure.type === 'HEART_RATE') biometricMeasuresObj.heartRate = val;
+      if (measure.type === 'BLOOD_PRESSURE') biometricMeasuresObj.bloodPressure = String(val);
+      if (measure.type === 'WEIGHT') biometricMeasuresObj.weight = val;
+      if (measure.type === 'HEIGHT') biometricMeasuresObj.height = val;
+      if (measure.type === 'OXYGEN_SATURATION') biometricMeasuresObj.oxygenSaturation = val;
+      if (measure.type === 'BLOOD_GLUCOSE') biometricMeasuresObj.bloodGlucose = val;
+    });
+
     // Construction du Payload enrichi
     const payload: any = {
-      medicalRecordId: patientData.medicalRecord.id,
+      medicalRecordId: Number(patientData.medicalRecord.id),
       date: new Date().toISOString(),
       visitReason,
       observations,
-      biometricMeasureIds: selectedMeasureIds, // 👈 Transmission des constantes rattachées !
+      biometricMeasures: biometricMeasuresObj, // <-- Envoie maintenant un objet {}
     };
+
+    // 3. Ajouter l'IA uniquement si elle existe (pas de null !)
+    if (aiPredictionResult) {
+      payload.aiPredictionResult = {
+        riskScore: Number(aiPredictionResult.riskScore),
+        riskClass: aiPredictionResult.riskClass,
+        message: aiPredictionResult.message ?? "",
+      };
+    }
 
     if (showPrescription && prescriptionItems.length > 0) {
       payload.prescription = {
@@ -149,6 +183,8 @@ export default function AddConsultation() {
     }
 
     try {
+      console.log("Payload envoyé pour la consultation :", payload);
+
       const response = await fetch(`${apiUrl}/consultations/save-consultation`, {
         method: 'POST',
         headers: {
@@ -161,6 +197,7 @@ export default function AddConsultation() {
       const json = await response.json();
 
       if (!response.ok) {
+
         setErrorMessages(json.message || "Une erreur inattendue est survenue.");
         return;
       }
@@ -175,7 +212,7 @@ export default function AddConsultation() {
         body: JSON.stringify({ biometricIds: selectedMeasureIds }),
       });
 
-      if(!response2.ok) {
+      if (!response2.ok) {
         setErrorMessages("Erreur lors de la liaison des constantes biométriques à la consultation.");
         return;
       }
@@ -257,7 +294,7 @@ export default function AddConsultation() {
                           <MetricCard
                             icon={config.icon}
                             label={config.label}
-                            value={m.value}
+                            value={m.value ?? m.stringValue ?? 'N/A'}
                             unit={m.unit}
                             className={styles.customMetricCard}
                           />
@@ -267,6 +304,13 @@ export default function AddConsultation() {
                   </div>
                 </div>
               )}
+
+              <AiPredictionSection
+                patientId={Number(patientId)}
+                recentBiometrics={recentBiometrics}
+                selectedMeasureIds={selectedMeasureIds}
+                onPredictionChange={setAiPredictionResult}
+              />
 
               <InputField
                 label="Motif de la visite"

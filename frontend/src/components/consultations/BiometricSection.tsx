@@ -19,6 +19,7 @@ export interface BiometricData {
     height?: number;
     oxygenSaturation?: number;
     bloodGlucose?: number;
+    cholesterol?: number;
 }
 
 interface BiometricSectionProps {
@@ -89,6 +90,15 @@ export default function BiometricSection({ biometrics }: BiometricSectionProps) 
                         icon={<Droplet className={styles.biometricIconGlucose} size={20} />}
                     />
                 )}
+                {biometrics.cholesterol && (
+                    <BiometricItem
+                        label="Cholestérol"
+                        value={biometrics.cholesterol}
+                        unit="mg/dL"
+                        icon={<Activity className={styles.biometricIconCholesterol} size={20} />}
+                    />
+                )}
+
             </div>
         </div>
     );

@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common/decorators/core/injectable.decorator"
 import { PrismaService } from "src/prisma/prisma.service";
 import { ConsultationSummaryDto } from "./dto/consultation.dto";
 import { ConflictException } from "@nestjs/common/exceptions/conflict.exception";
+import { RiskClass } from "@prisma/client";
 
 @Injectable()
 export default class ConsultationsRepository {
@@ -42,6 +43,8 @@ export default class ConsultationsRepository {
     }
 
     async saveNewConsultation(consultationSummaryDto: ConsultationSummaryDto) {
+        console.log("consultationSummaryDto.biometricMeasures:", consultationSummaryDto.biometricMeasures );
+
         return await this.prisma.consultation.create({
             data: {
                 date: consultationSummaryDto.date,
@@ -63,6 +66,14 @@ export default class ConsultationsRepository {
                                 careId: item.careId
                             }))
                         }
+                    }
+                } : undefined,
+                aiAnalysis: consultationSummaryDto.aiPredictionResult ? {
+                    create: {
+                        riskScore: consultationSummaryDto.aiPredictionResult.riskScore,
+                        riskClass: consultationSummaryDto.aiPredictionResult.riskClass as RiskClass,
+                        analysisDate: new Date(),
+                        message: consultationSummaryDto.aiPredictionResult.message
                     }
                 } : undefined
             },

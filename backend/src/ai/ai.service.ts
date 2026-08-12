@@ -101,7 +101,7 @@ export class AiService {
         console.log("Final inputData for prediction: ", inputData);
 
         //On effectue l'appel à l'API externe pour obtenir la prédiction
-        const apiUrl = process.env.AI_API_URL || 'http://localhost:8000/predict';
+        const apiUrl = process.env.AI_API_URL || 'http://ai-service:8000/predict';
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
@@ -110,7 +110,16 @@ export class AiService {
             body: JSON.stringify(inputData)
         });
 
-        return response.json();
+        if(!response.ok) {
+            const errorText = await response.text();
+            console.error(`Error from AI API: ${response.status} - ${errorText}`);
+            throw new Error(`Error from AI API: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log("Response from AI API: ", data);
+
+        return data;
     }
 
 }

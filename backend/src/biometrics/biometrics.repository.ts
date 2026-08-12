@@ -2,6 +2,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { CreateBiometricMeasuresDto, SingleMeasureDto } from "./dto/createBiometricMeasure.dto";
 import { BiometricMeasure, Imc, MeasurementType } from "@prisma/client";
 import { Injectable } from "@nestjs/common/decorators/core/injectable.decorator";
+import { BadRequestException } from "@nestjs/common/exceptions/bad-request.exception";
 
 @Injectable()
 export class BiometricsRepository {
@@ -23,13 +24,54 @@ export class BiometricsRepository {
         calculatedBmiCategory?: Imc | null,
         consultationId?: number,
     ) {
-        const measuresToCreate = measures.map((m) => ({
+
+        const processedMeasures: Array<{
+            type: MeasurementType;
+            value?: number;
+            stringValue?: string;
+            unit?: string;
+        }> = [];
+
+        for (const m of measures) {
+            if (m.type === MeasurementType.BLOOD_PRESSURE && m.stringValue) {
+                // Expression régulière pour extraire les deux nombres séparés par /
+                const match = m.stringValue.trim().match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
+
+                console.log(`Processing blood pressure: ${m.stringValue}, Match: ${match}`);
+
+                if (match) {
+                    const systolic = parseFloat(match[1]);
+                    const diastolic = parseFloat(match[2]);
+
+                    // On pousse la mesure Systolique
+                    processedMeasures.push({
+                        type: MeasurementType.BLOOD_PRESSURE_SYSTOLIC,
+                        value: systolic,
+                        unit: m.unit || 'mmHg',
+                    });
+
+                    // On pousse la mesure Diastolique
+                    processedMeasures.push({
+                        type: MeasurementType.BLOOD_PRESSURE_DIASTOLIC,
+                        value: diastolic,
+                        unit: m.unit || 'mmHg',
+                    });
+                }
+                else throw new BadRequestException(`format invalide: ${m.stringValue}. Format attendu: "systolic/diastolic"`);
+            }
+            processedMeasures.push(m);
+           
+        }
+
+        const measuresToCreate = processedMeasures.map((m) => ({
             type: m.type,
             value: m.value,
+            stringValue: m.stringValue,
             unit: m.unit,
             medicalRecordId,
             takenById: nurseAssistantUserId,
         }));
+
 
         return this.prisma.$transaction(async (tx) => {
             // 1. Enregistrement dans BiometricMeasure
@@ -51,7 +93,7 @@ export class BiometricsRepository {
 
             // 3. Liaison avec la Consultation (Sauvegarde en Tableau JSON)
             if (consultationId) {
-                const biometricsJson = JSON.stringify(measures); // <-- Tableau complet !
+                const biometricsJson = JSON.stringify(processedMeasures); // <-- Tableau complet !
 
                 await tx.consultation.update({
                     where: { id: consultationId },
@@ -61,7 +103,7 @@ export class BiometricsRepository {
                 });
             }
 
-            return { count: measures.length };
+            return { count: processedMeasures.length };
         });
     }
 
@@ -95,7 +137,7 @@ export class BiometricsRepository {
         });
     }
 
-    private mapArrayToConsultationJsonObject(measures: Array<{ type: string; value: any }>): string {
+    private mapArrayToConsultationJsonObject(measures: Array<{ type: string; value: any; stringValue?: string | null }>): string {
         const resultMap: Record<string, any> = {};
         let sys: number | string | null = null;
         let dia: number | string | null = null;
@@ -131,21 +173,23 @@ export class BiometricsRepository {
                     dia = isNaN(val) ? m.value : val;
                     break;
                 case 'BLOOD_PRESSURE':
-                    if(typeof m.value === 'string' && m.value.includes('/')) {
+                    if (!m.value && m.stringValue) {
                         resultMap.bloodPressure = String(m.value);
 
                         // Découpage automatique si le format est "120/80"
-                        if (typeof m.value === 'string' && m.value.includes('/')) {
-                            const [parsedSys, parsedDia] = m.value.split('/');
+                        if (typeof m.stringValue === 'string' && m.stringValue.includes('/')) {
+                            const [parsedSys, parsedDia] = m.stringValue.split('/');
                             if (parsedSys && parsedDia) {
                                 sys = parsedSys.trim();
                                 dia = parsedDia.trim();
+
+                                resultMap.systolic = isNaN(Number(sys)) ? sys : Number(sys);
+                                resultMap.diastolic = isNaN(Number(dia)) ? dia : Number(dia);
                             }
                         }
                         break;
                     }
-                    else
-                    {
+                    else {
                         resultMap.bloodPressure = isNaN(val) ? m.value : val;
                     }
                 case 'CHOLESTEROL':
@@ -183,6 +227,7 @@ export class BiometricsRepository {
             select: {
                 type: true,
                 value: true,
+                stringValue: true,
             },
         });
 
@@ -190,8 +235,12 @@ export class BiometricsRepository {
             return null;
         }
 
+        console.log("Retrieved measures for linking:", measures);
+
         // 2. Transformer le tableau [{type, value}] en chaîne JSON plat {"temperature": 36.6, ...}
         const biometricsJson = this.mapArrayToConsultationJsonObject(measures);
+
+        console.log("biometricsJson:", biometricsJson);
 
         // 3. Sauvegarder dans la Consultation
         return await this.prisma.consultation.update({
@@ -207,14 +256,22 @@ export class BiometricsRepository {
         const twoHoursAgo = new Date();
         twoHoursAgo.setHours(twoHoursAgo.getHours() - 2);
 
-        return await this.prisma.biometricMeasure.findMany({
+        console.log("biometricsData:", await this.prisma.biometricMeasure.findMany({}));
+        console.log("medicalRecordId:", medicalRecordId);
+
+        const result = await this.prisma.biometricMeasure.findMany({
             where: {
                 medicalRecordId: medicalRecordId,
                 takenAt: {
                     gte: twoHoursAgo,
                 },
+                type: {
+                    notIn: [MeasurementType.BLOOD_PRESSURE_SYSTOLIC, MeasurementType.BLOOD_PRESSURE_DIASTOLIC],
+                },
             },
         });
+
+        return result;
     }
 
     async getBiometricMeasureById(id: number): Promise<BiometricMeasure | null> {

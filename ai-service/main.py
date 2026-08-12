@@ -55,36 +55,39 @@ def predict(data: CardiovascularFeatures):
         return {"error": "Le modèle n'est pas chargé. Impossible de faire une prédiction."}
 
     try:
-        # L'ordre des éléments dans la liste DOIT être identique à celui du DataFrame
         features_array = np.array([[
-            data.age,
-            data.gender,
-            data.height,
-            data.weight,
-            data.ap_hi,
-            data.ap_lo,
-            data.cholesterol,
-            data.gluc,
-            data.smoke,
-            data.alco,
-            data.active
+            data.age, data.gender, data.height, data.weight,
+            data.ap_hi, data.ap_lo, data.cholesterol, data.gluc,
+            data.smoke, data.alco, data.active
         ]])
 
-        # 2. Normalisation automatique entre 0 et 1 via le Scaler
         scaled_features = scaler.transform(features_array)
-
-        # Prédiction (ex: 0 pour sain, 1 pour risque cardiovasculaire)
         prediction = model.predict(scaled_features)[0]
 
-        # Probabilité (si votre modèle le gère)
-        probabilities = None
+        # Récupération de la probabilité du risque (classe 1)
+        risk_percentage = 0.0
         if hasattr(model, "predict_proba"):
-            probabilities = model.predict_proba(scaled_features)[0].tolist()
+            probabilities = model.predict_proba(scaled_features)[0]
+            # probabilities[1] correspond au risque cardiovasculaire
+            risk_percentage = round(float(probabilities[1]) * 100, 2)
+
+        # Détermination de la classe et du message selon le pourcentage
+        if risk_percentage < 30:
+            risk_class = "Low"
+            message = "Le profil présente un risque cardiovasculaire faible. Conservez vos bonnes habitudes de vie."
+        elif risk_percentage < 70:
+            risk_class = "Moderate"
+            message = "Le profil présente un risque cardiovasculaire modéré. Une surveillance régulière et une amélioration de l'hygiène de vie sont recommandées."
+        else:
+            risk_class = "High"
+            message = "Le profil présente un risque cardiovasculaire élevé. Une consultation médicale approfondie est conseillée."
 
         return {
             "status": "success",
-            "cardio_prediction": int(prediction),
-            "probabilities": probabilities
+            "riskScore": risk_percentage, # ex: 49.14
+            "riskClass": risk_class,       # ex: "MODÉRÉ"
+            "message": message,
+            "raw_prediction": int(prediction)
         }
     
     except Exception as e:
