@@ -10,7 +10,7 @@ import { MedicalRecordAccessGuard } from 'src/auth/medicalRecordAccessGuard';
 import { ConsultationSummaryDto } from './dto/consultation.dto';
 
 @Controller('consultations')
-//@UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
+@UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
 export class ConsultationsController {
 
     constructor(private readonly consultationsService: ConsultationsService) {}

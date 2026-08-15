@@ -55,6 +55,7 @@ export class BiometricsService {
         // 4. Persistence via le Repository
         const hasWeightOrHeight = !!(weightMeasure || heightMeasure);
 
+        try {
         await this.biometricsRepository.createMeasuresAndUpdateRecord(
             dto.medicalRecordId,
             dto.measures,
@@ -62,7 +63,11 @@ export class BiometricsService {
             hasWeightOrHeight ? updatedWeight ?? undefined : undefined,
             hasWeightOrHeight ? updatedHeight ?? undefined : undefined,
             hasWeightOrHeight ? bmiCategory : undefined,
-        );
+        );}
+        catch (error) {
+            console.log('Error while creating measures and updating record:', error);
+            throw error; // Propagation de l'erreur pour un traitement ultérieur
+        }
 
         return { message: 'Biometric measures recorded successfully', count: dto.measures.length };
     }
@@ -117,6 +122,9 @@ export class BiometricsService {
      * @throws NotFoundException (HTTP 404) si le dossier médical n'est pas trouvé
      */
     async getRecentBiometricsWithinTwoHours(medicalRecordId: number) {
-        return this.biometricsRepository.getRecentBiometricsWithinTwoHoursForMedicalRecord(medicalRecordId);
+        const result = await this.biometricsRepository.getRecentBiometricsWithinTwoHoursForMedicalRecord(medicalRecordId);
+        console.log("result : ", result);
+        
+        return result;
     }
 }

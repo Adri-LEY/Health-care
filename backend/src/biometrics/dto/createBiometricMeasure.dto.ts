@@ -1,15 +1,23 @@
-import { IsEnum, IsNumber, IsOptional, IsString, IsNotEmpty, IsArray, ValidateNested, IsInt } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, IsNotEmpty, IsArray, ValidateNested, IsInt, ValidateIf } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MeasurementType } from '@prisma/client';
 
 export class SingleMeasureDto {
   @IsEnum(MeasurementType)
   @IsNotEmpty()
-  type!: MeasurementType; // ex: WEIGHT, HEIGHT, BLOOD_PRESSURE, TEMPERATURE...
+  type!: MeasurementType;
 
+  // Validé uniquement si stringValue n'est PAS renseigné
+  @ValidateIf((o) => o.stringValue === undefined || o.stringValue === null || o.stringValue === '')
   @IsNumber()
   @IsNotEmpty()
-  value!  : number;
+  value?: number;
+
+  // Validé uniquement si value n'est PAS renseigné
+  @ValidateIf((o) => o.value === undefined || o.value === null)
+  @IsString()
+  @IsNotEmpty()
+  stringValue?: string;
 
   @IsString()
   @IsOptional()

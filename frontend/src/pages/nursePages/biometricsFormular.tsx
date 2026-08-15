@@ -80,7 +80,7 @@ export function BiometricsFormular() {
         if (formData.bloodPressure) {
             measures.push({
                 type: 'BLOOD_PRESSURE',
-                value: parseFloat(formData.bloodPressure),
+                stringValue: formData.bloodPressure,
                 unit: 'mmHg'
             });
         }
@@ -158,7 +158,7 @@ export function BiometricsFormular() {
                 weight: '',
                 height: '',
                 oxygenSaturation: '',
-                bloodGlucose: ''
+                bloodGlucose: '',
             });
 
             new Promise(resolve => setTimeout(resolve, 2000)).then(() => {
@@ -211,9 +211,9 @@ export function BiometricsFormular() {
                         <InputField 
                             label="Tension artérielle (mmHg)" 
                             value={formData.bloodPressure} 
-                            type="number" 
+                            type="text" 
                             name="bloodPressure" 
-                            subtext="Ex: 120"
+                            subtext="Ex: 120/80"
                             icon={<Activity className={styles.iconPressure} size={18} />}
                             onChange={handleFieldChange('bloodPressure')} 
                         />

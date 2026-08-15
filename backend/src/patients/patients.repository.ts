@@ -21,7 +21,12 @@ export class PatientsRepository {
         });
     }
 
-    
+    getMedicalRecordByPatientId(patientId: number) {
+        return this.prisma.patient.findUnique({
+            where: { id: patientId },
+            select: { medicalRecord: true },
+        });
+    }
 
     assignDoctorToPatient(patientId: number, doctorId: number) {
         return this.prisma.patient.update({

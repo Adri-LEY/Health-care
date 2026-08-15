@@ -52,10 +52,13 @@ enum MeasurementType {
   TEMPERATURE
   HEART_RATE
   BLOOD_PRESSURE
+  BLOOD_PRESSURE_SYSTOLIC  
+  BLOOD_PRESSURE_DIASTOLIC 
   WEIGHT
   HEIGHT
   OXYGEN_SATURATION
   BLOOD_GLUCOSE
+  CHOLESTEROL
 }
 
 enum AppointmentStatus {
@@ -184,7 +187,11 @@ model Service {
 model BiometricMeasure {
   id              Int          @id @default(autoincrement())
   type            MeasurementType // Matches MeasurementType enum (WEIGHT, HEIGHT, BLOOD_PRESSURE...)
-  value           Float           // Numerical value (e.g., 70, 175, 37.5)
+  
+  value           Float?          
+  // Ajouter un champ texte optionnel pour les formats spéciaux (ex: "120/80")
+  stringValue     String?
+
   unit            String?         // Optional unit (e.g., "kg", "cm", "mmHg", "°C")
   takenAt         DateTime        @default(now())
 
@@ -234,8 +241,7 @@ model Consultation {
   medicalRecord       MedicalRecord          @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
 
   // Relation 1-to-1 optionnelle avec l'analyse IA (0..1)
-  aiAnalysisId        Int?                   @unique
-  aiAnalysis          CardiologyAiAnalysis?  @relation(fields: [aiAnalysisId], references: [id])
+  aiAnalysis CardiologyAiAnalysis?
 
   // Relation 1-to-1 optionnelle avec l'ordonnance (0..1)
   prescription        Prescription?
@@ -248,8 +254,8 @@ model CardiologyAiAnalysis {
   riskClass      RiskClass
   message        String
 
-  // Relation inverse requise par Prisma pour le 1-to-1
-  consultation   Consultation?
+  consultationId Int          @unique
+  consultation   Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
 }
 
 model Prescription {
