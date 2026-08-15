@@ -155,6 +155,19 @@ export class AppointmentsRepository {
         return appointmentExists !== null;
     }
 
+    async isTimeSlotBookedForDoctor(doctorId: number, timeSlotId: number) {
+        const appointment = await this.prisma.appointment.findFirst({
+            where: {
+                doctorId,
+                timeSlotId,
+                status: { in: ['SCHEDULED', 'CONFIRMED'] },
+            },
+            select: { id: true },
+        });
+
+        return appointment !== null;
+    }
+
     async createAppointment(patientId: number, appointmentDTO: AppointmentDto) {
         const timeSlot = await this.prisma.timeSlot.findUnique({
             where: { id: appointmentDTO.timeSlotId },

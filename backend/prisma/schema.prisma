@@ -343,4 +343,6 @@ model Appointment {
   // Relation avec le Créneau (TimeSlot) - 0..* vers 1
   timeSlotId    Int
   timeSlot      TimeSlot          @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
+
+  @@unique([timeSlotId])
 }

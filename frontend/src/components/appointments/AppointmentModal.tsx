@@ -74,7 +74,14 @@ export function AppointmentModal({
                         onClick={onConfirm}
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Réservation...' : 'Confirmer'}
+                        {isLoading ? (
+                            <span className={styles.loadingContent}>
+                                <span className={styles.spinner} aria-hidden="true" />
+                                Réservation...
+                            </span>
+                        ) : (
+                            'Confirmer'
+                        )}
                     </button>
                 </div>
             </div>

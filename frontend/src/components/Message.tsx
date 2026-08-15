@@ -11,6 +11,7 @@ export interface MessageProps {
   buttonColor?: string;      // Optionnel : couleur du bouton
   autoCloseDuration?: number; // Optionnel : fermeture auto après X ms (ex: 5000)
   icon?: React.ReactNode;     // Optionnel : icône personnalisée
+  iconWrapperColor?: string;  // Optionnel : couleur du conteneur de l'icône
   onClose: () => void;
   onAction?: () => void;     // Optionnel : action supplémentaire à exécuter lors du clic sur le bouton
 }
@@ -24,6 +25,7 @@ export function Message({
   buttonColor,
   autoCloseDuration,
   icon,
+  iconWrapperColor,
   onClose,
   onAction
 }: MessageProps) {
@@ -44,7 +46,7 @@ export function Message({
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.card} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.iconWrapper}>
+        <div className={styles.iconWrapper} style={{ backgroundColor: iconWrapperColor }}>
           {icon || <Check size={32} strokeWidth={2.5} />}
         </div>
 
