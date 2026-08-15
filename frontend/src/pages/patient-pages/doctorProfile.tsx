@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { DoctorAvailabilities } from '../../components/DoctorPlanning/DoctorAvailabilities';
 import { DoctorCard, type DoctorProfileData } from '../../components/DoctorPlanning/DoctorCard';
 import styles from './doctorProfile.module.css';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Cross, XCircle } from 'lucide-react';
 import { AppointmentModal } from '../../components/appointments/AppointmentModal';
 import { Message } from '../../components/Message';
 
@@ -22,7 +22,10 @@ export function DoctorProfile() {
 
     const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
     const [successMessageOpen, setSuccessMessageOpen] = useState(false);
+    const [isAppointmentSubmitting, setIsAppointmentSubmitting] = useState(false);
+
     const [errorMessageOpen, setErrorMessageOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
     const navigate = useNavigate();
@@ -48,6 +51,9 @@ export function DoctorProfile() {
     };
 
     const createAppointment = async (doctorId: number, timeSlotId: number) => {
+        setIsAppointmentSubmitting(true);
+        setErrorMessageOpen(false);
+
         try {
             const response = await fetch(`${apiUrl}/appointments/create-appointment`, {
                 method: 'POST',
@@ -59,13 +65,41 @@ export function DoctorProfile() {
             });
 
             if (response.ok) {
+                setAppointmentModalOpen(false);
                 setSuccessMessageOpen(true);
-            } else {
-                setErrorMessageOpen(true);
+                return;
             }
+
+            let backendMessage = 'Ce créneau n\'est plus disponible.';
+
+            try {
+                const payload = await response.json();
+                backendMessage = payload?.message || backendMessage;
+            } catch {
+                // ignore JSON parse errors and keep default message
+            }
+
+            setErrorMessageOpen(true);
+
+            if (response.status === 400) {
+                setAppointmentModalOpen(false);
+                setErrorMessage('Vous avez déjà un rendez-vous pour ce créneau horaire.');
+                return;
+            }
+
+            if (response.status === 409) {
+                setAppointmentModalOpen(false);
+                setErrorMessage('Ce créneau a déjà été réservé par un autre patient.');
+                return;
+            }
+
+            setErrorMessage(backendMessage || `Erreur lors de la création du rendez-vous. Statut : ${response.status}`);
         } catch (error) {
             console.error('Error creating appointment:', error);
             setErrorMessageOpen(true);
+            setErrorMessage('Une erreur est survenue lors de la confirmation de votre rendez-vous. Veuillez réessayer.');
+        } finally {
+            setIsAppointmentSubmitting(false);
         }
     };
 
@@ -102,7 +136,7 @@ export function DoctorProfile() {
             console.log(`Fetching availabilities for doctor ${parsedId} for week starting on ${formattedDate}`);
             getDoctorAvailabilities(parsedId, formattedDate);
         }
-    }, [doctorId, currentMonday, successMessageOpen]);
+    }, [doctorId, currentMonday, successMessageOpen, errorMessageOpen]); // Recharger après un RDV confirmé ou une erreur
 
     return (
         <div className={styles.pageWrapper}>
@@ -141,10 +175,14 @@ export function DoctorProfile() {
                 endTime={selectedSlot ? new Date(selectedSlot.endTime) : new Date()}
                 doctorName={doctorData?.staff?.user?.firstName && doctorData?.staff?.user?.lastName ? `${doctorData.staff.user.firstName} ${doctorData.staff.user.lastName}` : undefined}
                 specialtyName={doctorData?.specialty?.specialtyName}
-                onClose={() => setAppointmentModalOpen(false)}
-                onConfirm={() => {
-                    createAppointment(doctorData?.id || 0, selectedSlot?.id || 0);
+                isLoading={isAppointmentSubmitting}
+                onClose={() => {
+                    if (isAppointmentSubmitting) return;
                     setAppointmentModalOpen(false);
+                }}
+                onConfirm={() => {
+                    if (isAppointmentSubmitting || !selectedSlot) return;
+                    void createAppointment(doctorData?.id || 0, selectedSlot.id);
                 }}
             />
 
@@ -158,8 +196,10 @@ export function DoctorProfile() {
 
             <Message
                 isOpen={errorMessageOpen}
+                icon={<XCircle color="red" size={24} />}
+                iconWrapperColor="rgba(255, 0, 0, 0.1)"
                 title="Erreur lors de la confirmation"
-                message="Une erreur est survenue lors de la confirmation de votre rendez-vous. Veuillez réessayer."
+                message={errorMessage || "Une erreur est survenue lors de la confirmation de votre rendez-vous. Veuillez réessayer."}
                 buttonText="OK"
                 onClose={() => setErrorMessageOpen(false)}
             />

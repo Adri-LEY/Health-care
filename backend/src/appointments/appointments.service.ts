@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { AppointmentsRepository } from './appointments.repository';
 import { AppointmentDto } from './dto/appointment.dto';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -41,11 +42,6 @@ export class AppointmentsService {
      * @returns The created appointment.
      */
     async createAppointment(userId: number, patientId: number, appointmentDTO: AppointmentDto) {
-        const appointmentExists = await this.appointmentsRepository.appointmentExists(patientId, appointmentDTO);
-        if (appointmentExists) {
-            throw new UnauthorizedException("Appointment already exists");
-        }
-
         const user = await this.usersRepository.findUserById(userId);
 
         if (!user) {
@@ -53,29 +49,42 @@ export class AppointmentsService {
         }
         const email = user.email;
 
-        const appointment = await this.appointmentsRepository.createAppointment(patientId, appointmentDTO);
+        let appointment;
+
+        try {
+            appointment = await this.appointmentsRepository.createAppointment(patientId, appointmentDTO);
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+                const isSamePatient = await this.appointmentsRepository.appointmentExists(patientId, appointmentDTO);
+                if (isSamePatient) {
+                    throw new BadRequestException('Vous avez déjà un rendez-vous pour ce créneau horaire.');
+                }
+
+                throw new ConflictException('Ce créneau a déjà été réservé par un autre patient.');
+            }
+
+            throw error;
+        }
 
         if (appointment && email) {
-            try {
-                await this.mailerService.sendMail({
-                    to: email,
-                    subject: 'Confirmation de rendez-vous',
-                    html: `<p>Bonjour ${user.firstName},</p>
-                       <p>Votre rendez-vous a été confirmé avec succès.</p>
-                       <p>Détails du rendez-vous :</p>
-                          <ul>
-                                <li>Médecin : ${appointment.doctor.staff.user.firstName} ${appointment.doctor.staff.user.lastName}</li>
-                                <li>Spécialité : ${appointment.doctor.specialty.specialtyName}</li>
-                                <li>Date : ${new Date(appointment.dateTime).toLocaleDateString()}</li>
-                                <li>Heure : ${new Date(appointment.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</li>
-                          </ul>
-                          <p>Merci de votre confiance.</p>
-                          <p>Cordialement,</p>
-                            <p>L'équipe de la clinique</p>`,
-                });
-            } catch (error) {
+            void this.mailerService.sendMail({
+                to: email,
+                subject: 'Confirmation de rendez-vous',
+                html: `<p>Bonjour ${user.firstName},</p>
+                   <p>Votre rendez-vous a été confirmé avec succès.</p>
+                   <p>Détails du rendez-vous :</p>
+                      <ul>
+                            <li>Médecin : ${appointment.doctor.staff.user.firstName} ${appointment.doctor.staff.user.lastName}</li>
+                            <li>Spécialité : ${appointment.doctor.specialty.specialtyName}</li>
+                            <li>Date : ${new Date(appointment.dateTime).toLocaleDateString()}</li>
+                            <li>Heure : ${new Date(appointment.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</li>
+                      </ul>
+                      <p>Merci de votre confiance.</p>
+                      <p>Cordialement,</p>
+                        <p>L'équipe de la clinique</p>`,
+            }).catch((error) => {
                 console.error("Error sending confirmation email:", error);
-            }
+            });
 
             return appointment;
         }
