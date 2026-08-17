@@ -89,6 +89,10 @@ export class ChatbotService {
         return contextJson;
     }
 
+    async createNewChat(userId: number) {
+        await this.generateChat(userId);
+    }
+
     async sendMessage(userId: number, message: string): Promise<string> {
         let chat = this.chats.get(userId);
 

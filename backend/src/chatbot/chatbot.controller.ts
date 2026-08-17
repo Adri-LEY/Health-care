@@ -15,6 +15,16 @@ export class ChatbotController {
 
 
     @Roles('PATIENT')
+    @Post('/new-chat')
+    async createNewChat(
+        @Req() req
+    ) {
+        const userId = (req as any).user?.id;
+
+        await this.chatbotService.createNewChat(userId);
+    }
+
+    @Roles('PATIENT')
     @Post('/send-message')
     async sendMessage(
         @Req() req,
