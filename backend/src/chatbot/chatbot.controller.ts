@@ -22,6 +22,11 @@ export class ChatbotController {
         const userId = (req as any).user?.id;
 
         await this.chatbotService.createNewChat(userId);
+
+        return {
+            success: true,
+            message: 'New chat created successfully',
+        }
     }
 
     @Roles('PATIENT')
@@ -40,7 +45,7 @@ export class ChatbotController {
         return {
             success: true,
             message: message,
-            responseGemini: response,
+            response: response,
         }
     }
 }

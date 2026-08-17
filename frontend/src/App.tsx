@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Login from './pages/auth/Login';
 import Dashboard from './pages/dashboards/Dashboard';
 import Header from './components/Header';
@@ -25,6 +26,8 @@ import {DoctorProfile} from './pages/patient-pages/doctorProfile';
 import DoctorResearch from './pages/patient-pages/doctorResearch';
 import { AppointmentsList } from './pages/patient-pages/appointments';
 import DoctorPlanning from './pages/doctor-pages/planning';
+import { PatientLayout } from './components/chatbot/PatientLayout';
+import { ChatWidget } from './components/chatbot/ChatWidget';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -111,6 +114,31 @@ const AllowedRolesRoute = ({ allowedRoles }: { allowedRoles: string[] }) => {
 };
 
 function AppContent() {
+  const location = useLocation();
+  const [isPatient, setIsPatient] = useState(() => {
+    const userString = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    const user = userString ? JSON.parse(userString) : null;
+    return token && user?.role === 'PATIENT';
+  });
+
+  useEffect(() => {
+    const checkPatient = () => {
+      const userString = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      const user = userString ? JSON.parse(userString) : null;
+      setIsPatient(token && user?.role === 'PATIENT');
+    };
+
+    // Vérifier à chaque changement de route
+    checkPatient();
+
+    // Écouter les changements du localStorage (utile pour les autres onglets)
+    window.addEventListener('storage', checkPatient);
+
+    return () => window.removeEventListener('storage', checkPatient);
+  }, [location.pathname]);
+
   return (
     <>
       <Header />
@@ -141,9 +169,11 @@ function AppContent() {
 
         {/* --- PATIENT --- */}
         <Route element={<AllowedRolesRoute allowedRoles={['PATIENT']} />}>
-          <Route path="/patient" element={<PatientMenu />} />
-          <Route path="/doctor/:doctorId/profile" element={<DoctorProfile />} />
-          <Route path="/my-appointments" element={<AppointmentsList />} />
+          <Route element={<PatientLayout />}>
+            <Route path="/patient" element={<PatientMenu />} />
+            <Route path="/doctor/:doctorId/profile" element={<DoctorProfile />} />
+            <Route path="/my-appointments" element={<AppointmentsList />} />
+          </Route>
         </Route>
 
         {/* --- MÉDECIN UNIQUEMENT --- */}
@@ -177,6 +207,8 @@ function AppContent() {
           <Route path="/doctorResearch" element={<DoctorResearch />} />
         </Route>
       </Routes>
+
+      {isPatient && <ChatWidget />}
     </>
   );
 }
