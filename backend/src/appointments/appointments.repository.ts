@@ -27,8 +27,8 @@ export class AppointmentsRepository {
         const now = new Date();
         const localNow = new Date(now.getTime() + (1 * 60 * 60 * 1000));
 
-        console.log("now", now);
-        console.log("localNow", localNow);
+        //console.log("now", now);
+        //console.log("localNow", localNow);
 
         // 4. Requête Prisma : Récupérer les créneaux de la semaine
         const timeSlots = await this.prisma.timeSlot.findMany({
@@ -64,7 +64,7 @@ export class AppointmentsRepository {
             },
         });
 
-        console.log(`Time slots for doctor ${doctorId} between ${startOfWeek.toISOString()} and ${endOfWeek.toISOString()}:`, timeSlots);
+        //console.log(`Time slots for doctor ${doctorId} between ${startOfWeek.toISOString()} and ${endOfWeek.toISOString()}:`, timeSlots);
 
         // 5. Renvoyer le résultat enrichi des dates de début et fin de semaine
         return {
@@ -303,5 +303,52 @@ export class AppointmentsRepository {
                 status: isPresent === true ? AppointmentStatus.CONFIRMED : AppointmentStatus.MISSED
             },
         });
+    }
+
+    async getAllDoctorsInformation() {
+        let response= {};
+
+        const doctors = await this.prisma.doctor.findMany({
+            select: {
+                id: true,
+                staff: {
+                    select: {
+                        user: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                                email: true,
+                                phone: true,
+                            },
+                        },
+                    },
+                },
+                specialty: {
+                    select: {
+                        specialtyName: true,
+                    },
+                },
+            },
+        });
+
+
+        for (const doctor of doctors) {
+            const availabilities = await this.getDoctorAvailabilities(doctor.id);
+
+            response[doctor.id] = {
+                doctorId: doctor.id,
+                firstName: doctor.staff.user.firstName,
+                lastName: doctor.staff.user.lastName,
+                email: doctor.staff.user.email,
+                phone: doctor.staff.user.phone,
+                specialty: doctor.specialty.specialtyName,
+                availabilities: availabilities.timeSlots || [],
+            };
+        }
+
+        console.log("All doctors information with availabilities:", response);
+
+        return response;
     }
 }
