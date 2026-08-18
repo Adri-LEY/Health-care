@@ -351,4 +351,57 @@ export class AppointmentsRepository {
 
         return response;
     }
+
+
+    async getAppointmentsStats() {
+        const overallStats = await this.prisma.$queryRaw<any[]>`
+            SELECT
+                COUNT(*)::int AS "totalAppointments",
+                COUNT(*) FILTER (WHERE status = 'SCHEDULED')::int AS "scheduledAppointments",
+                COUNT(*) FILTER (WHERE status = 'CONFIRMED')::int AS "confirmedAppointments",
+                COUNT(*) FILTER (WHERE status = 'CANCELLED')::int AS "cancelledAppointments",
+                COUNT(*) FILTER (WHERE status = 'MISSED')::int AS "missedAppointments"
+            FROM "Appointment";
+        `;
+
+        const specialtyStats = await this.prisma.$queryRaw<any[]>`
+            SELECT
+                s."specialtyName" AS "specialtyName",
+                COUNT(a.id)::int AS "totalAppointments",
+                COUNT(*) FILTER (WHERE a.status = 'SCHEDULED')::int AS "scheduledAppointments",
+                COUNT(*) FILTER (WHERE a.status = 'CONFIRMED')::int AS "confirmedAppointments",
+                COUNT(*) FILTER (WHERE a.status = 'CANCELLED')::int AS "cancelledAppointments",
+                COUNT(*) FILTER (WHERE a.status = 'MISSED')::int AS "missedAppointments"
+            FROM "Appointment" a
+            INNER JOIN "Doctor" d ON d.id = a."doctorId"
+            INNER JOIN "Specialty" s ON s.id = d."specialtyId"
+            GROUP BY s."specialtyName"
+            ORDER BY s."specialtyName" ASC;
+        `;
+
+        const evolution = await this.prisma.$queryRaw<any[]>`
+            SELECT
+                to_char(date_trunc('month', "dateTime"), 'Month') AS "month",
+                COUNT(*)::int AS "count"
+            FROM "Appointment"
+            WHERE "dateTime" >= NOW() - INTERVAL '12 months'
+            GROUP BY date_trunc('month', "dateTime")
+            ORDER BY date_trunc('month', "dateTime") ASC;
+        `;
+
+        return {
+            ...(overallStats[0] ?? {
+                totalAppointments: 0,
+                scheduledAppointments: 0,
+                confirmedAppointments: 0,
+                cancelledAppointments: 0,
+                missedAppointments: 0,
+            }),
+            specialtyStats,
+            evolution: evolution.map((entry) => ({
+                month: entry.month.trim(),
+                count: Number(entry.count),
+            })),
+        };
+    }
 }

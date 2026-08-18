@@ -14,9 +14,10 @@ import { BiometricsModule } from './biometrics/biometrics.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { AiModule } from './ai/ai.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
-  imports: [InfrastructureModule, AuthModule, UsersModule, StaffModule, SpecialtyModule, ServiceModule, PatientsModule, ConsultationsModule, PrescriptionCatalogModule, BiometricsModule, AppointmentsModule, AiModule, ChatbotModule],
+  imports: [InfrastructureModule, AuthModule, UsersModule, StaffModule, SpecialtyModule, ServiceModule, PatientsModule, ConsultationsModule, PrescriptionCatalogModule, BiometricsModule, AppointmentsModule, AiModule, ChatbotModule, StatisticsModule],
   controllers: [AppController],
   providers: [AppService],
 })

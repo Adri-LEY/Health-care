@@ -199,6 +199,35 @@ export class StaffRepository {
     });
   }
 
+  async getStaffStats() {
+    const globalResult = await this.prisma.$queryRaw<any[]>`
+      SELECT
+        (SELECT COUNT(*) FROM "User" WHERE "role" IN ('DOCTOR', 'NURSE_ASSISTANT', 'ADMINISTRATOR')) AS "totalStaff",
+        (SELECT COUNT(*) FROM "User" WHERE "role" = 'DOCTOR') AS "doctors",
+        (SELECT COUNT(*) FROM "User" WHERE "role" = 'NURSE_ASSISTANT') AS "nurses",
+        (SELECT COUNT(*) FROM "User" WHERE "role" = 'ADMINISTRATOR') AS "administrators"
+    `;
 
+    const groupedBySpecialtyResult = await this.prisma.$queryRaw<any[]>`
+      SELECT
+        s."specialtyName",
+        COUNT(d."id") AS "doctorCount"
+      FROM "Doctor" d
+      JOIN "Specialty" s ON d."specialtyId" = s."id"
+      GROUP BY s."specialtyName"
+      ORDER BY "doctorCount" DESC;
+    `;
 
+    return {
+      totalStaff: Number(globalResult[0]?.totalStaff ?? 0),
+      doctors: Number(globalResult[0]?.doctors ?? 0),
+      nurses: Number(globalResult[0]?.nurses ?? 0),
+      administrators: Number(globalResult[0]?.administrators ?? 0),
+      
+      groupedBySpecialty: groupedBySpecialtyResult.map((item) => ({
+        ...item,
+        doctorCount: Number(item.doctorCount),
+      })),
+    };
+  }
 }
