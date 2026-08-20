@@ -13,6 +13,8 @@ type PatientsStatsQuery = {
     over60: bigint;
     male: bigint;
     female: bigint;
+    intern: bigint;
+    extern: bigint;
 };
 
 @Injectable()
@@ -53,7 +55,11 @@ export class PatientsRepository {
 
             -- Gender groups
             COUNT(*) FILTER (WHERE gender = 'M') AS male,
-            COUNT(*) FILTER (WHERE gender = 'F') AS female
+            COUNT(*) FILTER (WHERE gender = 'F') AS female,
+
+            -- Intern/Extern group
+            COUNT(*) FILTER (WHERE intern = true) AS intern,
+            COUNT(*) FILTER (WHERE intern = false) AS extern
 
         FROM "Patient";
     `;

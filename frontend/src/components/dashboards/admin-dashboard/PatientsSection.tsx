@@ -29,7 +29,13 @@ const PatientsSection = ({ data }: { data: any }) => {
     { name: "Femmes", value: data?.groupedByGender?.female || 0 },
   ];
 
+  const internExternData = [
+    { name: "Internes", value: data?.groupedByInternExtern?.intern || 0 },
+    { name: "Externes", value: data?.groupedByInternExtern?.extern || 0 },
+  ];
+
   const genderColors = ["#4F46E5", "#EC4899"];
+  const internExternColors = ["#10B981", "#F59E0B"];
 
   return (
     <section className={styles["patients-section"]}>
@@ -89,6 +95,31 @@ const PatientsSection = ({ data }: { data: any }) => {
               >
                 {genderData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={genderColors[index]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend verticalAlign="bottom" height={36} iconType="circle" />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+
+        {/* Graphique interne/externe */}
+        <div className={styles["patients-chart"]}>
+          <h3>Répartition interne/externe</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={internExternData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="45%"
+                outerRadius={65}
+                innerRadius={35}
+              >
+                {internExternData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={internExternColors[index]} />
                 ))}
               </Pie>
               <Tooltip />

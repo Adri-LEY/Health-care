@@ -28,6 +28,10 @@ export class StatisticsService {
                 male: Number(result[0].male),
                 female: Number(result[0].female),
             },
+            groupedByInternExtern: {
+                intern: Number(result[0].intern),
+                extern: Number(result[0].extern),
+            },
         };
     }
 

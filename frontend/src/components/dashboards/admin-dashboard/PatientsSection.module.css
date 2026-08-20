@@ -44,7 +44,7 @@
 
 .patients-content {
   display: grid;
-  grid-template-columns: 120px 1px 1fr 1fr;
+  grid-template-columns: 120px 1px 1fr 1fr 1fr; 
   gap: 16px;
   align-items: center;
 }
