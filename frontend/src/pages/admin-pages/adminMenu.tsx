@@ -12,13 +12,19 @@ export default function AdminMenu() {
           La connexion a réussi. Cet espace contiendra bientôt vos outils de santé spécifiques.
         </p>
 
-        <button type="button" className={styles.button} onClick={() => navigate('/admin/staffList')}>
-          Gérer le personnel
-        </button>
+        <div className={styles.actions}>
+          <button type="button" className={styles.button} onClick={() => navigate('/admin/staffList')}>
+            Gérer le personnel
+          </button>
 
-        <button type="button" className={styles.button} onClick={() => navigate('/patientResearch')}>
-          Rechercher un patient
-        </button>
+          <button type="button" className={styles.button} onClick={() => navigate('/patientResearch')}>
+            Rechercher un patient
+          </button>
+
+          <button type="button" className={styles.button} onClick={() => navigate('/admin/dashboard')}>
+            Consulter les statistiques
+          </button>
+        </div>
       </section>
     </main>
   );

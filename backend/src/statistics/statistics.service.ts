@@ -53,6 +53,7 @@ export class StatisticsService {
             totalStaff: Number(result.totalStaff),
             totalDoctors: Number(result.doctors),
             totalNurseAssistants: Number(result.nurses),
+            totalAdministrators: Number(result.administrators),
             groupedBySpecialty: result.groupedBySpecialty,
         };
     }

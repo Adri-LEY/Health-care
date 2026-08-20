@@ -28,6 +28,7 @@ import { AppointmentsList } from './pages/patient-pages/appointments';
 import DoctorPlanning from './pages/doctor-pages/planning';
 import { PatientLayout } from './components/chatbot/PatientLayout';
 import { ChatWidget } from './components/chatbot/ChatWidget';
+import AdminDashboard from './pages/admin-pages/dashboard';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -165,6 +166,7 @@ function AppContent() {
           <Route path="/admin/staffList" element={<StaffList />} />
           <Route path="/admin/addStaff" element={<AddStaff />} />
           <Route path="/admin/patientManagement/:patientId" element={<PatientManagement />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Route>
 
         {/* --- PATIENT --- */}

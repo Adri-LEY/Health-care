@@ -102,6 +102,15 @@ async function main() {
   const generalMedicine = await prisma.specialty.create({
     data: { specialtyName: 'Médecine Générale' },
   });
+  const dermatology = await prisma.specialty.create({
+    data: { specialtyName: 'Dermatologie' },
+  });
+  const pediatrics = await prisma.specialty.create({
+    data: { specialtyName: 'Pédiatrie' },
+  });
+  const neurology = await prisma.specialty.create({
+    data: { specialtyName: 'Neurologie' },
+  });
 
   const urgencesService = await prisma.service.create({
     data: { serviceName: 'Urgences' },
@@ -466,6 +475,145 @@ async function main() {
       },
     },
     include: { medicalStaff: { include: { doctor: true } } }
+  });
+
+  await prisma.user.create({
+    data: {
+      firstName: 'Camille',
+      lastName: 'Bernard',
+      email: 'camille.bernard@test.com',
+      phone: '+33632345678',
+      password: hashedPassword,
+      role: Role.DOCTOR,
+      userStatus: UserStatus.ACTIVE,
+      medicalStaff: {
+        create: {
+          staffNumber: 8879,
+          doctor: {
+            create: {
+              registrationId: 'MED-REG-556',
+              specialtyId: dermatology.id,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      firstName: 'Nadia',
+      lastName: 'Lefevre',
+      email: 'nadia.lefevre@test.com',
+      phone: '+33642345678',
+      password: hashedPassword,
+      role: Role.DOCTOR,
+      userStatus: UserStatus.ACTIVE,
+      medicalStaff: {
+        create: {
+          staffNumber: 8880,
+          doctor: {
+            create: {
+              registrationId: 'MED-REG-557',
+              specialtyId: pediatrics.id,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      firstName: 'Thomas',
+      lastName: 'Roche',
+      email: 'thomas.roche@test.com',
+      phone: '+33652345678',
+      password: hashedPassword,
+      role: Role.DOCTOR,
+      userStatus: UserStatus.ACTIVE,
+      medicalStaff: {
+        create: {
+          staffNumber: 8881,
+          doctor: {
+            create: {
+              registrationId: 'MED-REG-558',
+              specialtyId: neurology.id,
+            },
+          },
+        },
+      },
+    },
+  });
+
+
+  await prisma.user.create({
+    data: {
+      firstName: 'Thomas',
+      lastName: 'Hulot',
+      email: 'thomas.hulot@test.com',
+      phone: '+33874612345',
+      password: hashedPassword,
+      role: Role.DOCTOR,
+      userStatus: UserStatus.ACTIVE,
+      medicalStaff: {
+        create: {
+          staffNumber: 8882,
+          doctor: {
+            create: {
+              registrationId: 'MED-REG-598',
+              specialtyId: cardiology.id,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      firstName: 'Louis',
+      lastName: 'Thonet',
+      email: 'louis.thonet@test.com',
+      phone: '+33685123456',
+      password: hashedPassword,
+      role: Role.DOCTOR,
+      userStatus: UserStatus.ACTIVE,
+      medicalStaff: {
+        create: {
+          staffNumber: 8883,
+          doctor: {
+            create: {
+              registrationId: 'MED-REG-715',
+              specialtyId: cardiology.id,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      firstName: 'Georges',
+      lastName: 'Pierre',
+      email: 'georges.pierre@test.com',
+      phone: '+33685123456',
+      password: hashedPassword,
+      role: Role.DOCTOR,
+      userStatus: UserStatus.ACTIVE,
+      medicalStaff: {
+        create: {
+          staffNumber: 8884,
+          doctor: {
+            create: {
+              registrationId: 'MED-REG-775',
+              specialtyId: generalMedicine.id,
+            },
+          },
+        },
+      },
+    },
   });
 
   const doctor1Id = doctor1User.medicalStaff?.doctor?.id;
