@@ -43,7 +43,7 @@ export default class ConsultationsRepository {
     }
 
     async saveNewConsultation(consultationSummaryDto: ConsultationSummaryDto) {
-        console.log("consultationSummaryDto.biometricMeasures:", consultationSummaryDto.biometricMeasures );
+        console.log("consultationSummaryDto.biometricMeasures:", consultationSummaryDto.biometricMeasures);
 
         return await this.prisma.consultation.create({
             data: {
@@ -79,8 +79,70 @@ export default class ConsultationsRepository {
             },
             select: {
                 id: true,
-                date: true, 
+                date: true,
             }
         });
+    }
+
+    async getConsultationsStatsEvolution(doctorId: number) {
+        const consultationsStats = await this.prisma.$queryRaw`
+            SELECT
+                DATE_TRUNC('month', "date") AS month,
+                COUNT(*)::INTEGER AS total_consultations
+            FROM "Consultation" c
+            JOIN "MedicalRecord" mr ON c."medicalRecordId" = mr.id
+            JOIN "Patient" p ON p."medicalRecordId" = mr.id
+            WHERE p."doctorId" = ${doctorId}
+            GROUP BY month
+            ORDER BY month;
+        `;
+
+        return consultationsStats;
+    }
+
+
+    async getRecentConsultations(doctorId: number, recentNumber: number) {
+        const consultations = await this.prisma.consultation.findMany({
+            where: {
+                medicalRecord: {
+                    patient: {
+                        doctorId: doctorId
+                    }
+                }
+            },
+            orderBy: {
+                date: 'desc'
+            },
+            take: recentNumber,
+            select: {
+                id: true,
+                date: true,
+                visitReason: true,
+                medicalRecord: {
+                    select: {
+                        patient: {
+                            select: {
+                                user: {
+                                    select: {
+                                        firstName: true,
+                                        lastName: true,
+                                        email: true,
+                                        phone: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                aiAnalysis: {
+                    select: {
+                        riskScore: true,
+                        riskClass: true,
+                    }
+                }
+            }
+        });
+
+        return consultations;
     }
 }

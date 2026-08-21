@@ -142,6 +142,54 @@ export class AppointmentsRepository {
     }
 
 
+    async getTodayAppointmentsForDoctor(doctorId: number) {
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+
+        const appointments = await this.prisma.appointment.findMany({
+            where: {
+                doctorId: doctorId,
+                dateTime: {
+                    gte: today,
+                    lt: tomorrow,
+                },
+                status: { in: ['SCHEDULED', 'CONFIRMED'] },
+            },
+            orderBy: [
+                { dateTime: 'asc' },
+            ],
+        });
+
+        return appointments;
+    }
+
+    async getTodayAppointmentsStats() {
+        const result = await this.prisma.$queryRaw<any[]>`
+            SELECT
+                COUNT(*)::int AS "totalAppointments",
+                COUNT(*) FILTER (WHERE status = 'SCHEDULED')::int AS "scheduledAppointments",
+                COUNT(*) FILTER (WHERE status = 'CONFIRMED')::int AS "confirmedAppointments",
+                COUNT(*) FILTER (WHERE status = 'CANCELLED')::int AS "cancelledAppointments",
+                COUNT(*) FILTER (WHERE status = 'MISSED')::int AS "missedAppointments"
+            FROM "Appointment"
+            WHERE "dateTime"::date = CURRENT_DATE;
+        `;
+
+        return {
+            todayCount: Number(result[0].totalAppointments),
+            statusDistribution: {
+                scheduled: Number(result[0].scheduledAppointments),
+                confirmed: Number(result[0].confirmedAppointments),
+                cancelled: Number(result[0].cancelledAppointments),
+                missed: Number(result[0].missedAppointments),
+            }
+        }
+    }
+
+
     async appointmentExists(patientId: number, appointmentDTO: AppointmentDto) {
         const appointmentExists = await this.prisma.appointment.findFirst({
             where: {
@@ -306,7 +354,7 @@ export class AppointmentsRepository {
     }
 
     async getAllDoctorsInformation() {
-        let response= {};
+        let response = {};
 
         const doctors = await this.prisma.doctor.findMany({
             select: {
