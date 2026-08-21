@@ -29,6 +29,7 @@ import DoctorPlanning from './pages/doctor-pages/planning';
 import { PatientLayout } from './components/chatbot/PatientLayout';
 import { ChatWidget } from './components/chatbot/ChatWidget';
 import AdminDashboard from './pages/admin-pages/dashboard';
+import DoctorDashboard from './pages/doctor-pages/DoctorDashboard';
 
 const RoleBasedRedirect = () => {
   const userString = localStorage.getItem('user');
@@ -186,6 +187,7 @@ function AppContent() {
             element={<AddConsultation />} 
           />
           <Route path="/doctor/planning" element={<DoctorPlanning />} />
+          <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
         </Route>
 
         {/* --- AIDE-SOIGNANT UNIQUEMENT --- */}

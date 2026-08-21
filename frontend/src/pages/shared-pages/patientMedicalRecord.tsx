@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft,
     FileText,
@@ -73,6 +73,7 @@ const IMCStatusMap: { [key: string]: string } = {
 export default function PatientMedicalRecord() {
     const { patientId } = useParams<{ patientId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const [data, setData] = useState<PatientFullData | null>(null);
 
     const [isDoctor, setIsDoctor] = useState(false);
@@ -94,6 +95,9 @@ export default function PatientMedicalRecord() {
     });
 
     const apiUrl = import.meta.env.VITE_API_URL;
+    const returnTo = typeof location.state?.returnTo === 'string'
+        ? location.state.returnTo
+        : (isDoctor || isNurseAssistant ? '/patientResearch' : '/patient');
 
 
     const fetchRecord = async () => {
@@ -251,10 +255,7 @@ export default function PatientMedicalRecord() {
             {/* Header avec bouton retour */}
             <div className={styles.header}>
                 <button className={styles.backButton} onClick={() => {
-                    if (isDoctor || isNurseAssistant) {
-                        navigate('/patientResearch');
-                    }
-                    else navigate('/patient');
+                    navigate(returnTo, { replace: true });
                 }}>
                     <ArrowLeft size={18} /> Retour
                 </button>
@@ -267,7 +268,7 @@ export default function PatientMedicalRecord() {
                         {/* Bouton d'édition pour l'Aide-Soignante / Médecin */}
                         {canEdit && !isEditing && (
                             <>
-                                <button className={styles.newDataButton} onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/biometrics`)}>
+                                <button className={styles.newDataButton} onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/biometrics`, { state: { returnTo } })}>
                                     <Edit3 size={18} /> Renseigner données biométriques
                                 </button>
 
@@ -284,7 +285,7 @@ export default function PatientMedicalRecord() {
                         {/* Actions de sauvegarde si en mode édition */}
                         {isEditing && (
                             <>
-                                <button className={styles.newDataButton} onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/biometrics`)}>
+                                <button className={styles.newDataButton} onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/biometrics`, { state: { returnTo } })}>
                                     <Edit3 size={18} /> Renseigner données biométriques
                                 </button>
 
@@ -330,7 +331,7 @@ export default function PatientMedicalRecord() {
                         <div className={styles.actionBannerButtons}>
                             <button
                                 className={styles.consultationHistoryButton}
-                                onClick={() => navigate(`/patient/medicalRecord/consultations/${data.medicalRecord.id}`)}
+                                onClick={() => navigate(`/patient/medicalRecord/consultations/${data.medicalRecord.id}`, { state: { returnTo } })}
                             >
                                 <History size={18} />
                                 Historique des consultations
@@ -340,7 +341,7 @@ export default function PatientMedicalRecord() {
                             {isDoctor && (
                                 <button
                                     className={styles.newConsultationButton}
-                                    onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/add-consultation/${data.id}`)}
+                                    onClick={() => navigate(`/patient/medicalRecord/${data.medicalRecord.id}/add-consultation/${data.id}`, { state: { returnTo } })}
                                 >
                                     <PlusCircle size={18} />
                                     Nouvelle consultation

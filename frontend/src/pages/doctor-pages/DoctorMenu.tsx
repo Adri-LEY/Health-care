@@ -21,6 +21,10 @@ export default function DoctorMenu() {
           <button type="button" className={styles.button} onClick={() => navigate('/doctor/planning')}>
             Consulter mon planning
           </button>
+
+          <button type="button" className={styles.button} onClick={() => navigate('/doctor/dashboard')}>
+            Consulter mon Dashboard
+          </button> 
         </div>
       </section>
     </main>

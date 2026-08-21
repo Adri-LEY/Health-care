@@ -153,7 +153,7 @@ export default function PatientResearch() {
                                     if(user.role === 'ADMINISTRATOR') {
                                         navigate(`/admin/patientManagement/${item.patient.id}`)
                                     } else {
-                                        navigate(`/patient/medicalRecord/${item.patient.id}`)
+                                        navigate(`/patient/medicalRecord/${item.patient.id}`, { state: { returnTo: '/patientResearch' } })
                                     }
                                 }
                             }

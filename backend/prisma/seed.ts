@@ -629,6 +629,24 @@ async function main() {
     await prisma.user.create({ data: patient });
   }
 
+  const doctors = await prisma.doctor.findMany({
+    orderBy: { id: 'asc' },
+  });
+  const unassignedPatients = await prisma.patient.findMany({
+    where: { doctorId: null },
+    orderBy: { id: 'asc' },
+  });
+
+  for (let doctorIndex = 1; doctorIndex < doctors.length; doctorIndex++) {
+    const patient = unassignedPatients[doctorIndex - 1];
+    if (!patient) break;
+
+    await prisma.patient.update({
+      where: { id: patient.id },
+      data: { doctorId: doctors[doctorIndex].id },
+    });
+  }
+
 
   // ==========================================
   // 6. CRÉATION DES AIDES-SOIGNANTS (NURSE_ASSISTANT)
@@ -1185,6 +1203,59 @@ async function main() {
     
 
     console.log(` ✅ Consultation(s) générée(s) pour le dossier de : ${patientName}`);
+  }
+
+  const doctorsWithPatients = await prisma.doctor.findMany({
+    include: {
+      patients: {
+        include: { medicalRecord: true },
+        orderBy: { id: 'asc' },
+      },
+      staff: {
+        include: { user: true },
+      },
+    },
+    orderBy: { id: 'asc' },
+  });
+
+  const riskClasses = [RiskClass.Low, RiskClass.Moderate, RiskClass.High];
+  const consultationStartDate = new Date('2026-03-01T09:00:00.000Z');
+
+  for (const doctor of doctorsWithPatients) {
+    if (doctor.patients.length === 0) continue;
+
+    for (let consultationIndex = 0; consultationIndex < 15; consultationIndex++) {
+      const patient = doctor.patients[consultationIndex % doctor.patients.length];
+      const consultationDate = new Date(consultationStartDate);
+      consultationDate.setUTCDate(consultationDate.getUTCDate() + consultationIndex * 10);
+      const riskClass = riskClasses[consultationIndex % riskClasses.length];
+
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: patient.medicalRecordId,
+          date: consultationDate,
+          visitReason: 'Consultation de suivi médical',
+          observations: `Suivi réalisé par le Dr. ${doctor.staff.user.firstName} ${doctor.staff.user.lastName}. État général surveillé et recommandations rappelées.`,
+          biometricMeasures: JSON.stringify({
+            temperature: 36.7,
+            heartRate: 72 + (consultationIndex % 8),
+            bloodPressure: '125/80',
+            weight: 70 + (consultationIndex % 4),
+            oxygenSaturation: 98,
+          }),
+          aiAnalysis: {
+            create: {
+              riskScore: 25 + (consultationIndex % 3) * 30,
+              riskClass,
+              message: `Analyse de suivi réalisée pour le Dr. ${doctor.staff.user.firstName} ${doctor.staff.user.lastName}.`,
+              analysisDate: consultationDate,
+            },
+          },
+        },
+      });
+    }
+
+    console.log(` ✅ 15 consultations historiques générées pour le Dr. ${doctor.staff.user.firstName} ${doctor.staff.user.lastName}`);
   }
 
   // ==========================================

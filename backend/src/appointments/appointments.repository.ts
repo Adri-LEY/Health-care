@@ -166,7 +166,7 @@ export class AppointmentsRepository {
         return appointments;
     }
 
-    async getTodayAppointmentsStats() {
+    async getTodayAppointmentsStatsForDoctor(doctorId: number) {
         const result = await this.prisma.$queryRaw<any[]>`
             SELECT
                 COUNT(*)::int AS "totalAppointments",
@@ -175,7 +175,7 @@ export class AppointmentsRepository {
                 COUNT(*) FILTER (WHERE status = 'CANCELLED')::int AS "cancelledAppointments",
                 COUNT(*) FILTER (WHERE status = 'MISSED')::int AS "missedAppointments"
             FROM "Appointment"
-            WHERE "dateTime"::date = CURRENT_DATE;
+            WHERE "dateTime"::date = CURRENT_DATE AND "doctorId" = ${doctorId};
         `;
 
         return {

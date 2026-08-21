@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft,
     Calendar,
@@ -71,6 +71,8 @@ interface ConsultationDetails {
 export default function PatientConsultations() {
     const { medicalRecordId } = useParams<{ medicalRecordId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+    const returnTo = typeof location.state?.returnTo === 'string' ? location.state.returnTo : '/patientResearch';
 
     const [history, setHistory] = useState<ConsultationListItem[]>([]);
     const [selectedConsultationId, setSelectedConsultationId] = useState<number | null>(null);
@@ -172,7 +174,7 @@ export default function PatientConsultations() {
                     <button
                         type="button"
                         className={styles.backButton}
-                        onClick={() => navigate(`/patient/medicalRecord/${medicalRecordId}`)}
+                        onClick={() => navigate(`/patient/medicalRecord/${medicalRecordId}`, { state: { returnTo } })}
                     >
                         <ArrowLeft size={18} />
                         Retour au dossier médical

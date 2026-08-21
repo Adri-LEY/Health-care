@@ -89,7 +89,7 @@ export class StatisticsService {
 
     async getDoctorAppointmentsStats(doctorId: number) {
         const todayAppointments = await this.appointmentsRepository.getTodayAppointmentsForDoctor(doctorId);
-        const appointmentsStats = await this.appointmentsRepository.getTodayAppointmentsStats();
+        const appointmentsStats = await this.appointmentsRepository.getTodayAppointmentsStatsForDoctor(doctorId);
 
         return {
             ...appointmentsStats,
