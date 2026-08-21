@@ -42,6 +42,22 @@ export default function Login() {
             localStorage.setItem('token', data.accessToken);
             localStorage.setItem('user', JSON.stringify(data.user));
 
+            // Initialize new chat session if user is a patient
+            if (data.user?.role === 'PATIENT') {
+              try {
+                await fetch(`${apiUrl}/chatbot/new-chat`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${data.accessToken}`,
+                  },
+                });
+              } catch (chatError) {
+                console.error('Error initializing chatbot session:', chatError);
+                // Don't block login if chat initialization fails
+              }
+            }
+
             navigate('/');
             
         } catch (err: any) {

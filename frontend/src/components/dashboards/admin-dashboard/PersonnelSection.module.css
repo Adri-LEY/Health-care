@@ -1,0 +1,102 @@
+.personnel-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+}
+
+.personnel-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.personnel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.personnel-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: #f0fdf4; /* Fond vert très clair */
+}
+
+.personnel-svg {
+  color: #16a34a; 
+}
+
+.personnel-title h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.personnel-content {
+  display: grid;
+  grid-template-columns: 110px 1px 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.personnel-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.personnel-total-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.personnel-total-label {
+  margin-top: 2px;
+  font-size: 10px;
+  color: #64748b;
+  text-align: center;
+}
+
+.personnel-subdetails {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  color: #475569;
+  text-align: center;
+}
+
+.personnel-separator {
+  width: 1px;
+  height: 80%;
+  background: #e2e8f0;
+}
+
+.personnel-chart {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.personnel-chart h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  text-align: center;
+}
