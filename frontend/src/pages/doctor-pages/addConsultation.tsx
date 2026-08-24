@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft,
   PlusCircle,
@@ -25,8 +25,6 @@ import type { AiPredictionResult } from '../../components/AI/AIPredictionSection
 const MEASURE_CONFIG: Record<string, { label: string; icon: React.ReactNode }> = {
   TEMPERATURE: { label: 'Température', icon: <Thermometer size={18} color="#f97316" /> },
   HEART_RATE: { label: 'Fréquence cardiaque', icon: <Heart size={18} color="#ef4444" /> },
-  // BLOOD_PRESSURE_SYSTOLIC: { label: 'Tension artérielle (SYS)', icon: <Activity size={18} color="#3b82f6" /> },
-  // BLOOD_PRESSURE_DIASTOLIC: { label: 'Tension artérielle (DIA)', icon: <Activity size={18} color="#3b82f6" /> },
   BLOOD_PRESSURE: { label: 'Tension artérielle', icon: <Activity size={18} color="#3b82f6" /> },
   WEIGHT: { label: 'Poids', icon: <Scale size={18} color="#8b5cf6" /> },
   HEIGHT: { label: 'Taille', icon: <Ruler size={18} color="#10b981" /> },
@@ -38,6 +36,8 @@ const MEASURE_CONFIG: Record<string, { label: string; icon: React.ReactNode }> =
 export default function AddConsultation() {
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = typeof location.state?.returnTo === 'string' ? location.state.returnTo : '/patientResearch';
 
   const [patientData, setPatientData] = useState<any | null>(null);
   const [loadingPatient, setLoadingPatient] = useState(true);
@@ -217,7 +217,7 @@ export default function AddConsultation() {
         return;
       }
 
-      navigate(`/patient/medicalRecord/consultations/${patientData.medicalRecord.id}`);
+      navigate(`/patient/medicalRecord/consultations/${patientData.medicalRecord.id}`, { state: { returnTo } });
     } catch (err) {
       setErrorMessages("Erreur réseau. Veuillez vérifier votre connexion.");
     } finally {
@@ -233,7 +233,7 @@ export default function AddConsultation() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button className={styles.backButton} onClick={() => navigate(`/patient/medicalRecord/${patientData.medicalRecord.id}`)}>
+        <button className={styles.backButton} onClick={() => navigate(`/patient/medicalRecord/${patientData.medicalRecord.id}`, { state: { returnTo } })}>
           <ArrowLeft size={18} /> Retour
         </button>
         <div className={styles.titleSection}>

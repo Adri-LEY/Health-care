@@ -137,7 +137,7 @@ export default function DoctorPlanning() {
     return (
         <div className={styles.calendarWrapper}>
             <div className={styles.header}>
-                <button className={styles.backButton} onClick={() => window.history.back()}>
+                <button className={styles.backButton} onClick={() =>navigate('/')}>
                     <ArrowLeft size={16} /> Retour
                 </button>
                 <h1 className={styles.title}>Mon Planning</h1>
@@ -301,7 +301,7 @@ export default function DoctorPlanning() {
                             {/* Accès Direct au Dossier Médical */}
                             <button
                                 className={styles.medicalRecordButton}
-                                onClick={() => navigate(`/patient/medicalRecord/${selectedPatient?.id}`)}
+                                onClick={() => navigate(`/patient/medicalRecord/${selectedPatient?.id}`, { state: { returnTo: '/doctor/planning' } })}
                             >
                                 <FileText size={18} />
                                 Dossier Médical

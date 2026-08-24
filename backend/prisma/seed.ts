@@ -123,309 +123,7 @@ async function main() {
   const hashedPassword = await bcrypt.hash('Password123*', 10);
 
   // ==========================================
-  // 4. CRÉATION DES PATIENTS & LEURS DOSSIERS
-  // ==========================================
-  console.log('👥 Création des patients de test...');
-
-  const patientsData = [
-    {
-      firstName: 'Jean',
-      lastName: 'Dupont',
-      email: 'patient@test.com',
-      phone: '+33611111111',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 35,
-          gender: 'M',
-          birthDate: new Date('1991-05-12'),
-          address: '123 Rue de la Paix, Paris',
-          intern: false,
-          medicalRecord: {
-            create: {
-              poids: 75.5,
-              taille: 1.80,
-              bloodType: BloodType.A,
-              imc: Imc.NORMAL_WEIGHT,
-              medical_history: 'Aucun antécédent majeur.',
-              family_history: 'Hypertension côté paternel.',
-              allergies: 'Pénicilline',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Jean',
-      lastName: 'Dupont',
-      email: 'jean.dupont.bis@test.com',
-      phone: '+33622222222',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 68,
-          gender: 'M',
-          birthDate: new Date('1958-11-23'),
-          address: '45 Avenue de la République, Lyon',
-          intern: true,
-          medicalRecord: {
-            create: {
-              poids: 88.0,
-              taille: 1.72,
-              bloodType: BloodType.O,
-              imc: Imc.OVERWEIGHT,
-              medical_history: 'Diabète de type 2.',
-              family_history: 'AVC chez la mère.',
-              allergies: 'Aucune',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Patricia',
-      lastName: 'Martinez',
-      email: 'pat.martinez@test.com',
-      phone: '+33699999999',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 29,
-          gender: 'F',
-          birthDate: new Date('1997-03-15'),
-          address: '8 Rue du Palais, Nice',
-          intern: false,
-          medicalRecord: {
-            create: {
-              poids: 62.1,
-              taille: 1.68,
-              bloodType: BloodType.B,
-              imc: Imc.NORMAL_WEIGHT,
-              medical_history: 'Asthme chronique.',
-              family_history: 'Aucun.',
-              allergies: 'Pollen, Acariens',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Patrick',
-      lastName: 'Paterson',
-      email: 'patrick.paterson@test.com',
-      phone: '+33677777777',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 45,
-          gender: 'M',
-          birthDate: new Date('1981-08-30'),
-          address: '50 Boulevard Victor Hugo, Marseille',
-          intern: false,
-          medicalRecord: {
-            create: {
-              poids: 95.0,
-              taille: 1.78,
-              bloodType: BloodType.AB,
-              imc: Imc.CLASS_1_OBESITY,
-              medical_history: 'Hypercholestérolémie.',
-              family_history: 'Cardiopathie ischémique côté paternel.',
-              allergies: 'Iode',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Marie',
-      lastName: 'Durand',
-      email: 'marie.durand@test.com',
-      phone: '+33688888888',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 82,
-          gender: 'F',
-          birthDate: new Date('1944-01-05'),
-          address: '14 Rue des Lilas, Lille',
-          intern: true,
-          medicalRecord: {
-            create: {
-              poids: 54.2,
-              taille: 1.55,
-              bloodType: BloodType.A,
-              imc: Imc.NORMAL_WEIGHT,
-              medical_history: 'Ostéoporose, Arthroplastie de la hanche gauche.',
-              family_history: 'Inconnu.',
-              allergies: 'Lactose',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Arthur',
-      lastName: 'Le Pennec',
-      email: 'arthur.lp@test.com',
-      phone: '+33712345678',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 19,
-          gender: 'M',
-          birthDate: new Date('2007-07-19'),
-          address: '3 Boulevard de Cimiez, Nice',
-          intern: false,
-          medicalRecord: {
-            create: {
-              poids: 51.0,
-              taille: 1.75,
-              bloodType: BloodType.AB,
-              imc: Imc.UNDERWEIGHT,
-              medical_history: 'Scoliose juvénile.',
-              family_history: 'Diabète de type 1 chez le frère.',
-              allergies: 'Arachides',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Chantal',
-      lastName: 'Gomez',
-      email: 'chantal.gomez@test.com',
-      phone: '+33655544433',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 54,
-          gender: 'F',
-          birthDate: new Date('1972-10-02'),
-          address: '88 Avenue Jean Médecin, Nice',
-          intern: true,
-          medicalRecord: {
-            create: {
-              poids: 112.5,
-              taille: 1.60,
-              bloodType: BloodType.B,
-              imc: Imc.CLASS_2_OBESITY,
-              medical_history: 'Apnée du sommeil, Arthrose bilatérale des genoux.',
-              family_history: 'Obésité morbide généralisée côté maternel.',
-              allergies: 'Aucune',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Jean',
-      lastName: 'Rey',
-      email: 'jean.rey@test.com',
-      phone: '+33601020304',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 41,
-          gender: 'M',
-          birthDate: new Date('1985-02-28'),
-          address: '2 Pl. Masséna, Nice',
-          intern: false,
-          medicalRecord: {
-            create: {
-              poids: 80.0,
-              taille: 1.82,
-              bloodType: BloodType.O,
-              imc: Imc.NORMAL_WEIGHT,
-              medical_history: 'Appendicectomie en 2012.',
-              family_history: 'Inconnu.',
-              allergies: 'Fruits de mer',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Lucas',
-      lastName: 'Dubois',
-      email: 'lucas.pending@test.com',
-      phone: '+33698765432',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.PENDING,
-      patient: {
-        create: {
-          age: 24,
-          gender: 'M',
-          birthDate: new Date('2002-12-05'),
-          address: '56 Rue d’Antibes, Cannes',
-          intern: false,
-          medicalRecord: {
-            create: {
-              poids: 70.0,
-              taille: 1.77,
-              bloodType: BloodType.A,
-              imc: Imc.NORMAL_WEIGHT,
-              medical_history: 'Fracture du scaphoïde droit (2025).',
-              family_history: 'Aucun.',
-              allergies: 'Aucune',
-            },
-          },
-        },
-      },
-    },
-    {
-      firstName: 'Alexandre',
-      lastName: 'TestIA',
-      email: 'alex.testia@test.com',
-      phone: '+33612349999',
-      password: hashedPassword,
-      role: Role.PATIENT,
-      userStatus: UserStatus.ACTIVE,
-      patient: {
-        create: {
-          age: 52,
-          gender: 'M',
-          birthDate: new Date('1974-04-12'),
-          address: '10 Promenade des Anglais, Nice',
-          intern: false,
-          medicalRecord: {
-            create: {
-              poids: 82.0,
-              taille: 1.76,
-              bloodType: BloodType.A,
-              imc: Imc.OVERWEIGHT,
-              medical_history: 'Légère hypertension.',
-              family_history: 'Infarctus du myocarde paternel à 60 ans.',
-              allergies: 'Aucune',
-            },
-          },
-        },
-      },
-    },
-  ];
-
-  for (const patient of patientsData) {
-    await prisma.user.create({ data: patient });
-  }
-
-  // ==========================================
-  // 5. CRÉATION DES MÉDECINS (DOCTOR) & STAFF
+  // 4. CRÉATION DES MÉDECINS (DOCTOR) & STAFF
   // ==========================================
   console.log('🩺 Création des médecins...');
 
@@ -618,6 +316,337 @@ async function main() {
 
   const doctor1Id = doctor1User.medicalStaff?.doctor?.id;
   const doctor2Id = doctor2User.medicalStaff?.doctor?.id;
+
+  // ==========================================
+  // 5. CRÉATION DES PATIENTS & LEURS DOSSIERS
+  // ==========================================
+  console.log('👥 Création des patients de test...');
+
+  const patientsData = [
+    {
+      firstName: 'Jean',
+      lastName: 'Dupont',
+      email: 'patient@test.com',
+      phone: '+33611111111',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 35,
+          gender: 'M',
+          birthDate: new Date('1991-05-12'),
+          address: '123 Rue de la Paix, Paris',
+          intern: false,
+          medicalRecord: {
+            create: {
+              poids: 75.5,
+              taille: 1.80,
+              bloodType: BloodType.A,
+              imc: Imc.NORMAL_WEIGHT,
+              medical_history: 'Aucun antécédent majeur.',
+              family_history: 'Hypertension côté paternel.',
+              allergies: 'Pénicilline',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Jean',
+      lastName: 'Dupont',
+      email: 'jean.dupont.bis@test.com',
+      phone: '+33622222222',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 68,
+          gender: 'M',
+          birthDate: new Date('1958-11-23'),
+          address: '45 Avenue de la République, Lyon',
+          intern: true,
+          medicalRecord: {
+            create: {
+              poids: 88.0,
+              taille: 1.72,
+              bloodType: BloodType.O,
+              imc: Imc.OVERWEIGHT,
+              medical_history: 'Diabète de type 2.',
+              family_history: 'AVC chez la mère.',
+              allergies: 'Aucune',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Patricia',
+      lastName: 'Martinez',
+      email: 'pat.martinez@test.com',
+      phone: '+33699999999',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 29,
+          gender: 'F',
+          birthDate: new Date('1997-03-15'),
+          address: '8 Rue du Palais, Nice',
+          intern: false,
+          medicalRecord: {
+            create: {
+              poids: 62.1,
+              taille: 1.68,
+              bloodType: BloodType.B,
+              imc: Imc.NORMAL_WEIGHT,
+              medical_history: 'Asthme chronique.',
+              family_history: 'Aucun.',
+              allergies: 'Pollen, Acariens',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Patrick',
+      lastName: 'Paterson',
+      email: 'patrick.paterson@test.com',
+      phone: '+33677777777',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 45,
+          gender: 'M',
+          birthDate: new Date('1981-08-30'),
+          address: '50 Boulevard Victor Hugo, Marseille',
+          intern: false,
+          doctor: { connect: { id: 1 } },
+          medicalRecord: {
+            create: {
+              poids: 95.0,
+              taille: 1.78,
+              bloodType: BloodType.AB,
+              imc: Imc.CLASS_1_OBESITY,
+              medical_history: 'Hypercholestérolémie.',
+              family_history: 'Cardiopathie ischémique côté paternel.',
+              allergies: 'Iode',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Marie',
+      lastName: 'Durand',
+      email: 'marie.durand@test.com',
+      phone: '+33688888888',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 82,
+          gender: 'F',
+          birthDate: new Date('1944-01-05'),
+          address: '14 Rue des Lilas, Lille',
+          intern: true,
+          medicalRecord: {
+            create: {
+              poids: 54.2,
+              taille: 1.55,
+              bloodType: BloodType.A,
+              imc: Imc.NORMAL_WEIGHT,
+              medical_history: 'Ostéoporose, Arthroplastie de la hanche gauche.',
+              family_history: 'Inconnu.',
+              allergies: 'Lactose',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Arthur',
+      lastName: 'Le Pennec',
+      email: 'arthur.lp@test.com',
+      phone: '+33712345678',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 19,
+          gender: 'M',
+          birthDate: new Date('2007-07-19'),
+          address: '3 Boulevard de Cimiez, Nice',
+          intern: false,
+          medicalRecord: {
+            create: {
+              poids: 51.0,
+              taille: 1.75,
+              bloodType: BloodType.AB,
+              imc: Imc.UNDERWEIGHT,
+              medical_history: 'Scoliose juvénile.',
+              family_history: 'Diabète de type 1 chez le frère.',
+              allergies: 'Arachides',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Chantal',
+      lastName: 'Gomez',
+      email: 'chantal.gomez@test.com',
+      phone: '+33655544433',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 54,
+          gender: 'F',
+          birthDate: new Date('1972-10-02'),
+          address: '88 Avenue Jean Médecin, Nice',
+          intern: true,
+          medicalRecord: {
+            create: {
+              poids: 112.5,
+              taille: 1.60,
+              bloodType: BloodType.B,
+              imc: Imc.CLASS_2_OBESITY,
+              medical_history: 'Apnée du sommeil, Arthrose bilatérale des genoux.',
+              family_history: 'Obésité morbide généralisée côté maternel.',
+              allergies: 'Aucune',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Jean',
+      lastName: 'Rey',
+      email: 'jean.rey@test.com',
+      phone: '+33601020304',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 41,
+          gender: 'M',
+          birthDate: new Date('1985-02-28'),
+          address: '2 Pl. Masséna, Nice',
+          intern: false,
+          doctor: {
+            connect: { id: 1 }, // Assigné au Dr. Sarah Connor
+          },
+          medicalRecord: {
+            create: {
+              poids: 80.0,
+              taille: 1.82,
+              bloodType: BloodType.O,
+              imc: Imc.NORMAL_WEIGHT,
+              medical_history: 'Appendicectomie en 2012.',
+              family_history: 'Inconnu.',
+              allergies: 'Fruits de mer',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Lucas',
+      lastName: 'Dubois',
+      email: 'lucas.pending@test.com',
+      phone: '+33698765432',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.PENDING,
+      patient: {
+        create: {
+          age: 24,
+          gender: 'M',
+          birthDate: new Date('2002-12-05'),
+          address: '56 Rue d’Antibes, Cannes',
+          intern: false,
+          doctor: {
+            connect: { id: 1 }, // Assigné au Dr. Sarah Connor
+          },
+          medicalRecord: {
+            create: {
+              poids: 70.0,
+              taille: 1.77,
+              bloodType: BloodType.A,
+              imc: Imc.NORMAL_WEIGHT,
+              medical_history: 'Fracture du scaphoïde droit (2025).',
+              family_history: 'Aucun.',
+              allergies: 'Aucune',
+            },
+          },
+        },
+      },
+    },
+    {
+      firstName: 'Alexandre',
+      lastName: 'TestIA',
+      email: 'alex.testia@test.com',
+      phone: '+33612349999',
+      password: hashedPassword,
+      role: Role.PATIENT,
+      userStatus: UserStatus.ACTIVE,
+      patient: {
+        create: {
+          age: 52,
+          gender: 'M',
+          birthDate: new Date('1974-04-12'),
+          address: '10 Promenade des Anglais, Nice',
+          intern: false,
+          doctor: {
+            connect: { id: 1 }, // Assigné au Dr. Sarah Connor
+          },
+          medicalRecord: {
+            create: {
+              poids: 82.0,
+              taille: 1.76,
+              bloodType: BloodType.A,
+              imc: Imc.OVERWEIGHT,
+              medical_history: 'Légère hypertension.',
+              family_history: 'Infarctus du myocarde paternel à 60 ans.',
+              allergies: 'Aucune',
+            },
+          },
+        },
+      },
+    },
+  ];
+
+  for (const patient of patientsData) {
+    await prisma.user.create({ data: patient });
+  }
+
+  const doctors = await prisma.doctor.findMany({
+    orderBy: { id: 'asc' },
+  });
+  const unassignedPatients = await prisma.patient.findMany({
+    where: { doctorId: null },
+    orderBy: { id: 'asc' },
+  });
+
+  for (let doctorIndex = 1; doctorIndex < doctors.length; doctorIndex++) {
+    const patient = unassignedPatients[doctorIndex - 1];
+    if (!patient) break;
+
+    await prisma.patient.update({
+      where: { id: patient.id },
+      data: { doctorId: doctors[doctorIndex].id },
+    });
+  }
+
 
   // ==========================================
   // 6. CRÉATION DES AIDES-SOIGNANTS (NURSE_ASSISTANT)
@@ -1174,6 +1203,59 @@ async function main() {
     
 
     console.log(` ✅ Consultation(s) générée(s) pour le dossier de : ${patientName}`);
+  }
+
+  const doctorsWithPatients = await prisma.doctor.findMany({
+    include: {
+      patients: {
+        include: { medicalRecord: true },
+        orderBy: { id: 'asc' },
+      },
+      staff: {
+        include: { user: true },
+      },
+    },
+    orderBy: { id: 'asc' },
+  });
+
+  const riskClasses = [RiskClass.Low, RiskClass.Moderate, RiskClass.High];
+  const consultationStartDate = new Date('2026-03-01T09:00:00.000Z');
+
+  for (const doctor of doctorsWithPatients) {
+    if (doctor.patients.length === 0) continue;
+
+    for (let consultationIndex = 0; consultationIndex < 15; consultationIndex++) {
+      const patient = doctor.patients[consultationIndex % doctor.patients.length];
+      const consultationDate = new Date(consultationStartDate);
+      consultationDate.setUTCDate(consultationDate.getUTCDate() + consultationIndex * 10);
+      const riskClass = riskClasses[consultationIndex % riskClasses.length];
+
+      await prisma.consultation.create({
+        data: {
+          medicalRecordId: patient.medicalRecordId,
+          date: consultationDate,
+          visitReason: 'Consultation de suivi médical',
+          observations: `Suivi réalisé par le Dr. ${doctor.staff.user.firstName} ${doctor.staff.user.lastName}. État général surveillé et recommandations rappelées.`,
+          biometricMeasures: JSON.stringify({
+            temperature: 36.7,
+            heartRate: 72 + (consultationIndex % 8),
+            bloodPressure: '125/80',
+            weight: 70 + (consultationIndex % 4),
+            oxygenSaturation: 98,
+          }),
+          aiAnalysis: {
+            create: {
+              riskScore: 25 + (consultationIndex % 3) * 30,
+              riskClass,
+              message: `Analyse de suivi réalisée pour le Dr. ${doctor.staff.user.firstName} ${doctor.staff.user.lastName}.`,
+              analysisDate: consultationDate,
+            },
+          },
+        },
+      });
+    }
+
+    console.log(` ✅ 15 consultations historiques générées pour le Dr. ${doctor.staff.user.firstName} ${doctor.staff.user.lastName}`);
   }
 
   // ==========================================

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppointmentsRepository } from 'src/appointments/appointments.repository';
+import ConsultationsRepository from 'src/consultations/consultations.repository';
 import { PatientsRepository } from 'src/patients/patients.repository';
 import { StaffRepository } from 'src/staff/staff.repository';
 
@@ -9,7 +10,8 @@ export class StatisticsService {
     constructor(
         private readonly patientsRepository: PatientsRepository,
         private readonly appointmentsRepository: AppointmentsRepository,
-        private readonly staffRepository: StaffRepository
+        private readonly staffRepository: StaffRepository,
+        private readonly consultationsRepository: ConsultationsRepository
     ) {}
 
     async getPatientsStats() {
@@ -71,6 +73,49 @@ export class StatisticsService {
             patients: patientStats,
             appointments: appointmentStats,
             staff: staffStats,
+        };
+    }
+
+    async getDoctorPatientsStats(doctorId: number) {
+        const totalPatients = await this.patientsRepository.getTotalPatientsAssignedToDoctor(doctorId);
+        const {riskDistribution, highRiskList} = await this.patientsRepository.getRiskDistributionOfPatientsAssignedToDoctor(doctorId);
+
+        return {
+            totalPatients: totalPatients,
+            riskDistribution: riskDistribution,
+            highRiskList: highRiskList,
+        };
+    }
+
+    async getDoctorAppointmentsStats(doctorId: number) {
+        const todayAppointments = await this.appointmentsRepository.getTodayAppointmentsForDoctor(doctorId);
+        const appointmentsStats = await this.appointmentsRepository.getTodayAppointmentsStatsForDoctor(doctorId);
+
+        return {
+            ...appointmentsStats,
+            todaySchedule: todayAppointments,
+        };
+    }
+
+    async getActivityStats(doctorId: number) {
+        const monthlyConsultationsEvolution = await this.consultationsRepository.getConsultationsStatsEvolution(doctorId);
+        const recentConsultations = await this.consultationsRepository.getRecentConsultations(doctorId, 5);
+
+        return {
+            monthlyConsultations: monthlyConsultationsEvolution,
+            recentConsultations: recentConsultations,
+        };
+    }
+
+    async getDoctorStats(doctorId: number) {
+        const patientsStats = await this.getDoctorPatientsStats(doctorId);
+        const appointmentsStats = await this.getDoctorAppointmentsStats(doctorId);
+        const activityStats = await this.getActivityStats(doctorId);
+
+        return {
+            patients: patientsStats,
+            appointments: appointmentsStats,
+            activity: activityStats,
         };
     }
 }

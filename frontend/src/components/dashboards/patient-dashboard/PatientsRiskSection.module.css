@@ -1,0 +1,119 @@
+.card {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.innerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.chartContainer {
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+
+.alertBox {
+  background-color: #fef2f2;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #fee2e2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.alertTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #b91c1c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px 0;
+}
+
+.scrollableList {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.alertItem {
+  background-color: #ffffff;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+  font-size: 12px;
+}
+
+.patientName {
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.patientDetail {
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+.alertItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.viewRecordBtn {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 10px;
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.viewRecordBtn:hover {
+  background-color: #b91c1c;
+}

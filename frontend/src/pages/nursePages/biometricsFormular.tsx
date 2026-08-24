@@ -1,7 +1,7 @@
 import InputField from "../../components/InputField";
 import styles from "./biometricsFormular.module.css";
 import { useState, type FormEvent } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { 
     Thermometer, 
     Heart, 
@@ -21,6 +21,8 @@ export function BiometricsFormular() {
 
     const { medicalRecordId } = useParams<{ medicalRecordId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+    const returnTo = typeof location.state?.returnTo === 'string' ? location.state.returnTo : '/patientResearch';
 
     const [formData, setFormData] = useState({
         temperature: '',
@@ -162,7 +164,7 @@ export function BiometricsFormular() {
             });
 
             new Promise(resolve => setTimeout(resolve, 2000)).then(() => {
-                navigate(`/patient/medicalRecord/${recordId}`);
+                navigate(`/patient/medicalRecord/${recordId}`, { state: { returnTo } });
             });
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erreur lors de l'enregistrement des mesures biométriques.");
@@ -179,7 +181,7 @@ export function BiometricsFormular() {
                 <button
                     type="button"
                     className={styles.backButton}
-                    onClick={() => navigate(`/patient/medicalRecord/${medicalRecordId}`)}
+                    onClick={() => navigate(`/patient/medicalRecord/${medicalRecordId}`, { state: { returnTo } })}
                 >
                     <ArrowLeft size={18} />
                     Retour au dossier médical
