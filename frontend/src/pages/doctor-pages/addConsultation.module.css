@@ -241,3 +241,147 @@
   padding: 4px 0 !important;
   flex: 1;
 }
+
+
+
+
+/* Bouton d'ouverture/fermeture de l'historique */
+.toggleHistoryBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 14px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleHistoryBtn:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+  color: #2563eb;
+}
+
+/* Zone d'historique avec Scrollbar localisée */
+/* Container scrollable restreint à sa propre zone */
+.biometricsScrollContainer {
+  margin-top: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 6px;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 12px;
+}
+
+.biometricsScrollContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.biometricsScrollContainer::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.biometricsScrollContainer::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Liste des cartes d'historique regroupées */
+.historyGroupList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.historyGroupCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.historyGroupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f1f5f9;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.historyGroupDate {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.historyGroupAuthor {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.historyGroupItems {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px;
+  padding: 10px;
+}
+
+/* Éléments cliquables et sélectionnables de l'historique */
+.historySelectableWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.historySelectableWrapper:hover {
+  border-color: #cbd5e1;
+}
+
+.historySelectableWrapper.selectedHistory {
+  border-color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.historyItemLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  flex: 1;
+}
+
+.historyItemValue {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.historyItemValue {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.emptyHistory {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-style: italic;
+  padding: 8px 0;
+}
