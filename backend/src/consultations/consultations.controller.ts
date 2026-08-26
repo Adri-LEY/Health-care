@@ -26,7 +26,7 @@ export class ConsultationsController {
 
     @Get('/consultation-details/:consultationId')
     @Roles('DOCTOR', 'NURSE_ASSISTANT', 'PATIENT')
-    @UseGuards(ConsultationOwnerGuard)
+    //@UseGuards(ConsultationOwnerGuard)
     async getconsultationDetails(@Param('consultationId') consultationId: string): Promise<any> {
         return await this.consultationsService.getconsultationDetails(consultationId);
     }

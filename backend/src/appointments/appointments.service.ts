@@ -151,6 +151,69 @@ export class AppointmentsService {
         return appointments;
     }
 
+    async getPatientAppointmentStats(patientId: number) {
+        const appointments = await this.appointmentsRepository.getPatientAppointmentStatsData(patientId);
+        const now = new Date();
+        const specialtyMap = new Map<string, { specialtyName: string; totalAppointments: number; completedAppointments: number }>();
+
+        let completedAppointments = 0;
+        let upcomingAppointments = 0;
+        let cancelledAppointments = 0;
+        let missedAppointments = 0;
+
+        for (const appointment of appointments) {
+            const specialtyName = appointment.doctor.specialty.specialtyName;
+            const specialty = specialtyMap.get(specialtyName) ?? {
+                specialtyName,
+                totalAppointments: 0,
+                completedAppointments: 0,
+            };
+
+            specialty.totalAppointments += 1;
+
+            if (appointment.status === 'CONFIRMED' || appointment.status === 'MISSED') {
+                completedAppointments += 1;
+                specialty.completedAppointments += 1;
+            }
+
+            if (appointment.status === 'CANCELLED') {
+                cancelledAppointments += 1;
+            }
+
+            if (appointment.status === 'MISSED') {
+                missedAppointments += 1;
+            }
+
+            if (appointment.dateTime >= now && appointment.status !== 'CANCELLED') {
+                upcomingAppointments += 1;
+            }
+
+            specialtyMap.set(specialtyName, specialty);
+        }
+
+        const nextAppointment = appointments.find(
+            (appointment) => appointment.dateTime >= now && appointment.status !== 'CANCELLED',
+        );
+
+        return {
+            totalAppointments: appointments.length,
+            completedAppointments,
+            upcomingAppointments,
+            cancelledAppointments,
+            missedAppointments,
+            appointmentsBySpecialty: Array.from(specialtyMap.values()),
+            nextAppointment: nextAppointment
+                ? {
+                    id: nextAppointment.id,
+                    dateTime: nextAppointment.dateTime,
+                    status: nextAppointment.status,
+                    specialtyName: nextAppointment.doctor.specialty.specialtyName,
+                    doctorName: `Dr. ${nextAppointment.doctor.staff.user.firstName} ${nextAppointment.doctor.staff.user.lastName}`,
+                }
+                : null,
+        };
+    }
+
     /**
      * Sets the presence status of an appointment.
      * @param appointmentId - The ID of the appointment.

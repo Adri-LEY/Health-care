@@ -341,6 +341,37 @@ export class AppointmentsRepository {
         });
     }
 
+    getPatientAppointmentStatsData(patientId: number) {
+        return this.prisma.appointment.findMany({
+            where: { patientId },
+            orderBy: { dateTime: 'asc' },
+            select: {
+                id: true,
+                dateTime: true,
+                status: true,
+                doctor: {
+                    select: {
+                        staff: {
+                            select: {
+                                user: {
+                                    select: {
+                                        firstName: true,
+                                        lastName: true,
+                                    },
+                                },
+                            },
+                        },
+                        specialty: {
+                            select: {
+                                specialtyName: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+
 
     setAppointmentPresence(appointmentId: number, isPresent: boolean) {
         console.log(`Setting presence for appointment ${appointmentId} to ${isPresent}`);

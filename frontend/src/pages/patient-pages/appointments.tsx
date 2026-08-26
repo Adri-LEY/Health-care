@@ -4,11 +4,14 @@ import { AppointmentCard } from '../../components/appointments/AppointmentCard';
 import styles from './appointments.module.css';
 import { Message } from '../../components/Message';
 import { useNavigate } from 'react-router-dom';
+import { PatientAppointmentDashboard } from '../../components/appointments/PatientAppointmentDashboard';
+import type { PatientAppointmentStats } from '../../components/appointments/PatientAppointmentDashboard';
 
 export function AppointmentsList() {
     const [appointmentsData, setAppointmentsData] = useState<any[]>([]);
     const [showHistory, setShowHistory] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [appointmentStats, setAppointmentStats] = useState<PatientAppointmentStats | null>(null);
 
     const [cancelledMessageOpen, setCancelledMessageOpen] = useState(false);
     const [confirmCancelMessageOpen, setConfirmCancelMessageOpen] = useState(false);
@@ -43,6 +46,25 @@ export function AppointmentsList() {
         }
     };
 
+    const getAppointmentStats = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/appointments/patient-appointments/stats`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des statistiques');
+            }
+
+            setAppointmentStats(await response.json());
+        } catch (error) {
+            console.error('Error fetching appointment stats:', error);
+        }
+    };
+
     // 2. Annulation d'un rendez-vous
     const handleCancelAppointment = async (id: number | null) => {
         if (!id) return;
@@ -59,6 +81,7 @@ export function AppointmentsList() {
             if (response.ok) {
                 // Mettre à jour l'état local ou rafraîchir la liste
                 getAppointments();
+                getAppointmentStats();
                 setCancelledMessageOpen(true);
             } else {
                 console.error("Échec de l'annulation");
@@ -70,6 +93,7 @@ export function AppointmentsList() {
 
     useEffect(() => {
         getAppointments();
+        getAppointmentStats();
     }, []);
 
     // 3. Separation des rendez-vous (Prochain vs Futurs vs Passés)
@@ -115,72 +139,14 @@ export function AppointmentsList() {
                 <p className={styles.subtitle}>Gérez vos consultations médicales à venir et consultez votre historique.</p>
             </header>
 
-            {/* 🌟 1. MISE EN ÉVIDENCE DU PROCHAIN RDV */}
-            {nextAppointment ? (
-                <section className={styles.heroSection}>
-                    <h2 className={styles.sectionTitle}>
-                        <Calendar size={18} color="#2563eb" /> Prochain rendez-vous
-                    </h2>
-
-                    <div className={styles.heroCard}>
-                        <span className={styles.heroBadge}>Le plus proche</span>
-
-                        <div className={styles.heroContent}>
-                            <div className={styles.heroMain}>
-                                {/* Badge Date */}
-                                <div className={styles.heroDateBadge}>
-                                    <span className={styles.heroDay}>
-                                        {new Date(nextAppointment.timeSlot.startTime).getDate()}
-                                    </span>
-                                    <span className={styles.heroMonth}>
-                                        {new Date(nextAppointment.timeSlot.startTime).toLocaleDateString('fr-FR', { month: 'short' })}
-                                    </span>
-                                </div>
-
-                                {/* Infos docteur & heure */}
-                                <div className={styles.heroDetails}>
-                                    <h3 className={styles.heroDoctor}>
-                                        Dr. {nextAppointment.doctor?.staff?.user?.firstName} {nextAppointment.doctor?.staff?.user?.lastName}
-                                    </h3>
-
-                                    <div className={styles.heroInfoRow}>
-                                        <Clock size={16} color="#2563eb" />
-                                        <span>
-                                            {new Date(nextAppointment.timeSlot.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
-                                            {' - '}
-                                            {new Date(nextAppointment.timeSlot.endTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
-                                        </span>
-                                    </div>
-
-                                    {nextAppointment.doctor?.staff?.user?.phone && (
-                                        <div className={styles.heroInfoRow}>
-                                            <Phone size={16} color="#64748b" />
-                                            <span>{nextAppointment.doctor.staff.user.phone}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Bouton Annuler */}
-                            <div className={styles.heroActions}>
-                                <button
-                                    type="button"
-                                    className={styles.cancelHeroBtn}
-                                    onClick={() => handleCancelAppointment(nextAppointment.id)}
-                                >
-                                    Annuler ce RDV
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            ) : (
-                <div className={styles.emptyState}>
-                    <AlertCircle size={28} />
-                    <p>Vous n'avez aucun rendez-vous à venir.</p>
-                </div>
+            {appointmentStats && (
+                <PatientAppointmentDashboard
+                    stats={appointmentStats}
+                    nextAppointment={nextAppointment}
+                    onCancelNextAppointment={(id) => handleCancelAppointment(id)}
+                />
             )}
-
+            
             {/* 📅 2. AUTRES RDV À VENIR */}
             {upcomingAppointments.length > 0 && (
                 <section className={styles.section}>
