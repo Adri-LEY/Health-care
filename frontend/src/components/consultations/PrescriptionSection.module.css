@@ -1,0 +1,73 @@
+
+/* ORDONNANCES */
+.sectionIconGreen { color: #10b981; }
+
+.prescriptionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.prescriptionItemCard {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prescriptionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.medicationName {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #14532d;
+}
+
+.durationBadge {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.medicationDesc {
+  font-size: 0.85rem;
+  color: #166534;
+  margin: 0;
+}
+
+.dosageBox {
+  font-size: 0.9rem;
+  color: #1e293b;
+  margin-top: 4px;
+}
+
+.careBadge {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.emptyPrescription {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  color: #64748b;
+}

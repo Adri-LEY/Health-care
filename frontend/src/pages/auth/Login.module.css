@@ -1,0 +1,75 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+
+  background-image:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.12), transparent 30%),
+    /* Image de fond */
+    url('src/assets/images/homepage-image.png'); /* REMPLACE ICI LE CHEMIN */
+  
+  background-size: cover; /* L'image couvre toute la page */
+  background-position: center; /* Centrée */
+  background-repeat: no-repeat;
+}
+
+.card {
+  width: min(100%, 440px);
+  padding: 40px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+
+.subtitle {
+  margin: 16px 0 28px;
+  color: #475569;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #b91c1c;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.forgotPasswordLink {
+  margin-top: 5px;
+  color: #3b82f6;
+  font-size: 14px;
+  text-decoration: none;
+  text-align: left;
+}
+
+.signupLink {
+  margin-top: 20px;
+  color: #3b82f6;
+  font-size: 14px;
+  text-decoration: none;
+  text-align: center;
+}

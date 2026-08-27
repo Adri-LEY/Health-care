@@ -1,0 +1,211 @@
+/* src/components/consultations/aiPredictionSection.module.css */
+.aiCard {
+    background: #fdf4ff;
+    border: 1px solid #f5d0fe;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.aiHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.aiTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.aiTitle h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    /*color: #8b5cf6;*/
+    margin: 0;
+}
+
+.aiIcon {
+    color: #8b5cf6;
+}
+
+.description {
+    font-size: 0.85rem;
+    color: #334155;
+    margin-top: 0;
+    margin-bottom: 14px;
+}
+
+.checkGrid {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.checkItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: white;
+    border: 1px solid #e2e8f0;
+}
+
+.checkItem.valid {
+    color: #15803d;
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.checkItem.missing {
+    color: #94a3b8;
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.warningBox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+    font-weight: 500;
+}
+
+.actionRow {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.aiButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+}
+
+.aiButton:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(2, 132, 199, 0.35);
+}
+
+.aiButton:disabled {
+    background: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Style de la section Habitudes de vie */
+.lifestyleSection {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    border: 1px solid #bae6fd;
+}
+
+.lifestyleTitle {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0369a1;
+    margin-bottom: 8px;
+}
+
+.checkboxGroup {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #334155;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkboxLabel input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #0284c7;
+    cursor: pointer;
+}
+
+.resultBox {
+    margin-top: 14px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #0284c7;
+    font-size: 0.9rem;
+    color: #0f172a;
+}
+
+.resultHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.resultTitle {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.riskBadge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.riskBadge.low {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.riskBadge.moderate,
+.riskBadge.moderate {
+    background-color: #fef9c3;
+    color: #a16207;
+}
+
+.riskBadge.high,
+.riskBadge.high {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.resultMessage {
+    margin: 0;
+    color: #581c87;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}

@@ -1,0 +1,36 @@
+.biometricItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  transition: all 0.2s ease;
+}
+
+
+.biometricLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.biometricValue {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 2px;
+}
+
+.biometricItem:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.biometricInfo {
+  display: flex;
+  flex-direction: column;
+}

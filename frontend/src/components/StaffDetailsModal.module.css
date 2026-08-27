@@ -1,0 +1,122 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.modalContent {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  width: min(90%, 500px);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.modalBody {
+  margin-top: 16px;
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.fieldRow {
+  margin: 0 0 12px;
+}
+
+.fieldRow strong {
+  color: #0f172a;
+}
+
+.statusActive {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.statusInactive {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.selectField {
+  margin-left: 8px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.primaryAction,
+.secondaryAction,
+.dangerAction,
+.successAction,
+.closeButton,
+.tokenButton {
+  margin-top: 0;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+.primaryAction {
+  background-color: #3b82f6;
+}
+
+.successAction {
+  background-color: #10b981;
+}
+
+.secondaryAction {
+  background-color: #2563eb;
+}
+
+.dangerAction {
+  background-color: #ef4444;
+}
+
+.closeButton {
+  background-color: #2563eb;
+}
+
+.tokenButton {
+  background-color: #f59e0b;
+}
+
+.primaryAction:hover,
+.secondaryAction:hover,
+.dangerAction:hover,
+.successAction:hover,
+.closeButton:hover,
+.tokenButton:hover {
+  transform: translateY(-1px);
+}
+
+.primaryAction:disabled,
+.secondaryAction:disabled,
+.dangerAction:disabled,
+.successAction:disabled,
+.closeButton:disabled,
+.tokenButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+  transform: none;
+}

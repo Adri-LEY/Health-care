@@ -1,0 +1,31 @@
+.card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  margin: 0 0 15px 0;
+  color: #1e293b;
+}
+
+.alertBox {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #9f1239;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.textContent {
+  line-height: 1.6;
+  color: #334155;
+  margin: 0;
+}

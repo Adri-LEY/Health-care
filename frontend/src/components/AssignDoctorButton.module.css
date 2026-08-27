@@ -1,0 +1,51 @@
+/* Container de l'action d'affectation */
+.actionContainer {
+  margin-top: 15px;
+}
+
+/* Base commune pour les deux boutons */
+.btnAssign, .btnRemove {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  width: 100%;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Effet d'enfoncement au clic (feedback utilisateur) */
+.btnAssign:active, .btnRemove:active {
+  transform: scale(0.98);
+}
+
+/* Bouton S'assigner (Vert) */
+.btnAssign {
+  background-color: #10b981; /* Emerald-500 */
+  color: white;
+}
+
+.btnAssign:hover:not(:disabled) {
+  background-color: #059669; /* Emerald-600 */
+}
+
+/* Bouton Verrouillé / Désactivé (Gris) */
+.btnAssign:disabled {
+  background-color: #cbd5e1; /* Slate-300 */
+  color: #64748b; /* Slate-500 */
+  cursor: not-allowed;
+}
+
+/* Bouton Se retirer (Rouge) */
+.btnRemove {
+  background-color: #ef4444; /* Red-500 */
+  color: white;
+}
+
+.btnRemove:hover {
+  background-color: #dc2626; /* Red-600 */
+}

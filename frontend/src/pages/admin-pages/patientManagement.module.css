@@ -1,0 +1,203 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 30px;
+    background-color: #f5f5f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.backButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 20px;
+    align-self: flex-start;
+}
+
+.backButton:hover {
+    border-color: #94a3b8;
+    color: #2563eb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.title {
+    font-size: 1.8rem;
+    color: #0f172a;
+    margin: 0 0 20px 0;
+    align-self: flex-start;
+}
+
+/* Layout à deux colonnes */
+.managementGrid {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 1200px;
+    align-items: flex-start;
+}
+
+/* Section d'affectation */
+.assignmentCard {
+    flex: 1;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.assignmentCard h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1.3rem;
+    color: #1e293b;
+}
+
+.subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+}
+
+/* Bloc Médecin déjà affecté */
+.assignedDoctorBox {
+    padding: 16px;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.assignedDoctorName {
+    margin: 0;
+    font-weight: 600;
+    color: #166534;
+    font-size: 1rem;
+}
+
+.assignedDoctorEmail {
+    margin: 4px 0 12px 0;
+    font-size: 0.9rem;
+    color: #15803d;
+}
+
+.unassignButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #ef4444;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: background-color 0.2s ease;
+}
+
+.unassignButton:hover {
+    background-color: #dc2626;
+}
+
+/* Recherche et résultats */
+.searchWrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.searchInput:focus {
+    border-color: #2563eb;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.doctorsList {
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.doctorItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8fafc;
+}
+
+.doctorName {
+    display: block;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.doctorSpecialty {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.assignButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease;
+}
+
+.assignButton:hover {
+    background-color: #1d4ed8;
+}
+
+.emptyList {
+    color: #94a3b8;
+    font-style: italic;
+    text-align: center;
+    padding: 12px;
+}
+
+.loading {
+    padding: 40px;
+    text-align: center;
+    color: #64748b;
+    font-style: italic;
+}

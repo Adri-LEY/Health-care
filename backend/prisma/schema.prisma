@@ -4,15 +4,345 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model TestConnexion {
+enum Role {
+  PATIENT
+  DOCTOR
+  NURSE_ASSISTANT
+  ADMINISTRATOR
+}
+
+enum UserStatus{
+  PENDING
+  ACTIVE
+  INACTIVE
+}
+
+enum BloodType {
+  O 
+  A 
+  B 
+  AB
+}
+
+enum RiskClass {
+  Low
+  Moderate
+  High
+}
+
+enum Imc {
+  UNDERWEIGHT
+  NORMAL_WEIGHT
+  OVERWEIGHT
+  OBESITY
+  CLASS_1_OBESITY
+  CLASS_2_OBESITY
+  CLASS_3_OBESITY
+}
+
+enum MeasurementType {
+  TEMPERATURE
+  HEART_RATE
+  BLOOD_PRESSURE
+  BLOOD_PRESSURE_SYSTOLIC  
+  BLOOD_PRESSURE_DIASTOLIC 
+  WEIGHT
+  HEIGHT
+  OXYGEN_SATURATION
+  BLOOD_GLUCOSE
+  CHOLESTEROL
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  MISSED
+  CANCELLED
+}
+
+model User {
   id        Int      @id @default(autoincrement())
+  lastName  String   
+  firstName String  
+  email     String   @unique
+  password  String?
+  phone     String?  
+  role      Role     @default(PATIENT)
   createdAt DateTime @default(now())
+  userStatus UserStatus? @default(PENDING)
+
+  activationToken String?   @unique // @unique est très important pour la recherche directe
+  tokenExpiresAt  DateTime?
+
+  // Relations d'héritage 1-to-1
+  patient       Patient?
+  administrator Administrator?
+  medicalStaff  MedicalStaff?
+}
+
+model Patient {
+  id        Int      @id @default(autoincrement())
+  age       Int
+  gender    String   
+  birthDate DateTime 
+  address   String  
+  intern    Boolean
+
+  // Clé étrangère vers User
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Clé étrangère vers le dossier médical
+  medicalRecordId Int           @unique
+  medicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Restrict)
+
+  
+  //clé étrangère vers Doctor (pour le médecin traitant)
+  doctorId  Int?      
+  doctor    Doctor?   @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  //Rendez-vous
+  appointments   Appointment[]
+}
+
+model Administrator {
+  id        Int      @id @default(autoincrement())
+  position  String   
+
+  // Clé étrangère vers User
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Représente la classe "PersonnelMedical"
+model MedicalStaff {
+  id             Int      @id @default(autoincrement())
+  staffNumber    Int  
+
+  // Clé étrangère vers User
+  userId         Int      @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Sous-classes spécifiques (Relations 1-to-1 optionnelles)
+  doctor         Doctor?
+  nurseAssistant NurseAssistant?
+}
+
+model Doctor {
+  id             Int      @id @default(autoincrement())
+  registrationId String   // matriculeMedecin
+  photo          String?
+
+  // Clé étrangère vers MedicalStaff
+  staffId        Int      @unique
+  staff          MedicalStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  // Spécialité
+  specialtyId    Int
+  specialty      Specialty    @relation(fields: [specialtyId], references: [id])
+
+  // Liste des patients dont le médecin prend en charge
+  patients       Patient[]
+
+  //Rendez-vous
+  appointments   Appointment[]
+}
+
+model NurseAssistant {
+  id             Int      @id @default(autoincrement())
+  registrationId String   // matriculeAideSoignant
+
+  // Clé étrangère vers MedicalStaff
+  staffId        Int      @unique
+  staff          MedicalStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  //Service spécifique
+  serviceId      Int
+  service        Service      @relation(fields: [serviceId], references: [id])
+
+  biometricMeasures BiometricMeasure[]
+}
+
+model Specialty {
+  id             Int      @id @default(autoincrement())
+  specialtyName    String  
+  doctors       Doctor[]
+}
+
+model Service {
+  id             Int      @id @default(autoincrement())
+  serviceName    String  
+  nurses      NurseAssistant[] 
+}
+
+
+model BiometricMeasure {
+  id              Int          @id @default(autoincrement())
+  type            MeasurementType // Matches MeasurementType enum (WEIGHT, HEIGHT, BLOOD_PRESSURE...)
+  
+  value           Float?          
+  // Ajouter un champ texte optionnel pour les formats spéciaux (ex: "120/80")
+  stringValue     String?
+
+  unit            String?         // Optional unit (e.g., "kg", "cm", "mmHg", "°C")
+  takenAt         DateTime        @default(now())
+
+  // ID of the nurse assistant who took the measurement
+  takenById       Int?
+  takenBy         NurseAssistant?  @relation(fields: [takenById], references: [id])
+
+  // Relation to MedicalRecord
+  medicalRecordId Int
+  medicalRecord   MedicalRecord   @relation(fields: [medicalRecordId], references: [id])
+
+  // Optional relation to Consultation
+  consultationId  Int?
+  consultation    Consultation?   @relation(fields: [consultationId], references: [id])
+}
+
+model MedicalRecord {
+  id              Int      @id @default(autoincrement())
+  poids           Float?
+  taille          Float? 
+  bloodType       BloodType? 
+  imc             Imc?  
+  medical_history String?
+  family_history  String?
+  allergies       String?
+
+  patient         Patient?
+
+  //Liste des consultations
+  consultations Consultation[]
+
+  //Liste des données biométriques
+  biometricMeasures BiometricMeasure[]
+}
+
+model Consultation {
+  id                  Int                    @id @default(autoincrement())
+  date                DateTime               @default(now())
+  visitReason         String
+  observations        String
+  biometricMeasures   String  
+
+  biometricMeasuresList BiometricMeasure[]
+
+  // Relation 1-to-Many : Une consultation appartient à UN dossier médical
+  medicalRecordId     Int
+  medicalRecord       MedicalRecord          @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+
+  // Relation 1-to-1 optionnelle avec l'analyse IA (0..1)
+  aiAnalysis CardiologyAiAnalysis?
+
+  // Relation 1-to-1 optionnelle avec l'ordonnance (0..1)
+  prescription        Prescription?
+}
+
+model CardiologyAiAnalysis {
+  id             Int           @id @default(autoincrement())
+  riskScore      Float
+  analysisDate   DateTime      @default(now())
+  riskClass      RiskClass
+  message        String
+
+  consultationId Int          @unique
+  consultation   Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+}
+
+model Prescription {
+  id               Int                  @id @default(autoincrement())
+  prescriptionDate DateTime             @default(now())
+
+  // Clé étrangère vers la consultation
+  consultationId   Int                  @unique
+  consultation     Consultation         @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  // Relation 1-to-Many : Une ordonnance contient plusieurs lignes de prescription
+  prescriptionItems PrescriptionItem[]
+}
+
+model PrescriptionItem {
+  id             Int          @id @default(autoincrement())
+  name           String
+  description    String
+  dosage         String
+  duration       String
+
+  // Clé étrangère vers l'ordonnance parent
+  prescriptionId Int
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  // Un élément de prescription peut prescrire 1 Médicament (Relation 1)
+  medicationId   Int?
+  medication     Medication?   @relation(fields: [medicationId], references: [id])
+
+  // Un élément de prescription peut optionnellement requérir 1 Matériel Médical (0..1)
+  equipmentId    Int?
+  equipment      MedicalEquipment? @relation(fields: [equipmentId], references: [id])
+
+  // Un élément de prescription peut optionnellement inclure 1 Soin Paramédical (0..1)
+  careId         Int?
+  care           ParamedicalCare?  @relation(fields: [careId], references: [id])
+}
+
+model Medication {
+  id                Int                @id @default(autoincrement())
+  name              String             // nom
+  dosage            String             // dosage (ex: 500mg)
+  
+  prescriptionItems PrescriptionItem[] // Un même médicament peut être prescrit dans plusieurs ordonnances
+}
+
+model MedicalEquipment {
+  id                Int                @id @default(autoincrement())
+  name              String             // nom
+
+  prescriptionItems PrescriptionItem[]
+}
+
+model ParamedicalCare {
+  id                Int                @id @default(autoincrement())
+  description       String             // descriptionSoin
+
+  prescriptionItems PrescriptionItem[]
+}
+
+model TimeSlot {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  startTime DateTime
+  endTime   DateTime
+  isLocked  Boolean  @default(false)
+
+  // Un créneau peut être lié à 0 ou plusieurs rendez-vous (relation 1-to-many selon le diagramme UML)
+  appointments Appointment[]
+}
+
+model Appointment {
+  id            Int               @id @default(autoincrement())
+  dateTime      DateTime
+  status        AppointmentStatus @default(SCHEDULED)
+
+  // Relation avec le Patient (1-to-Many)
+  patientId     Int
+  patient       Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  // Relation avec le Doctor (1-to-Many)
+  doctorId      Int
+  doctor        Doctor            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  // Relation avec le Créneau (TimeSlot) - 0..* vers 1
+  timeSlotId    Int
+  timeSlot      TimeSlot          @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
+
+  @@unique([timeSlotId])
 }

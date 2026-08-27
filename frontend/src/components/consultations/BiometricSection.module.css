@@ -1,0 +1,68 @@
+.sectionIconRed {
+  color: #ef4444;
+}
+
+/* Grille réactive pour accueillir 3, 4 ou plus de constantes */
+.biometricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+/* Styles et couleurs pour chaque type de constante */
+.biometricIconTemp {
+  color: #f97316; /* Orange */
+  background-color: #fff7ed;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconHeart {
+  color: #ef4444; /* Rouge */
+  background-color: #fef2f2;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconPressure {
+  color: #3b82f6; /* Bleu */
+  background-color: #eff6ff;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconWeight {
+  color: #8b5cf6; /* Violet */
+  background-color: #f5f3ff;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconHeight {
+  color: #10b981; /* Vert */
+  background-color: #ecfdf5;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconOxygen {
+  color: #06b6d4; /* Cyan */
+  background-color: #ecfeff;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+.biometricIconGlucose {
+  color: #eab308; /* Jaune/Ambre */
+  background-color: #fefce8;
+  padding: 8px;
+  border-radius: 10px;
+  box-sizing: content-box;
+}

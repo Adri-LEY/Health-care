@@ -1,0 +1,35 @@
+.admin-dashboard {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 16px;
+  background-color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden; /* Empêche tout scroll */
+}
+
+.dashboard-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-grid {
+  flex: 1;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+  min-height: 0; /* Permet aux enfants de se compresser si besoin */
+}
+
+.dashboard-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  min-height: 0;
+}

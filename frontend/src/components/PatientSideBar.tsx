@@ -1,0 +1,89 @@
+import { User, FileText, Contact } from 'lucide-react';
+import styles from './PatientSideBar.module.css';
+import AssignDoctorButton from './AssignDoctorButton';
+
+
+// PatientSidebar.tsx
+interface SidebarProps {
+    patient: {
+        id: number;
+        age: number;
+        gender: string;
+        birthDate: string;
+        address: string;
+        intern: boolean;
+        user?: { firstName: string; lastName: string; email: string; phone: string; };
+        doctor?: { 
+            id: number; 
+            staff?: {
+                user: { 
+                    id: number;
+                    firstName: string; 
+                    lastName: string; 
+                    email: string; 
+                    phone: string; 
+                } 
+            }
+        };
+    };
+    isDoctor?: boolean;
+    currentDoctorId?: number | null;
+    onAssignDoctor?: (assign: boolean) => Promise<void>;
+}
+
+export function PatientSideBar({ patient, isDoctor, currentDoctorId, onAssignDoctor }: SidebarProps) {
+    
+    console.log('Patient data in PatientSidebar:', patient);
+    console.log('isDoctor:', isDoctor);
+    console.log('currentDoctorId:', currentDoctorId);
+    console.log('patient.doctor?:', patient.doctor);
+    
+    return (
+        <div className={styles.card}>
+            <div className={styles.profileHeader}>
+                <div className={styles.avatar}>
+                    {patient.user?.firstName[0]}{patient.user?.lastName[0]}
+                </div>
+                <h2>{patient.user?.firstName} {patient.user?.lastName}</h2>
+                <span className={patient.intern ? styles.tagIntern : styles.tagExtern}>
+                    {patient.intern ? 'Patient Interne' : 'Patient Externe'}
+                </span>
+            </div>
+
+            <div className={styles.infoList}>
+                <div className={styles.infoItem}>
+                    <User size={16} />
+                    <span>{patient.age} ans ({patient.gender === 'M' ? 'Homme' : 'Femme'})</span>
+                </div>
+                <div className={styles.infoItem}>
+                    <FileText size={16} />
+                    <span>Né(e) le {new Date(patient.birthDate).toLocaleDateString()}</span>
+                </div>
+                <div className={styles.infoItem}>
+                    <Contact size={16} />
+                    <span>{patient.user?.email}</span>
+                </div>
+                <div className={styles.infoLine}>
+                    <strong>Adresse:</strong>
+                    <p>{patient.address}</p>
+                </div>
+
+                <div className={styles.doctorSection}>
+                    <h4>Médecin Traitant</h4>
+                    {patient.doctor ? (
+                        <p>Dr. {patient.doctor.staff?.user.firstName} {patient.doctor.staff?.user.lastName}</p>
+                    ) : (
+                        <p className={styles.noDoctor}>Aucun médecin assigné</p>
+                    )}
+
+                    <AssignDoctorButton 
+                        isDoctor={isDoctor}
+                        currentDoctorId={currentDoctorId}
+                        doctorId={patient.doctor?.id}
+                        onAssign={onAssignDoctor}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}

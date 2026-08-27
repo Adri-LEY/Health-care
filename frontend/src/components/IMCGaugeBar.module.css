@@ -1,0 +1,56 @@
+.gaugeContainer {
+  margin-top: 4px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gaugeTrack {
+  position: relative;
+  height: 8px;
+  width: 100%;
+  border-radius: 4px;
+  display: flex;
+  overflow: visible;
+}
+
+.zone {
+  height: 100%;
+}
+
+.underweight { width: 14%; background-color: #93c5fd; border-radius: 4px 0 0 4px; }
+.normal      { width: 26%; background-color: #86efac; }
+.overweight  { width: 20%; background-color: #fde047; }
+.obese       { width: 40%; background-color: #fca5a5; border-radius: 0 4px 4px 0; }
+
+.cursor {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  transition: left 0.3s ease-out;
+}
+
+/* Alignement exact des ticks sous les jonctions des zones */
+.ticks {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  font-size: 0.65rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.ticks span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.ticks span:nth-child(1) { left: 14%; } /* Limite 18.5 */
+.ticks span:nth-child(2) { left: 40%; } /* Limite 25 */
+.ticks span:nth-child(3) { left: 60%; } /* Limite 30 */

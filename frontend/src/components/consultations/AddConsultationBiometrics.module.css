@@ -1,0 +1,45 @@
+.biometricsSection {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.biometricsHeader,
+.historyGroupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.biometricsHeader { margin-bottom: 14px; }
+.biometricsTitle { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 700; color: #0f172a; }
+.selectAllLabel { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; color: #2563eb; cursor: pointer; }
+.checkboxInput { width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer; }
+
+.biometricsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.selectableWrapper,
+.historySelectableWrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all .2s ease; }
+.selectableWrapper { background: white; border: 2px solid #e2e8f0; border-radius: 16px; padding: 8px 12px; }
+.selectableWrapper:hover,
+.historySelectableWrapper:hover { border-color: #cbd5e1; }
+.selectableWrapper.selected,
+.historySelectableWrapper.selectedHistory { border-color: #2563eb; background-color: #eff6ff; }
+.customMetricCard { border: none !important; background: transparent !important; padding: 4px 0 !important; flex: 1; }
+
+.toggleHistoryBtn { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding: 8px 14px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; color: #334155; font-size: .85rem; font-weight: 600; cursor: pointer; }
+.toggleHistoryBtn:hover { background: #f1f5f9; border-color: #94a3b8; color: #2563eb; }
+.biometricsScrollContainer { margin-top: 12px; max-height: 280px; overflow-y: auto; padding: 12px 6px 0 0; border-top: 1px dashed #cbd5e1; }
+.biometricsScrollContainer::-webkit-scrollbar { width: 6px; }
+.biometricsScrollContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.historyGroupList { display: flex; flex-direction: column; gap: 12px; }
+.historyGroupCard { background: white; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, .03); }
+.historyGroupHeader { background: #f1f5f9; padding: 8px 12px; border-bottom: 1px solid #e2e8f0; }
+.historyGroupDate { font-size: .85rem; font-weight: 700; color: #1e293b; }
+.historyGroupAuthor { font-size: .78rem; color: #64748b; font-weight: 500; }
+.historyGroupItems { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; padding: 10px; }
+.historySelectableWrapper { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; }
+.historyItemLabel { display: flex; align-items: center; gap: 6px; flex: 1; font-size: .82rem; font-weight: 600; color: #334155; }
+.historyItemValue { font-size: .88rem; font-weight: 700; color: #0f172a; }
+.emptyHistory { padding: 8px 0; font-size: .85rem; color: #64748b; font-style: italic; }

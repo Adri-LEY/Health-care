@@ -1,7 +1,6 @@
-
 services:
 
-# ===== POSTGRESQL DATABASE =====
+  # ===== POSTGRESQL DATABASE =====
   postgres:
     image: postgres:16-alpine
     container_name: healthcare-postgres
@@ -18,6 +17,58 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    networks:
+      - healthcare-network
+
+  # ===== AI SERVICE (FASTAPI) =====
+  ai-service:
+    build: ./ai-service
+    container_name: healthcare-healthcare-ai-service
+    restart: always
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - healthcare-network
+
+  # ===== BACKEND (NESTJS) =====
+  backend:
+    build: ./backend
+    container_name: healthcare-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/healthcare_nexus?schema=public
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    networks:
+      - healthcare-network
+
+  # ===== FRONTEND =====
+  frontend:
+    build: ./frontend 
+    container_name: healthcare-frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
     networks:
       - healthcare-network
 
