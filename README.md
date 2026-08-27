@@ -13,8 +13,12 @@ docker-compose up --build
 🧪 Comptes de test
 Pour tester l'application, vous pouvez vous connecter avec les comptes de test suivants :
 
+Compte Administrateur : admin@test.com
+
 Compte Patient : patient@test.com
 
 Compte Médecin : doctor@test.com
+
+Compte Aide-soignant : nurse1@test.com
 
 Mot de passe : Password123*
