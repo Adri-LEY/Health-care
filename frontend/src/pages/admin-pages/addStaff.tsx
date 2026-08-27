@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import InputField from "../../components/InputField";
 import styles from "./addStaff.module.css";
 import SubmitButton from "../../components/SubmitButton";
+import { ArrowLeft } from "lucide-react";
 
 export default function AddStaff() {
     const navigate = useNavigate();

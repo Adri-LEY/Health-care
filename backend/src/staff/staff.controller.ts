@@ -11,7 +11,6 @@ import { AssignStaffMemberDto } from './dto/assignStaffMember.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserStatusGuard } from 'src/auth/status.guard';
 
-//@UseGuards(JwtGuard)
 @Controller('staff')
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
@@ -53,7 +52,7 @@ export class StaffController {
   }
 
   @Post('createNewStaffMember')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
   @Roles('ADMINISTRATOR') // Seul un administrateur peut créer un nouveau membre du personnel
   @HttpCode(HttpStatus.CREATED)
   async createNewStaffMember(@Body() newStaffMemberDto: NewStaffMemberDto) {
@@ -61,7 +60,6 @@ export class StaffController {
   }
 
   @Post('activateStaffMember')
-  @UseGuards(RolesGuard)
   @Roles('ADMINISTRATOR') // Seul un administrateur peut activer un membre du personnel
   @HttpCode(HttpStatus.OK)
   async activateStaffMember(@Body() activateNewStaffAccountDto: ActivateStaffAccountDto) {
@@ -69,15 +67,15 @@ export class StaffController {
   }
 
   @Post('updateStaffMemberStatus')
-  @UseGuards(RolesGuard)
-  @Roles('ADMINISTRATOR') // Seul un administrateur peut mettre à jour le statut d'un membre du personnel
+  @UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
+  //@Roles('ADMINISTRATOR') // Seul un administrateur peut mettre à jour le statut d'un membre du personnel
   @HttpCode(HttpStatus.OK)
   async updateStaffMemberStatus(@Body() updateStaffMemberStatusDto: UpdateStaffMemberStatusDto) {
     return await this.staffService.updateStaffMemberStatus(updateStaffMemberStatusDto);
   }
 
   @Post('resendActivationToken')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
   @Roles('ADMINISTRATOR') // Seul un administrateur peut renvoyer un token d'activation
   @HttpCode(HttpStatus.OK)
   async resendStaffActivationToken(@Body() resendActivationTokenDto: ResendActivationTokenDto) {
@@ -85,7 +83,7 @@ export class StaffController {
   }
 
   @Post('assignStaffMember')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
   @Roles('ADMINISTRATOR') // Seul un administrateur peut assigner un membre du personnel
   @HttpCode(HttpStatus.OK)
   async assignStaffMember(@Body() assignStaffMemberDto: AssignStaffMemberDto) {
@@ -93,7 +91,7 @@ export class StaffController {
   }
 
   @Get('doctorProfile/:doctorId')
-  //@UseGuards(RolesGuard, UserStatusGuard)
+  @UseGuards(JwtGuard, UserStatusGuard, RolesGuard)
   @Roles('ADMINISTRATOR', 'PATIENT')
   @HttpCode(HttpStatus.OK)
   async getDoctorProfileById(@Param('doctorId', ParseIntPipe) doctorId: number) {
