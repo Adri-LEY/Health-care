@@ -1,15 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft,
   PlusCircle,
-  Activity,
-  Thermometer,
-  Heart,
-  Scale,
-  Ruler,
-  Percent,
-  Droplet
 } from 'lucide-react';
 import styles from './addConsultation.module.css';
 import { PatientSideBar } from '../../components/PatientSideBar';
@@ -17,21 +10,10 @@ import InputField from '../../components/InputField';
 import { ErrorBox } from '../../components/ErrorBox';
 import { PrescriptionForm } from '../../components/consultations/PrescriptionForm';
 import type { ElementPrescriptionItem, CatalogItem } from '../../components/consultations/PrescriptionForm';
-import { MetricCard } from '../../components/MetricCard';
+import AddConsultationBiometrics from '../../components/consultations/AddConsultationBiometrics';
+import type { ConsultationBiometricMeasure } from '../../components/consultations/AddConsultationBiometrics';
 import { AiPredictionSection } from '../../components/AI/AIPredictionSection';
 import type { AiPredictionResult } from '../../components/AI/AIPredictionSection';
-
-// Mappeur pour associer dynamiquement l'icône et l'intitulé selon le type Prisma
-const MEASURE_CONFIG: Record<string, { label: string; icon: React.ReactNode }> = {
-  TEMPERATURE: { label: 'Température', icon: <Thermometer size={18} color="#f97316" /> },
-  HEART_RATE: { label: 'Fréquence cardiaque', icon: <Heart size={18} color="#ef4444" /> },
-  BLOOD_PRESSURE: { label: 'Tension artérielle', icon: <Activity size={18} color="#3b82f6" /> },
-  WEIGHT: { label: 'Poids', icon: <Scale size={18} color="#8b5cf6" /> },
-  HEIGHT: { label: 'Taille', icon: <Ruler size={18} color="#10b981" /> },
-  OXYGEN_SATURATION: { label: 'SpO2', icon: <Percent size={18} color="#06b6d4" /> },
-  BLOOD_GLUCOSE: { label: 'Glycémie', icon: <Droplet size={18} color="#eab308" /> },
-};
-
 
 export default function AddConsultation() {
   const { patientId } = useParams<{ patientId: string }>();
@@ -56,13 +38,25 @@ export default function AddConsultation() {
   const [caresList, setCaresList] = useState<CatalogItem[]>([]);
 
   // Biométrie récente & Sélection
-  const [recentBiometrics, setRecentBiometrics] = useState<any[]>([]);
+  const [recentBiometrics, setRecentBiometrics] = useState<ConsultationBiometricMeasure[]>([]);
   const [selectedMeasureIds, setSelectedMeasureIds] = useState<number[]>([]);
+
+  // Historique biométrique & affichage
+  const [biometricHistory, setBiometricHistory] = useState<ConsultationBiometricMeasure[]>([]);
+  const [showHistory, setShowHistory] = useState<boolean>(false);
 
   // Résultat de la prédiction AI
   const [aiPredictionResult, setAiPredictionResult] = useState<AiPredictionResult | null>(null);
 
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  // 👈 Fusion unique pour un accès rapide aux mesures (récentes + historique)
+  const combinedBiometrics = useMemo(() => {
+    const map = new Map<number, ConsultationBiometricMeasure>();
+    recentBiometrics.forEach(m => map.set(m.id, m));
+    biometricHistory.forEach(m => map.set(m.id, m));
+    return Array.from(map.values());
+  }, [recentBiometrics, biometricHistory]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -76,12 +70,12 @@ export default function AddConsultation() {
         setPatientData(patient);
 
         if (patient?.medicalRecord?.id) {
-          // Chargement parallèle des catalogues ET des constantes récentes non liées
-          const [medRes, eqRes, careRes, biometricsRes] = await Promise.all([
+          const [medRes, eqRes, careRes, biometricsRes, biometricsHistoryRes] = await Promise.all([
             fetch(`${apiUrl}/prescription-catalog/medications`, { headers }),
             fetch(`${apiUrl}/prescription-catalog/equipments`, { headers }),
             fetch(`${apiUrl}/prescription-catalog/cares`, { headers }),
             fetch(`${apiUrl}/biometrics/recent/${patient.medicalRecord.id}`, { headers }),
+            fetch(`${apiUrl}/biometrics/history/${patient.medicalRecord.id}`, { headers }),
           ]);
 
           if (medRes.ok) setMedicationsList(await medRes.json());
@@ -93,7 +87,14 @@ export default function AddConsultation() {
             const measures = Array.isArray(bioData) ? bioData : (bioData.measures || []);
             setRecentBiometrics(measures);
 
-            setSelectedMeasureIds(measures.map((m: any) => m.id));
+            // Validation par défaut des récentes
+            setSelectedMeasureIds(measures.map((m: ConsultationBiometricMeasure) => m.id));
+          }
+
+          if (biometricsHistoryRes.ok) {
+            const historyData = await biometricsHistoryRes.json();
+            const biometricsHist = Array.isArray(historyData) ? historyData : [];
+            setBiometricHistory(biometricsHist);
           }
         }
       } catch (err) {
@@ -106,19 +107,35 @@ export default function AddConsultation() {
     fetchPatientAndData();
   }, [patientId, apiUrl]);
 
-  // Gestion du basculement (Toggle) individuel
+  // 👈 Gestion intelligente de la sélection (Empêche deux données du même type)
   const toggleMeasure = (id: number) => {
-    setSelectedMeasureIds(prev =>
-      prev.includes(id) ? prev.filter(mId => mId !== id) : [...prev, id]
-    );
+    const targetMeasure = combinedBiometrics.find(m => m.id === id);
+    if (!targetMeasure) return;
+
+    setSelectedMeasureIds(prev => {
+      const isAlreadySelected = prev.includes(id);
+
+      if (isAlreadySelected) {
+        // Décocher simplement
+        return prev.filter(mId => mId !== id);
+      } else {
+        // Décocher tout autre élément possédant le MÊME type
+        const filtered = prev.filter(mId => {
+          const m = combinedBiometrics.find(item => item.id === mId);
+          return m ? m.type !== targetMeasure.type : true;
+        });
+
+        // Ajouter la nouvelle mesure sélectionnée
+        return [...filtered, id];
+      }
+    });
   };
 
-  // Gestion du "Tout Cocher / Tout Décocher"
   const toggleSelectAll = () => {
     if (selectedMeasureIds.length === recentBiometrics.length) {
-      setSelectedMeasureIds([]); // Tout décocher
+      setSelectedMeasureIds([]);
     } else {
-      setSelectedMeasureIds(recentBiometrics.map(m => m.id)); // Tout cocher
+      setSelectedMeasureIds(recentBiometrics.map(m => m.id));
     }
   };
 
@@ -136,7 +153,7 @@ export default function AddConsultation() {
     const biometricMeasuresObj: Record<string, any> = {};
 
     selectedMeasureIds.forEach(id => {
-      const measure = recentBiometrics.find(m => m.id === id);
+      const measure = combinedBiometrics.find(m => m.id === id);
       if (!measure) return;
 
       const val = measure.value !== undefined ? Number(measure.value) : measure.stringValue;
@@ -150,16 +167,14 @@ export default function AddConsultation() {
       if (measure.type === 'BLOOD_GLUCOSE') biometricMeasuresObj.bloodGlucose = val;
     });
 
-    // Construction du Payload enrichi
     const payload: any = {
       medicalRecordId: Number(patientData.medicalRecord.id),
       date: new Date().toISOString(),
       visitReason,
       observations,
-      biometricMeasures: biometricMeasuresObj, // <-- Envoie maintenant un objet {}
+      biometricMeasures: biometricMeasuresObj,
     };
 
-    // 3. Ajouter l'IA uniquement si elle existe (pas de null !)
     if (aiPredictionResult) {
       payload.aiPredictionResult = {
         riskScore: Number(aiPredictionResult.riskScore),
@@ -183,8 +198,6 @@ export default function AddConsultation() {
     }
 
     try {
-      console.log("Payload envoyé pour la consultation :", payload);
-
       const response = await fetch(`${apiUrl}/consultations/save-consultation`, {
         method: 'POST',
         headers: {
@@ -197,7 +210,6 @@ export default function AddConsultation() {
       const json = await response.json();
 
       if (!response.ok) {
-
         setErrorMessages(json.message || "Une erreur inattendue est survenue.");
         return;
       }
@@ -228,8 +240,6 @@ export default function AddConsultation() {
   if (loadingPatient) return <div className={styles.loading}>Chargement des informations du patient...</div>;
   if (!patientData) return <div className={styles.container}><div className={styles.errorBox}>Patient introuvable.</div></div>;
 
-  const allSelected = recentBiometrics.length > 0 && selectedMeasureIds.length === recentBiometrics.length;
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -253,61 +263,21 @@ export default function AddConsultation() {
 
             <form onSubmit={handleSubmit} className={styles.form}>
 
-              {/* BLOC SELECTION DES CONSTANTES RECENTES */}
-              {recentBiometrics.length > 0 && (
-                <div className={styles.biometricsSection}>
-                  <div className={styles.biometricsHeader}>
-                    <span className={styles.biometricsTitle}>
-                      <Activity size={18} />
-                      Constantes récentes saisies (Tri)
-                    </span>
-                    <label className={styles.selectAllLabel}>
-                      <input
-                        type="checkbox"
-                        className={styles.checkboxInput}
-                        checked={allSelected}
-                        onChange={toggleSelectAll}
-                      />
-                      Tout cocher
-                    </label>
-                  </div>
+              <AddConsultationBiometrics
+                recentBiometrics={recentBiometrics}
+                biometricHistory={biometricHistory}
+                selectedMeasureIds={selectedMeasureIds}
+                showHistory={showHistory}
+                combinedBiometrics={combinedBiometrics}
+                onToggleMeasure={toggleMeasure}
+                onToggleSelectAll={toggleSelectAll}
+                onToggleHistory={() => setShowHistory(prev => !prev)}
+              />
 
-                  <div className={styles.biometricsGrid}>
-                    {recentBiometrics.map((m) => {
-                      const isChecked = selectedMeasureIds.includes(m.id);
-                      const config = MEASURE_CONFIG[m.type] || { label: m.type, icon: <Activity size={18} /> };
-
-                      return (
-                        <div
-                          key={m.id}
-                          className={`${styles.selectableWrapper} ${isChecked ? styles.selected : ''}`}
-                          onClick={() => toggleMeasure(m.id)}
-                        >
-                          <input
-                            type="checkbox"
-                            className={styles.checkboxInput}
-                            checked={isChecked}
-                            onChange={() => { }} // Le clic global gère le toggle
-                          />
-
-                          {/* 👈 Utilisation directe de ta MetricCard */}
-                          <MetricCard
-                            icon={config.icon}
-                            label={config.label}
-                            value={m.value ?? m.stringValue ?? 'N/A'}
-                            unit={m.unit}
-                            className={styles.customMetricCard}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
+              {/* 👈 Pass de combinedBiometrics à la section IA pour qu'elle inclue l'historique */}
               <AiPredictionSection
                 patientId={Number(patientId)}
-                recentBiometrics={recentBiometrics}
+                recentBiometrics={combinedBiometrics}
                 selectedMeasureIds={selectedMeasureIds}
                 onPredictionChange={setAiPredictionResult}
               />
