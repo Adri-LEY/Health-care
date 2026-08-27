@@ -30,7 +30,7 @@ export class ConsultationOwnerGuard implements CanActivate {
             select: {
               patient: {
                 select: {
-                  userId: true // ID de l'utilisateur lié au patient
+                  id: true,
                 }
               }
             }
@@ -43,7 +43,7 @@ export class ConsultationOwnerGuard implements CanActivate {
       }
 
       // On vérifie si l'ID de l'utilisateur connecté correspond à l'ID de l'utilisateur propriétaire du dossier
-      const ownerId = consultation.medicalRecord.patient?.userId;
+      const ownerId = consultation.medicalRecord.patient?.id;
       if (ownerId !== user.patientId) {
         throw new ForbiddenException("Vous n'êtes pas autorisé à consulter cette ressource.");
       }

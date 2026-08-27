@@ -32,6 +32,7 @@ export default function ConsultationHistory({ loadingHistory, history, selectedC
                 ) : (
                     <div className={styles.consultationList}>
                         {history.map((item) => (
+                            console.log('Consultation item:', item), // Debugging line
                             <button
                                 key={item.id}
                                 onClick={() => setSelectedConsultationId(item.id)}

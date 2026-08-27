@@ -74,6 +74,14 @@ export class AppointmentsController {
         return await this.appointmentsService.getAppointmentsByPatientId(patientIdFromToken);
     }
 
+    @Roles('PATIENT')
+    @Get('/patient-appointments/stats')
+    async getPatientAppointmentStats(@Req() req) {
+        const patientIdFromToken = req.user.patientId;
+
+        return await this.appointmentsService.getPatientAppointmentStats(patientIdFromToken);
+    }
+
 
     @Roles('NURSE_ASSISTANT')
     @Post('/set-appointment-presence/:appointmentId')
